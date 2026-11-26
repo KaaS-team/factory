@@ -1,0 +1,4824 @@
+{
+  "about": "KaaS enterprise contract conformance cases, version 1. Source: ee/contract in KaaS-team/factory; the Go types and doc comments there define every field. Plain JSON so any language can run it.",
+  "version": 1,
+  "authz": [
+    {
+      "name": "matrix owner run.read",
+      "principal": {
+        "id": "u-owner",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix owner run.start",
+      "principal": {
+        "id": "u-owner",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.start",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix owner run.cancel",
+      "principal": {
+        "id": "u-owner",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.cancel",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix owner run.steer",
+      "principal": {
+        "id": "u-owner",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.steer",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix owner run.retry",
+      "principal": {
+        "id": "u-owner",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.retry",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix owner merge",
+      "principal": {
+        "id": "u-owner",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "merge",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix owner approve",
+      "principal": {
+        "id": "u-owner",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "approve",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix owner policy.read",
+      "principal": {
+        "id": "u-owner",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "policy.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix owner policy.edit",
+      "principal": {
+        "id": "u-owner",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "policy.edit",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix owner budget.read",
+      "principal": {
+        "id": "u-owner",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "budget.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix owner budget.edit",
+      "principal": {
+        "id": "u-owner",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "budget.edit",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix owner audit.read",
+      "principal": {
+        "id": "u-owner",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "audit.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix owner audit.export",
+      "principal": {
+        "id": "u-owner",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "audit.export",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix owner admin.users",
+      "principal": {
+        "id": "u-owner",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "admin.users",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix owner worker.manage",
+      "principal": {
+        "id": "u-owner",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "worker.manage",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix owner repo.connect",
+      "principal": {
+        "id": "u-owner",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "repo.connect",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix owner settings.write",
+      "principal": {
+        "id": "u-owner",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "settings.write",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix admin run.read",
+      "principal": {
+        "id": "u-admin",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix admin run.start",
+      "principal": {
+        "id": "u-admin",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.start",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix admin run.cancel",
+      "principal": {
+        "id": "u-admin",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.cancel",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix admin run.steer",
+      "principal": {
+        "id": "u-admin",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.steer",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix admin run.retry",
+      "principal": {
+        "id": "u-admin",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.retry",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix admin merge",
+      "principal": {
+        "id": "u-admin",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "merge",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix admin approve",
+      "principal": {
+        "id": "u-admin",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "approve",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix admin policy.read",
+      "principal": {
+        "id": "u-admin",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "policy.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix admin policy.edit",
+      "principal": {
+        "id": "u-admin",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "policy.edit",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix admin budget.read",
+      "principal": {
+        "id": "u-admin",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "budget.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix admin budget.edit",
+      "principal": {
+        "id": "u-admin",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "budget.edit",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix admin audit.read",
+      "principal": {
+        "id": "u-admin",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "audit.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix admin audit.export",
+      "principal": {
+        "id": "u-admin",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "audit.export",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix admin admin.users",
+      "principal": {
+        "id": "u-admin",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "admin.users",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix admin worker.manage",
+      "principal": {
+        "id": "u-admin",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "worker.manage",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix admin repo.connect",
+      "principal": {
+        "id": "u-admin",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "repo.connect",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix admin settings.write",
+      "principal": {
+        "id": "u-admin",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "settings.write",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix member run.read",
+      "principal": {
+        "id": "u-member",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix member run.start",
+      "principal": {
+        "id": "u-member",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.start",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix member run.cancel",
+      "principal": {
+        "id": "u-member",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.cancel",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix member run.steer",
+      "principal": {
+        "id": "u-member",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.steer",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix member run.retry",
+      "principal": {
+        "id": "u-member",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.retry",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix member merge",
+      "principal": {
+        "id": "u-member",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "merge",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix member approve",
+      "principal": {
+        "id": "u-member",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "approve",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix member policy.read",
+      "principal": {
+        "id": "u-member",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "policy.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix member policy.edit",
+      "principal": {
+        "id": "u-member",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "policy.edit",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix member budget.read",
+      "principal": {
+        "id": "u-member",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "budget.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix member budget.edit",
+      "principal": {
+        "id": "u-member",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "budget.edit",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix member audit.read",
+      "principal": {
+        "id": "u-member",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "audit.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix member audit.export",
+      "principal": {
+        "id": "u-member",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "audit.export",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix member admin.users",
+      "principal": {
+        "id": "u-member",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "admin.users",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix member worker.manage",
+      "principal": {
+        "id": "u-member",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "worker.manage",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix member repo.connect",
+      "principal": {
+        "id": "u-member",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "repo.connect",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix member settings.write",
+      "principal": {
+        "id": "u-member",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "settings.write",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix viewer run.read",
+      "principal": {
+        "id": "u-viewer",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix viewer run.start",
+      "principal": {
+        "id": "u-viewer",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.start",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix viewer run.cancel",
+      "principal": {
+        "id": "u-viewer",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.cancel",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix viewer run.steer",
+      "principal": {
+        "id": "u-viewer",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.steer",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix viewer run.retry",
+      "principal": {
+        "id": "u-viewer",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.retry",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix viewer merge",
+      "principal": {
+        "id": "u-viewer",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "merge",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix viewer approve",
+      "principal": {
+        "id": "u-viewer",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "approve",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix viewer policy.read",
+      "principal": {
+        "id": "u-viewer",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "policy.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix viewer policy.edit",
+      "principal": {
+        "id": "u-viewer",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "policy.edit",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix viewer budget.read",
+      "principal": {
+        "id": "u-viewer",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "budget.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix viewer budget.edit",
+      "principal": {
+        "id": "u-viewer",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "budget.edit",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix viewer audit.read",
+      "principal": {
+        "id": "u-viewer",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "audit.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix viewer audit.export",
+      "principal": {
+        "id": "u-viewer",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "audit.export",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix viewer admin.users",
+      "principal": {
+        "id": "u-viewer",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "admin.users",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix viewer worker.manage",
+      "principal": {
+        "id": "u-viewer",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "worker.manage",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix viewer repo.connect",
+      "principal": {
+        "id": "u-viewer",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "repo.connect",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix viewer settings.write",
+      "principal": {
+        "id": "u-viewer",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "settings.write",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix bot run.read",
+      "principal": {
+        "id": "u-bot",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix bot run.start",
+      "principal": {
+        "id": "u-bot",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.start",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix bot run.cancel",
+      "principal": {
+        "id": "u-bot",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.cancel",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix bot run.steer",
+      "principal": {
+        "id": "u-bot",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.steer",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix bot run.retry",
+      "principal": {
+        "id": "u-bot",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "run.retry",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix bot merge",
+      "principal": {
+        "id": "u-bot",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "merge",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix bot approve",
+      "principal": {
+        "id": "u-bot",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "approve",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix bot policy.read",
+      "principal": {
+        "id": "u-bot",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "policy.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix bot policy.edit",
+      "principal": {
+        "id": "u-bot",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "policy.edit",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix bot budget.read",
+      "principal": {
+        "id": "u-bot",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "budget.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "matrix bot budget.edit",
+      "principal": {
+        "id": "u-bot",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "budget.edit",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix bot audit.read",
+      "principal": {
+        "id": "u-bot",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "audit.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix bot audit.export",
+      "principal": {
+        "id": "u-bot",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "audit.export",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix bot admin.users",
+      "principal": {
+        "id": "u-bot",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "admin.users",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix bot worker.manage",
+      "principal": {
+        "id": "u-bot",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "worker.manage",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix bot repo.connect",
+      "principal": {
+        "id": "u-bot",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "repo.connect",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "matrix bot settings.write",
+      "principal": {
+        "id": "u-bot",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "settings.write",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/factory"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "team member starts a run in its team",
+      "principal": {
+        "id": "u1",
+        "kind": "user",
+        "org": "acme",
+        "teams": [
+          "payments"
+        ],
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "team",
+              "id": "payments"
+            }
+          }
+        ]
+      },
+      "action": "run.start",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/pay"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "team member has no binding in another team",
+      "principal": {
+        "id": "u1",
+        "kind": "user",
+        "org": "acme",
+        "teams": [
+          "payments"
+        ],
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "team",
+              "id": "payments"
+            }
+          }
+        ]
+      },
+      "action": "run.start",
+      "resource": {
+        "org": "acme",
+        "team": "search",
+        "repo": "acme/search"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.no_binding"
+      }
+    },
+    {
+      "name": "team membership alone grants nothing",
+      "principal": {
+        "id": "u1",
+        "kind": "user",
+        "org": "acme",
+        "teams": [
+          "payments"
+        ],
+        "roles": []
+      },
+      "action": "run.read",
+      "resource": {
+        "org": "acme",
+        "team": "payments"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.no_binding"
+      }
+    },
+    {
+      "name": "repo member merges in its repo",
+      "principal": {
+        "id": "u2",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "repo",
+              "id": "acme/pay"
+            }
+          }
+        ]
+      },
+      "action": "merge",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/pay"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "repo member has no binding on another repo",
+      "principal": {
+        "id": "u2",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "repo",
+              "id": "acme/pay"
+            }
+          }
+        ]
+      },
+      "action": "merge",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/other"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.no_binding"
+      }
+    },
+    {
+      "name": "team binding does not cover an org-wide resource",
+      "principal": {
+        "id": "u3",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "team",
+              "id": "payments"
+            }
+          }
+        ]
+      },
+      "action": "policy.edit",
+      "resource": {
+        "org": "acme"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.no_binding"
+      }
+    },
+    {
+      "name": "team admin edits the team policy",
+      "principal": {
+        "id": "u3",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "team",
+              "id": "payments"
+            }
+          }
+        ]
+      },
+      "action": "policy.edit",
+      "resource": {
+        "org": "acme",
+        "team": "payments"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "team admin cannot manage workers, which needs org scope",
+      "principal": {
+        "id": "u3",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "team",
+              "id": "payments"
+            }
+          }
+        ]
+      },
+      "action": "worker.manage",
+      "resource": {
+        "org": "acme",
+        "team": "payments"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.scope_too_narrow"
+      }
+    },
+    {
+      "name": "team owner cannot manage users, which needs org scope",
+      "principal": {
+        "id": "u4",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "team",
+              "id": "payments"
+            }
+          }
+        ]
+      },
+      "action": "admin.users",
+      "resource": {
+        "org": "acme",
+        "team": "payments"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.scope_too_narrow"
+      }
+    },
+    {
+      "name": "repo admin cannot export the audit log",
+      "principal": {
+        "id": "u5",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "repo",
+              "id": "acme/pay"
+            }
+          }
+        ]
+      },
+      "action": "audit.export",
+      "resource": {
+        "org": "acme",
+        "repo": "acme/pay"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.scope_too_narrow"
+      }
+    },
+    {
+      "name": "org admin manages workers",
+      "principal": {
+        "id": "u6",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "worker.manage",
+      "resource": {
+        "org": "acme"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "org owner manages users",
+      "principal": {
+        "id": "u7",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "admin.users",
+      "resource": {
+        "org": "acme"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "bindings add up: repo viewer plus team member may merge",
+      "principal": {
+        "id": "u8",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "repo",
+              "id": "acme/pay"
+            }
+          },
+          {
+            "role": "member",
+            "scope": {
+              "kind": "team",
+              "id": "payments"
+            }
+          }
+        ]
+      },
+      "action": "merge",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/pay"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "bindings add up: org viewer plus repo admin edits the repo policy",
+      "principal": {
+        "id": "u9",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          },
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "repo",
+              "id": "acme/pay"
+            }
+          }
+        ]
+      },
+      "action": "policy.edit",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/pay"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "org viewer plus team admin is still too narrow for worker.manage",
+      "principal": {
+        "id": "u10",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "viewer",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          },
+          {
+            "role": "admin",
+            "scope": {
+              "kind": "team",
+              "id": "payments"
+            }
+          }
+        ]
+      },
+      "action": "worker.manage",
+      "resource": {
+        "org": "acme",
+        "team": "payments"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.scope_too_narrow"
+      }
+    },
+    {
+      "name": "a bot with the member role cannot approve",
+      "principal": {
+        "id": "bot-1",
+        "kind": "bot",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "member",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "approve",
+      "resource": {
+        "org": "acme",
+        "repo": "acme/pay"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.human_required"
+      }
+    },
+    {
+      "name": "a service with the owner role cannot approve",
+      "principal": {
+        "id": "svc-ci",
+        "kind": "service",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "approve",
+      "resource": {
+        "org": "acme"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.human_required"
+      }
+    },
+    {
+      "name": "a bot runs work with the bot role",
+      "principal": {
+        "id": "bot-1",
+        "kind": "bot",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "repo",
+              "id": "acme/pay"
+            }
+          }
+        ]
+      },
+      "action": "run.start",
+      "resource": {
+        "org": "acme",
+        "team": "payments",
+        "repo": "acme/pay"
+      },
+      "want": {
+        "allow": true,
+        "reason": "authz.granted"
+      }
+    },
+    {
+      "name": "a bot cannot cancel with the bot role",
+      "principal": {
+        "id": "bot-1",
+        "kind": "bot",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "repo",
+              "id": "acme/pay"
+            }
+          }
+        ]
+      },
+      "action": "run.cancel",
+      "resource": {
+        "org": "acme",
+        "repo": "acme/pay"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "a bot cannot merge with the bot role",
+      "principal": {
+        "id": "bot-1",
+        "kind": "bot",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "bot",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ]
+      },
+      "action": "merge",
+      "resource": {
+        "org": "acme",
+        "repo": "acme/pay"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.role_lacks_action"
+      }
+    },
+    {
+      "name": "a user from another org is refused",
+      "principal": {
+        "id": "u11",
+        "kind": "user",
+        "org": "globex",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "globex"
+            }
+          }
+        ]
+      },
+      "action": "run.read",
+      "resource": {
+        "org": "acme"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.cross_org"
+      }
+    },
+    {
+      "name": "a binding naming another org does not cover",
+      "principal": {
+        "id": "u12",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "globex"
+            }
+          }
+        ]
+      },
+      "action": "run.read",
+      "resource": {
+        "org": "acme"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.no_binding"
+      }
+    },
+    {
+      "name": "a deprovisioned owner is refused",
+      "principal": {
+        "id": "u13",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ],
+        "disabled": true
+      },
+      "action": "run.read",
+      "resource": {
+        "org": "acme"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.deprovisioned"
+      }
+    },
+    {
+      "name": "deprovisioned is checked before cross org",
+      "principal": {
+        "id": "u14",
+        "kind": "user",
+        "org": "globex",
+        "roles": [],
+        "disabled": true
+      },
+      "action": "run.read",
+      "resource": {
+        "org": "acme"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.deprovisioned"
+      }
+    },
+    {
+      "name": "an unknown action is refused first",
+      "principal": {
+        "id": "u15",
+        "kind": "user",
+        "org": "acme",
+        "roles": [
+          {
+            "role": "owner",
+            "scope": {
+              "kind": "org",
+              "id": "acme"
+            }
+          }
+        ],
+        "disabled": true
+      },
+      "action": "run.delete",
+      "resource": {
+        "org": "acme"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.unknown_action"
+      }
+    },
+    {
+      "name": "cross org is checked before human required",
+      "principal": {
+        "id": "bot-2",
+        "kind": "bot",
+        "org": "globex",
+        "roles": []
+      },
+      "action": "approve",
+      "resource": {
+        "org": "acme"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.cross_org"
+      }
+    },
+    {
+      "name": "human required is checked before bindings",
+      "principal": {
+        "id": "bot-3",
+        "kind": "bot",
+        "org": "acme",
+        "roles": []
+      },
+      "action": "approve",
+      "resource": {
+        "org": "acme"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.human_required"
+      }
+    },
+    {
+      "name": "a user with no roles is refused",
+      "principal": {
+        "id": "u16",
+        "kind": "user",
+        "org": "acme",
+        "roles": []
+      },
+      "action": "run.read",
+      "resource": {
+        "org": "acme"
+      },
+      "want": {
+        "allow": false,
+        "reason": "authz.no_binding"
+      }
+    }
+  ],
+  "policy": [
+    {
+      "name": "org layer alone",
+      "layers": [
+        {
+          "version": 1,
+          "layer": "org",
+          "name": "acme",
+          "models": {
+            "allowed": [
+              "provider-large-2026",
+              "provider-small-2026"
+            ]
+          },
+          "harnesses": {
+            "allowed": [
+              "claude-code",
+              "codex"
+            ]
+          },
+          "mcp": {
+            "allowed_servers": [
+              "github",
+              "linear"
+            ]
+          },
+          "egress": {
+            "allowed_hosts": [
+              "github.com",
+              "*.githubusercontent.com"
+            ]
+          },
+          "merge": {
+            "auto_merge_risk": [
+              "low"
+            ]
+          },
+          "approval": {
+            "require_human": [
+              "merge",
+              "policy.edit"
+            ]
+          },
+          "budgets": [
+            {
+              "scope": "org",
+              "id": "acme",
+              "usd": 5000,
+              "period": "month"
+            },
+            {
+              "scope": "team",
+              "id": "payments",
+              "usd": 1000,
+              "period": "month"
+            }
+          ]
+        }
+      ],
+      "want_error": null,
+      "checks": [
+        {
+          "request": {
+            "check": "model",
+            "value": "provider-large-2026"
+          },
+          "want": {
+            "allow": true,
+            "reason": "policy.allowed"
+          }
+        },
+        {
+          "request": {
+            "check": "model",
+            "value": "provider-xl-2027"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.not_allowlisted"
+          }
+        },
+        {
+          "request": {
+            "check": "harness",
+            "value": "codex"
+          },
+          "want": {
+            "allow": true,
+            "reason": "policy.allowed"
+          }
+        },
+        {
+          "request": {
+            "check": "harness",
+            "value": "gemini"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.not_allowlisted"
+          }
+        },
+        {
+          "request": {
+            "check": "mcp_server",
+            "value": "github"
+          },
+          "want": {
+            "allow": true,
+            "reason": "policy.allowed"
+          }
+        },
+        {
+          "request": {
+            "check": "mcp_server",
+            "value": "slack"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.not_allowlisted"
+          }
+        },
+        {
+          "request": {
+            "check": "egress_host",
+            "value": "github.com"
+          },
+          "want": {
+            "allow": true,
+            "reason": "policy.allowed"
+          }
+        },
+        {
+          "request": {
+            "check": "egress_host",
+            "value": "api.github.com"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.not_allowlisted"
+          }
+        },
+        {
+          "request": {
+            "check": "egress_host",
+            "value": "raw.githubusercontent.com"
+          },
+          "want": {
+            "allow": true,
+            "reason": "policy.allowed"
+          }
+        },
+        {
+          "request": {
+            "check": "egress_host",
+            "value": "githubusercontent.com"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.not_allowlisted"
+          }
+        },
+        {
+          "request": {
+            "check": "egress_host",
+            "value": "evil.com"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.not_allowlisted"
+          }
+        },
+        {
+          "request": {
+            "check": "auto_merge",
+            "value": "low"
+          },
+          "want": {
+            "allow": true,
+            "reason": "policy.allowed"
+          }
+        },
+        {
+          "request": {
+            "check": "auto_merge",
+            "value": "medium"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.not_allowlisted"
+          }
+        },
+        {
+          "request": {
+            "check": "auto_merge",
+            "value": "high"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.not_allowlisted"
+          }
+        },
+        {
+          "request": {
+            "check": "action",
+            "value": "merge"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.approval_required"
+          }
+        },
+        {
+          "request": {
+            "check": "action",
+            "value": "merge",
+            "human_approved": true
+          },
+          "want": {
+            "allow": true,
+            "reason": "policy.allowed"
+          }
+        },
+        {
+          "request": {
+            "check": "action",
+            "value": "run.start"
+          },
+          "want": {
+            "allow": true,
+            "reason": "policy.allowed"
+          }
+        },
+        {
+          "request": {
+            "check": "budget",
+            "value": "anything"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.unknown_check"
+          }
+        }
+      ],
+      "want_budgets": [
+        {
+          "scope": "org",
+          "id": "acme",
+          "usd": 5000,
+          "period": "month"
+        },
+        {
+          "scope": "team",
+          "id": "payments",
+          "usd": 1000,
+          "period": "month"
+        }
+      ]
+    },
+    {
+      "name": "team narrows models, egress and budgets, and adds an approval",
+      "layers": [
+        {
+          "version": 1,
+          "layer": "org",
+          "name": "acme",
+          "models": {
+            "allowed": [
+              "provider-large-2026",
+              "provider-small-2026"
+            ]
+          },
+          "harnesses": {
+            "allowed": [
+              "claude-code",
+              "codex"
+            ]
+          },
+          "mcp": {
+            "allowed_servers": [
+              "github",
+              "linear"
+            ]
+          },
+          "egress": {
+            "allowed_hosts": [
+              "github.com",
+              "*.githubusercontent.com"
+            ]
+          },
+          "merge": {
+            "auto_merge_risk": [
+              "low"
+            ]
+          },
+          "approval": {
+            "require_human": [
+              "merge",
+              "policy.edit"
+            ]
+          },
+          "budgets": [
+            {
+              "scope": "org",
+              "id": "acme",
+              "usd": 5000,
+              "period": "month"
+            },
+            {
+              "scope": "team",
+              "id": "payments",
+              "usd": 1000,
+              "period": "month"
+            }
+          ]
+        },
+        {
+          "version": 1,
+          "layer": "team",
+          "name": "payments",
+          "models": {
+            "allowed": [
+              "provider-small-2026"
+            ]
+          },
+          "harnesses": {},
+          "mcp": {},
+          "egress": {
+            "allowed_hosts": [
+              "raw.githubusercontent.com"
+            ]
+          },
+          "merge": {},
+          "approval": {
+            "require_human": [
+              "run.start"
+            ]
+          },
+          "budgets": [
+            {
+              "scope": "team",
+              "id": "payments",
+              "usd": 400,
+              "period": "month"
+            },
+            {
+              "scope": "bot",
+              "id": "bot-1",
+              "usd": 20,
+              "period": "day"
+            }
+          ]
+        }
+      ],
+      "want_error": null,
+      "checks": [
+        {
+          "request": {
+            "check": "model",
+            "value": "provider-small-2026"
+          },
+          "want": {
+            "allow": true,
+            "reason": "policy.allowed"
+          }
+        },
+        {
+          "request": {
+            "check": "model",
+            "value": "provider-large-2026"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.not_allowlisted"
+          }
+        },
+        {
+          "request": {
+            "check": "harness",
+            "value": "claude-code"
+          },
+          "want": {
+            "allow": true,
+            "reason": "policy.allowed"
+          }
+        },
+        {
+          "request": {
+            "check": "egress_host",
+            "value": "raw.githubusercontent.com"
+          },
+          "want": {
+            "allow": true,
+            "reason": "policy.allowed"
+          }
+        },
+        {
+          "request": {
+            "check": "egress_host",
+            "value": "github.com"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.not_allowlisted"
+          }
+        },
+        {
+          "request": {
+            "check": "egress_host",
+            "value": "objects.githubusercontent.com"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.not_allowlisted"
+          }
+        },
+        {
+          "request": {
+            "check": "action",
+            "value": "run.start"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.approval_required"
+          }
+        },
+        {
+          "request": {
+            "check": "action",
+            "value": "merge"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.approval_required"
+          }
+        },
+        {
+          "request": {
+            "check": "action",
+            "value": "run.cancel"
+          },
+          "want": {
+            "allow": true,
+            "reason": "policy.allowed"
+          }
+        }
+      ],
+      "want_budgets": [
+        {
+          "scope": "org",
+          "id": "acme",
+          "usd": 5000,
+          "period": "month"
+        },
+        {
+          "scope": "team",
+          "id": "payments",
+          "usd": 400,
+          "period": "month"
+        },
+        {
+          "scope": "bot",
+          "id": "bot-1",
+          "usd": 20,
+          "period": "day"
+        }
+      ]
+    },
+    {
+      "name": "repo inherits the team lists and empties auto-merge",
+      "layers": [
+        {
+          "version": 1,
+          "layer": "org",
+          "name": "acme",
+          "models": {
+            "allowed": [
+              "provider-large-2026",
+              "provider-small-2026"
+            ]
+          },
+          "harnesses": {
+            "allowed": [
+              "claude-code",
+              "codex"
+            ]
+          },
+          "mcp": {
+            "allowed_servers": [
+              "github",
+              "linear"
+            ]
+          },
+          "egress": {
+            "allowed_hosts": [
+              "github.com",
+              "*.githubusercontent.com"
+            ]
+          },
+          "merge": {
+            "auto_merge_risk": [
+              "low"
+            ]
+          },
+          "approval": {
+            "require_human": [
+              "merge",
+              "policy.edit"
+            ]
+          },
+          "budgets": [
+            {
+              "scope": "org",
+              "id": "acme",
+              "usd": 5000,
+              "period": "month"
+            },
+            {
+              "scope": "team",
+              "id": "payments",
+              "usd": 1000,
+              "period": "month"
+            }
+          ]
+        },
+        {
+          "version": 1,
+          "layer": "team",
+          "name": "payments",
+          "models": {
+            "allowed": [
+              "provider-small-2026"
+            ]
+          },
+          "harnesses": {},
+          "mcp": {},
+          "egress": {
+            "allowed_hosts": [
+              "raw.githubusercontent.com"
+            ]
+          },
+          "merge": {},
+          "approval": {
+            "require_human": [
+              "run.start"
+            ]
+          },
+          "budgets": [
+            {
+              "scope": "team",
+              "id": "payments",
+              "usd": 400,
+              "period": "month"
+            },
+            {
+              "scope": "bot",
+              "id": "bot-1",
+              "usd": 20,
+              "period": "day"
+            }
+          ]
+        },
+        {
+          "version": 1,
+          "layer": "repo",
+          "name": "acme/pay",
+          "models": {},
+          "harnesses": {},
+          "mcp": {},
+          "egress": {},
+          "merge": {
+            "auto_merge_risk": []
+          },
+          "approval": {}
+        }
+      ],
+      "want_error": null,
+      "checks": [
+        {
+          "request": {
+            "check": "model",
+            "value": "provider-small-2026"
+          },
+          "want": {
+            "allow": true,
+            "reason": "policy.allowed"
+          }
+        },
+        {
+          "request": {
+            "check": "model",
+            "value": "provider-large-2026"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.not_allowlisted"
+          }
+        },
+        {
+          "request": {
+            "check": "auto_merge",
+            "value": "low"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.not_allowlisted"
+          }
+        },
+        {
+          "request": {
+            "check": "mcp_server",
+            "value": "linear"
+          },
+          "want": {
+            "allow": true,
+            "reason": "policy.allowed"
+          }
+        }
+      ]
+    },
+    {
+      "name": "repo directly under org narrows a wildcard to one host",
+      "layers": [
+        {
+          "version": 1,
+          "layer": "org",
+          "name": "acme",
+          "models": {
+            "allowed": [
+              "provider-large-2026",
+              "provider-small-2026"
+            ]
+          },
+          "harnesses": {
+            "allowed": [
+              "claude-code",
+              "codex"
+            ]
+          },
+          "mcp": {
+            "allowed_servers": [
+              "github",
+              "linear"
+            ]
+          },
+          "egress": {
+            "allowed_hosts": [
+              "github.com",
+              "*.githubusercontent.com"
+            ]
+          },
+          "merge": {
+            "auto_merge_risk": [
+              "low"
+            ]
+          },
+          "approval": {
+            "require_human": [
+              "merge",
+              "policy.edit"
+            ]
+          },
+          "budgets": [
+            {
+              "scope": "org",
+              "id": "acme",
+              "usd": 5000,
+              "period": "month"
+            },
+            {
+              "scope": "team",
+              "id": "payments",
+              "usd": 1000,
+              "period": "month"
+            }
+          ]
+        },
+        {
+          "version": 1,
+          "layer": "repo",
+          "name": "acme/pay",
+          "models": {},
+          "harnesses": {},
+          "mcp": {},
+          "egress": {
+            "allowed_hosts": [
+              "github.com",
+              "objects.githubusercontent.com"
+            ]
+          },
+          "merge": {},
+          "approval": {}
+        }
+      ],
+      "want_error": null,
+      "checks": [
+        {
+          "request": {
+            "check": "egress_host",
+            "value": "objects.githubusercontent.com"
+          },
+          "want": {
+            "allow": true,
+            "reason": "policy.allowed"
+          }
+        },
+        {
+          "request": {
+            "check": "egress_host",
+            "value": "raw.githubusercontent.com"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.not_allowlisted"
+          }
+        }
+      ]
+    },
+    {
+      "name": "an empty org list allows nothing",
+      "layers": [
+        {
+          "version": 1,
+          "layer": "org",
+          "name": "acme",
+          "models": {
+            "allowed": []
+          },
+          "harnesses": {},
+          "mcp": {},
+          "egress": {},
+          "merge": {},
+          "approval": {}
+        }
+      ],
+      "want_error": null,
+      "checks": [
+        {
+          "request": {
+            "check": "model",
+            "value": "provider-small-2026"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.not_allowlisted"
+          }
+        },
+        {
+          "request": {
+            "check": "harness",
+            "value": "claude-code"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.not_allowlisted"
+          }
+        },
+        {
+          "request": {
+            "check": "egress_host",
+            "value": "github.com"
+          },
+          "want": {
+            "allow": false,
+            "reason": "policy.not_allowlisted"
+          }
+        }
+      ]
+    },
+    {
+      "name": "team adding a model widens",
+      "layers": [
+        {
+          "version": 1,
+          "layer": "org",
+          "name": "acme",
+          "models": {
+            "allowed": [
+              "provider-large-2026",
+              "provider-small-2026"
+            ]
+          },
+          "harnesses": {
+            "allowed": [
+              "claude-code",
+              "codex"
+            ]
+          },
+          "mcp": {
+            "allowed_servers": [
+              "github",
+              "linear"
+            ]
+          },
+          "egress": {
+            "allowed_hosts": [
+              "github.com",
+              "*.githubusercontent.com"
+            ]
+          },
+          "merge": {
+            "auto_merge_risk": [
+              "low"
+            ]
+          },
+          "approval": {
+            "require_human": [
+              "merge",
+              "policy.edit"
+            ]
+          },
+          "budgets": [
+            {
+              "scope": "org",
+              "id": "acme",
+              "usd": 5000,
+              "period": "month"
+            },
+            {
+              "scope": "team",
+              "id": "payments",
+              "usd": 1000,
+              "period": "month"
+            }
+          ]
+        },
+        {
+          "version": 1,
+          "layer": "team",
+          "name": "payments",
+          "models": {
+            "allowed": [
+              "provider-small-2026",
+              "provider-xl-2027"
+            ]
+          },
+          "harnesses": {},
+          "mcp": {},
+          "egress": {},
+          "merge": {},
+          "approval": {}
+        }
+      ],
+      "want_error": "policy.widening"
+    },
+    {
+      "name": "team adding a broader egress wildcard widens",
+      "layers": [
+        {
+          "version": 1,
+          "layer": "org",
+          "name": "acme",
+          "models": {
+            "allowed": [
+              "provider-large-2026",
+              "provider-small-2026"
+            ]
+          },
+          "harnesses": {
+            "allowed": [
+              "claude-code",
+              "codex"
+            ]
+          },
+          "mcp": {
+            "allowed_servers": [
+              "github",
+              "linear"
+            ]
+          },
+          "egress": {
+            "allowed_hosts": [
+              "github.com",
+              "*.githubusercontent.com"
+            ]
+          },
+          "merge": {
+            "auto_merge_risk": [
+              "low"
+            ]
+          },
+          "approval": {
+            "require_human": [
+              "merge",
+              "policy.edit"
+            ]
+          },
+          "budgets": [
+            {
+              "scope": "org",
+              "id": "acme",
+              "usd": 5000,
+              "period": "month"
+            },
+            {
+              "scope": "team",
+              "id": "payments",
+              "usd": 1000,
+              "period": "month"
+            }
+          ]
+        },
+        {
+          "version": 1,
+          "layer": "team",
+          "name": "payments",
+          "models": {},
+          "harnesses": {},
+          "mcp": {},
+          "egress": {
+            "allowed_hosts": [
+              "*.com"
+            ]
+          },
+          "merge": {},
+          "approval": {}
+        }
+      ],
+      "want_error": "policy.widening"
+    },
+    {
+      "name": "team adding an auto-merge risk class widens",
+      "layers": [
+        {
+          "version": 1,
+          "layer": "org",
+          "name": "acme",
+          "models": {
+            "allowed": [
+              "provider-large-2026",
+              "provider-small-2026"
+            ]
+          },
+          "harnesses": {
+            "allowed": [
+              "claude-code",
+              "codex"
+            ]
+          },
+          "mcp": {
+            "allowed_servers": [
+              "github",
+              "linear"
+            ]
+          },
+          "egress": {
+            "allowed_hosts": [
+              "github.com",
+              "*.githubusercontent.com"
+            ]
+          },
+          "merge": {
+            "auto_merge_risk": [
+              "low"
+            ]
+          },
+          "approval": {
+            "require_human": [
+              "merge",
+              "policy.edit"
+            ]
+          },
+          "budgets": [
+            {
+              "scope": "org",
+              "id": "acme",
+              "usd": 5000,
+              "period": "month"
+            },
+            {
+              "scope": "team",
+              "id": "payments",
+              "usd": 1000,
+              "period": "month"
+            }
+          ]
+        },
+        {
+          "version": 1,
+          "layer": "team",
+          "name": "payments",
+          "models": {},
+          "harnesses": {},
+          "mcp": {},
+          "egress": {},
+          "merge": {
+            "auto_merge_risk": [
+              "low",
+              "medium"
+            ]
+          },
+          "approval": {}
+        }
+      ],
+      "want_error": "policy.widening"
+    },
+    {
+      "name": "repo adding an MCP server the team dropped widens",
+      "layers": [
+        {
+          "version": 1,
+          "layer": "org",
+          "name": "acme",
+          "models": {
+            "allowed": [
+              "provider-large-2026",
+              "provider-small-2026"
+            ]
+          },
+          "harnesses": {
+            "allowed": [
+              "claude-code",
+              "codex"
+            ]
+          },
+          "mcp": {
+            "allowed_servers": [
+              "github",
+              "linear"
+            ]
+          },
+          "egress": {
+            "allowed_hosts": [
+              "github.com",
+              "*.githubusercontent.com"
+            ]
+          },
+          "merge": {
+            "auto_merge_risk": [
+              "low"
+            ]
+          },
+          "approval": {
+            "require_human": [
+              "merge",
+              "policy.edit"
+            ]
+          },
+          "budgets": [
+            {
+              "scope": "org",
+              "id": "acme",
+              "usd": 5000,
+              "period": "month"
+            },
+            {
+              "scope": "team",
+              "id": "payments",
+              "usd": 1000,
+              "period": "month"
+            }
+          ]
+        },
+        {
+          "version": 1,
+          "layer": "team",
+          "name": "payments",
+          "models": {},
+          "harnesses": {},
+          "mcp": {
+            "allowed_servers": [
+              "github"
+            ]
+          },
+          "egress": {},
+          "merge": {},
+          "approval": {}
+        },
+        {
+          "version": 1,
+          "layer": "repo",
+          "name": "acme/pay",
+          "models": {},
+          "harnesses": {},
+          "mcp": {
+            "allowed_servers": [
+              "linear"
+            ]
+          },
+          "egress": {},
+          "merge": {},
+          "approval": {}
+        }
+      ],
+      "want_error": "policy.widening"
+    },
+    {
+      "name": "team raising a budget widens",
+      "layers": [
+        {
+          "version": 1,
+          "layer": "org",
+          "name": "acme",
+          "models": {
+            "allowed": [
+              "provider-large-2026",
+              "provider-small-2026"
+            ]
+          },
+          "harnesses": {
+            "allowed": [
+              "claude-code",
+              "codex"
+            ]
+          },
+          "mcp": {
+            "allowed_servers": [
+              "github",
+              "linear"
+            ]
+          },
+          "egress": {
+            "allowed_hosts": [
+              "github.com",
+              "*.githubusercontent.com"
+            ]
+          },
+          "merge": {
+            "auto_merge_risk": [
+              "low"
+            ]
+          },
+          "approval": {
+            "require_human": [
+              "merge",
+              "policy.edit"
+            ]
+          },
+          "budgets": [
+            {
+              "scope": "org",
+              "id": "acme",
+              "usd": 5000,
+              "period": "month"
+            },
+            {
+              "scope": "team",
+              "id": "payments",
+              "usd": 1000,
+              "period": "month"
+            }
+          ]
+        },
+        {
+          "version": 1,
+          "layer": "team",
+          "name": "payments",
+          "models": {},
+          "harnesses": {},
+          "mcp": {},
+          "egress": {},
+          "merge": {},
+          "approval": {},
+          "budgets": [
+            {
+              "scope": "team",
+              "id": "payments",
+              "usd": 1500,
+              "period": "month"
+            }
+          ]
+        }
+      ],
+      "want_error": "policy.widening"
+    },
+    {
+      "name": "team before org is out of order",
+      "layers": [
+        {
+          "version": 1,
+          "layer": "team",
+          "name": "payments",
+          "models": {},
+          "harnesses": {},
+          "mcp": {},
+          "egress": {},
+          "merge": {},
+          "approval": {}
+        },
+        {
+          "version": 1,
+          "layer": "org",
+          "name": "acme",
+          "models": {
+            "allowed": [
+              "provider-large-2026",
+              "provider-small-2026"
+            ]
+          },
+          "harnesses": {
+            "allowed": [
+              "claude-code",
+              "codex"
+            ]
+          },
+          "mcp": {
+            "allowed_servers": [
+              "github",
+              "linear"
+            ]
+          },
+          "egress": {
+            "allowed_hosts": [
+              "github.com",
+              "*.githubusercontent.com"
+            ]
+          },
+          "merge": {
+            "auto_merge_risk": [
+              "low"
+            ]
+          },
+          "approval": {
+            "require_human": [
+              "merge",
+              "policy.edit"
+            ]
+          },
+          "budgets": [
+            {
+              "scope": "org",
+              "id": "acme",
+              "usd": 5000,
+              "period": "month"
+            },
+            {
+              "scope": "team",
+              "id": "payments",
+              "usd": 1000,
+              "period": "month"
+            }
+          ]
+        }
+      ],
+      "want_error": "policy.layer_order"
+    },
+    {
+      "name": "two org layers are out of order",
+      "layers": [
+        {
+          "version": 1,
+          "layer": "org",
+          "name": "acme",
+          "models": {
+            "allowed": [
+              "provider-large-2026",
+              "provider-small-2026"
+            ]
+          },
+          "harnesses": {
+            "allowed": [
+              "claude-code",
+              "codex"
+            ]
+          },
+          "mcp": {
+            "allowed_servers": [
+              "github",
+              "linear"
+            ]
+          },
+          "egress": {
+            "allowed_hosts": [
+              "github.com",
+              "*.githubusercontent.com"
+            ]
+          },
+          "merge": {
+            "auto_merge_risk": [
+              "low"
+            ]
+          },
+          "approval": {
+            "require_human": [
+              "merge",
+              "policy.edit"
+            ]
+          },
+          "budgets": [
+            {
+              "scope": "org",
+              "id": "acme",
+              "usd": 5000,
+              "period": "month"
+            },
+            {
+              "scope": "team",
+              "id": "payments",
+              "usd": 1000,
+              "period": "month"
+            }
+          ]
+        },
+        {
+          "version": 1,
+          "layer": "org",
+          "name": "acme",
+          "models": {
+            "allowed": [
+              "provider-large-2026",
+              "provider-small-2026"
+            ]
+          },
+          "harnesses": {
+            "allowed": [
+              "claude-code",
+              "codex"
+            ]
+          },
+          "mcp": {
+            "allowed_servers": [
+              "github",
+              "linear"
+            ]
+          },
+          "egress": {
+            "allowed_hosts": [
+              "github.com",
+              "*.githubusercontent.com"
+            ]
+          },
+          "merge": {
+            "auto_merge_risk": [
+              "low"
+            ]
+          },
+          "approval": {
+            "require_human": [
+              "merge",
+              "policy.edit"
+            ]
+          },
+          "budgets": [
+            {
+              "scope": "org",
+              "id": "acme",
+              "usd": 5000,
+              "period": "month"
+            },
+            {
+              "scope": "team",
+              "id": "payments",
+              "usd": 1000,
+              "period": "month"
+            }
+          ]
+        }
+      ],
+      "want_error": "policy.layer_order"
+    },
+    {
+      "name": "repo before team is out of order",
+      "layers": [
+        {
+          "version": 1,
+          "layer": "org",
+          "name": "acme",
+          "models": {
+            "allowed": [
+              "provider-large-2026",
+              "provider-small-2026"
+            ]
+          },
+          "harnesses": {
+            "allowed": [
+              "claude-code",
+              "codex"
+            ]
+          },
+          "mcp": {
+            "allowed_servers": [
+              "github",
+              "linear"
+            ]
+          },
+          "egress": {
+            "allowed_hosts": [
+              "github.com",
+              "*.githubusercontent.com"
+            ]
+          },
+          "merge": {
+            "auto_merge_risk": [
+              "low"
+            ]
+          },
+          "approval": {
+            "require_human": [
+              "merge",
+              "policy.edit"
+            ]
+          },
+          "budgets": [
+            {
+              "scope": "org",
+              "id": "acme",
+              "usd": 5000,
+              "period": "month"
+            },
+            {
+              "scope": "team",
+              "id": "payments",
+              "usd": 1000,
+              "period": "month"
+            }
+          ]
+        },
+        {
+          "version": 1,
+          "layer": "repo",
+          "name": "acme/pay",
+          "models": {},
+          "harnesses": {},
+          "mcp": {},
+          "egress": {},
+          "merge": {},
+          "approval": {}
+        },
+        {
+          "version": 1,
+          "layer": "team",
+          "name": "payments",
+          "models": {},
+          "harnesses": {},
+          "mcp": {},
+          "egress": {},
+          "merge": {},
+          "approval": {}
+        }
+      ],
+      "want_error": "policy.layer_order"
+    },
+    {
+      "name": "no layers is out of order",
+      "layers": [],
+      "want_error": "policy.layer_order"
+    },
+    {
+      "name": "an unknown version is invalid",
+      "layers": [
+        {
+          "version": 2,
+          "layer": "org",
+          "name": "acme",
+          "models": {
+            "allowed": [
+              "provider-large-2026",
+              "provider-small-2026"
+            ]
+          },
+          "harnesses": {
+            "allowed": [
+              "claude-code",
+              "codex"
+            ]
+          },
+          "mcp": {
+            "allowed_servers": [
+              "github",
+              "linear"
+            ]
+          },
+          "egress": {
+            "allowed_hosts": [
+              "github.com",
+              "*.githubusercontent.com"
+            ]
+          },
+          "merge": {
+            "auto_merge_risk": [
+              "low"
+            ]
+          },
+          "approval": {
+            "require_human": [
+              "merge",
+              "policy.edit"
+            ]
+          },
+          "budgets": [
+            {
+              "scope": "org",
+              "id": "acme",
+              "usd": 5000,
+              "period": "month"
+            },
+            {
+              "scope": "team",
+              "id": "payments",
+              "usd": 1000,
+              "period": "month"
+            }
+          ]
+        }
+      ],
+      "want_error": "policy.invalid"
+    }
+  ],
+  "audit": {
+    "genesis_prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "events": [
+      {
+        "time": "2026-11-26T09:00:00.000Z",
+        "actor": "u-alice",
+        "action": "policy.edit",
+        "resource": "acme",
+        "outcome": "allow",
+        "reason": "authz.granted",
+        "data": {
+          "layer": "org"
+        }
+      },
+      {
+        "time": "2026-11-26T09:05:30.250Z",
+        "actor": "bot-claude-1",
+        "action": "run.start",
+        "resource": "acme/factory",
+        "outcome": "deny",
+        "reason": "budget.exceeded",
+        "data": {
+          "key": "bot/bot-claude-1",
+          "note": "café <limit> & \"quota\"\n \u0001"
+        }
+      },
+      {
+        "time": "2026-11-26T09:06:00.999Z",
+        "actor": "u-bob",
+        "action": "merge",
+        "resource": "acme/factory",
+        "outcome": "allow",
+        "reason": "",
+        "data": {}
+      }
+    ],
+    "want": [
+      {
+        "seq": 1,
+        "canonical": "{\"action\":\"policy.edit\",\"actor\":\"u-alice\",\"data\":{\"layer\":\"org\"},\"outcome\":\"allow\",\"reason\":\"authz.granted\",\"resource\":\"acme\",\"seq\":1,\"time\":\"2026-11-26T09:00:00.000Z\"}",
+        "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "hash": "caf15460589ab0e7cdab5605a711be39cf30f8e4d0178b963be13ac55fbdd894"
+      },
+      {
+        "seq": 2,
+        "canonical": "{\"action\":\"run.start\",\"actor\":\"bot-claude-1\",\"data\":{\"key\":\"bot/bot-claude-1\",\"note\":\"café <limit> & \\\"quota\\\"\\n \\u0001\"},\"outcome\":\"deny\",\"reason\":\"budget.exceeded\",\"resource\":\"acme/factory\",\"seq\":2,\"time\":\"2026-11-26T09:05:30.250Z\"}",
+        "prev_hash": "caf15460589ab0e7cdab5605a711be39cf30f8e4d0178b963be13ac55fbdd894",
+        "hash": "0509c58e81211f0bb534a03607cf46b702071721fc7bf62174f116d4725d1c77"
+      },
+      {
+        "seq": 3,
+        "canonical": "{\"action\":\"merge\",\"actor\":\"u-bob\",\"data\":{},\"outcome\":\"allow\",\"reason\":\"\",\"resource\":\"acme/factory\",\"seq\":3,\"time\":\"2026-11-26T09:06:00.999Z\"}",
+        "prev_hash": "0509c58e81211f0bb534a03607cf46b702071721fc7bf62174f116d4725d1c77",
+        "hash": "4c6c4c04c6e89171312e3007260399c5004d0e692fc90fffd03a5d286c975de3"
+      }
+    ],
+    "tamper": {
+      "seq": 2,
+      "field": "actor",
+      "value": "mallory",
+      "want_broken_seq": 2
+    }
+  },
+  "budget": [
+    {
+      "name": "reserve, exceed, commit and release across two keys",
+      "limits": [
+        {
+          "key": {
+            "scope": "org",
+            "id": "acme"
+          },
+          "micros": 1000000
+        },
+        {
+          "key": {
+            "scope": "bot",
+            "id": "bot-1"
+          },
+          "micros": 300000
+        }
+      ],
+      "steps": [
+        {
+          "op": "reserve",
+          "ref": "r1",
+          "keys": [
+            {
+              "scope": "org",
+              "id": "acme"
+            },
+            {
+              "scope": "bot",
+              "id": "bot-1"
+            }
+          ],
+          "amount": 200000
+        },
+        {
+          "op": "reserve",
+          "ref": "r2",
+          "keys": [
+            {
+              "scope": "org",
+              "id": "acme"
+            },
+            {
+              "scope": "bot",
+              "id": "bot-1"
+            }
+          ],
+          "amount": 200000,
+          "want_error": "budget.exceeded"
+        },
+        {
+          "op": "remaining",
+          "key": {
+            "scope": "bot",
+            "id": "bot-1"
+          },
+          "want": 100000,
+          "want_ok": true
+        },
+        {
+          "op": "remaining",
+          "key": {
+            "scope": "org",
+            "id": "acme"
+          },
+          "want": 800000,
+          "want_ok": true
+        },
+        {
+          "op": "commit",
+          "ref": "r1",
+          "amount": 250000
+        },
+        {
+          "op": "remaining",
+          "key": {
+            "scope": "bot",
+            "id": "bot-1"
+          },
+          "want": 50000,
+          "want_ok": true
+        },
+        {
+          "op": "remaining",
+          "key": {
+            "scope": "org",
+            "id": "acme"
+          },
+          "want": 750000,
+          "want_ok": true
+        },
+        {
+          "op": "commit",
+          "ref": "r1",
+          "amount": 1,
+          "want_error": "budget.unknown_reservation"
+        },
+        {
+          "op": "reserve",
+          "ref": "r3",
+          "keys": [
+            {
+              "scope": "org",
+              "id": "acme"
+            }
+          ],
+          "amount": 700000
+        },
+        {
+          "op": "reserve",
+          "ref": "r4",
+          "keys": [
+            {
+              "scope": "org",
+              "id": "acme"
+            },
+            {
+              "scope": "team",
+              "id": "search"
+            }
+          ],
+          "amount": 60000,
+          "want_error": "budget.exceeded"
+        },
+        {
+          "op": "release",
+          "ref": "r3"
+        },
+        {
+          "op": "remaining",
+          "key": {
+            "scope": "org",
+            "id": "acme"
+          },
+          "want": 750000,
+          "want_ok": true
+        },
+        {
+          "op": "release",
+          "ref": "r3",
+          "want_error": "budget.unknown_reservation"
+        },
+        {
+          "op": "remaining",
+          "key": {
+            "scope": "team",
+            "id": "search"
+          },
+          "want": 0,
+          "want_ok": false
+        },
+        {
+          "op": "reserve",
+          "ref": "r5",
+          "keys": [
+            {
+              "scope": "team",
+              "id": "search"
+            },
+            {
+              "scope": "action",
+              "id": "run.start"
+            }
+          ],
+          "amount": 1000000000000
+        },
+        {
+          "op": "release",
+          "ref": "nope",
+          "want_error": "budget.unknown_reservation"
+        }
+      ]
+    },
+    {
+      "name": "an exact fit reserves, and a commit may overspend",
+      "limits": [
+        {
+          "key": {
+            "scope": "factory",
+            "id": "acme-prod"
+          },
+          "micros": 100
+        }
+      ],
+      "steps": [
+        {
+          "op": "reserve",
+          "ref": "r1",
+          "keys": [
+            {
+              "scope": "factory",
+              "id": "acme-prod"
+            }
+          ],
+          "amount": 100
+        },
+        {
+          "op": "remaining",
+          "key": {
+            "scope": "factory",
+            "id": "acme-prod"
+          },
+          "want": 0,
+          "want_ok": true
+        },
+        {
+          "op": "reserve",
+          "ref": "r2",
+          "keys": [
+            {
+              "scope": "factory",
+              "id": "acme-prod"
+            }
+          ],
+          "amount": 1,
+          "want_error": "budget.exceeded"
+        },
+        {
+          "op": "commit",
+          "ref": "r1",
+          "amount": 150
+        },
+        {
+          "op": "remaining",
+          "key": {
+            "scope": "factory",
+            "id": "acme-prod"
+          },
+          "want": -50,
+          "want_ok": true
+        },
+        {
+          "op": "reserve",
+          "ref": "r3",
+          "keys": [
+            {
+              "scope": "factory",
+              "id": "acme-prod"
+            }
+          ],
+          "amount": 1,
+          "want_error": "budget.exceeded"
+        }
+      ]
+    }
+  ]
+}

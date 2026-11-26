@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kaas.team/schemas/run-ledger.v1.json",
+  "title": "KaaS factory run ledger entry, v1",
+  "description": "One JSON object per line in .factory/ledger/runs.jsonl. Factory writes it when a run ends; dx reads it. Factory's copy in docs/contracts/ is the source; dx pins a copy and a test checks the two match by sha256.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "run_id",
+    "repo",
+    "ticket",
+    "agent",
+    "started_at",
+    "status"
+  ],
+  "properties": {
+    "schema": {
+      "const": "kaas.run/v1"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repo": {
+      "type": "string",
+      "description": "owner/name"
+    },
+    "team": {
+      "type": "string"
+    },
+    "ticket": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "id"
+      ],
+      "properties": {
+        "source": {
+          "enum": [
+            "github",
+            "linear",
+            "jira",
+            "slack",
+            "sentry",
+            "api",
+            "prd"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "agent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "harness"
+      ],
+      "properties": {
+        "harness": {
+          "type": "string",
+          "description": "claude-code, codex, gemini, opencode ..."
+        },
+        "model": {
+          "type": "string"
+        },
+        "worker": {
+          "type": "string",
+          "description": "local, k8s, self-hosted pool name"
+        }
+      }
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ended_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "enum": [
+        "open",
+        "merged",
+        "failed",
+        "cancelled",
+        "abandoned"
+      ]
+    },
+    "failure_class": {
+      "enum": [
+        "retryable",
+        "repo_setup",
+        "external",
+        "agent",
+        "policy",
+        "budget"
+      ]
+    },
+    "pr": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "number": {
+          "type": "integer"
+        },
+        "url": {
+          "type": "string"
+        },
+        "head_sha": {
+          "type": "string"
+        },
+        "approved_sha": {
+          "type": "string"
+        },
+        "merged_sha": {
+          "type": "string"
+        },
+        "opened_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "merged_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "stack_position": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lines_added": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lines_deleted": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rounds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "human_approver": {
+          "type": "string"
+        },
+        "auto_merged": {
+          "type": "boolean"
+        }
+      }
+    },
+    "tokens": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "output": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cache_read": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cache_write": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "cost_usd": {
+      "type": "number",
+      "minimum": 0
+    },
+    "qa": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "verdict": {
+          "enum": [
+            "pass",
+            "fail",
+            "unverified",
+            "skipped"
+          ]
+        },
+        "evidence_url": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

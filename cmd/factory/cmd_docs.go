@@ -8,6 +8,10 @@ import (
 	"github.com/KaaS-team/factory/internal/docgen"
 )
 
+func init() {
+	register("docs", func() *cobra.Command { return docsCmd(newRoot) }, noTool("a hidden generator for the reference documents"))
+}
+
 // docsCmd is `factory docs cli|config`: it prints the generated reference documents, the same text
 // docs/cli-reference.md and docs/config.md hold, so a release can regenerate them from the binary.
 func docsCmd(root func() *cobra.Command) *cobra.Command {

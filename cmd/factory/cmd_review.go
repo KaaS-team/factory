@@ -19,6 +19,10 @@ import (
 	"github.com/KaaS-team/factory/internal/review"
 )
 
+func init() {
+	register("review", reviewCmd, noTool("gap: no review tool yet; F11 owns internal/review"))
+}
+
 // checksDir holds the markdown check packs `factory review` runs, one file per check.
 const checksDir = ".factory/checks"
 

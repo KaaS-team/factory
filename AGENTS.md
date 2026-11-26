@@ -35,6 +35,7 @@ before every push. It must end with zero errors and zero warnings.
 | `internal/eval` | evals |
 | `pkg/agentrun`, `pkg/sandbox`, `pkg/retry` | public packages |
 | `ee` | enterprise code, its own licence |
+| `ee/contract` | the Apache-2.0 enterprise contracts; see `docs/cloud/README.md` |
 | `tools/ratchet`, `tools/gate`, `tools/prcheck`, `tools/doccheck` | repo checks |
 | `packs`, `template`, `evals` | pack, skill and eval data |
 | `docs` | guides; `docs/demo` holds demo output |

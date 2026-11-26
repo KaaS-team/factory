@@ -13,6 +13,10 @@ import (
 	"github.com/KaaS-team/factory/internal/design"
 )
 
+func init() {
+	register("design", designCmd, noTool("gap: no design tool yet"))
+}
+
 // errNeedsAgent is what `factory design tweak` returns when the pack cannot make the edit: no agent
 // runs here, so the command fails and a workflow check step routes to its agent step.
 var errNeedsAgent = errors.New("design: the edit needs an agent")

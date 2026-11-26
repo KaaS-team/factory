@@ -18,6 +18,10 @@ import (
 	"github.com/spf13/pflag"
 )
 
+func init() {
+	register("serve", newServe, noTool("a long-running service"))
+}
+
 // servePasswordEnv names the bearer password for `factory serve`. Without it the listener must be
 // loopback; with it every route but /healthz and /readyz needs the password or a token from
 // `factory serve token`.
