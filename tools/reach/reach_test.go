@@ -28,6 +28,7 @@ var testOnly = map[string]string{
 // pendingWiring packages are finished but no command calls them yet. Each needs a wiring ticket.
 // Wire one, then delete its line: the test fails if a listed package is reached.
 var pendingWiring = map[string]string{
+	"internal/api/analytics":    "analytics routes: mount in `factory serve` once an ee Identity and Authorizer are configured (F12 follow-up)",
 	"internal/dispatch/broker":  "per-action credential broker: wire into the sandbox session start",
 	"internal/eval/judgecache":  "judge verdict cache: wire into `factory eval`",
 	"internal/eval/replay":      "recorded eval replay: wire into `factory eval`",
