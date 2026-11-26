@@ -1,0 +1,22 @@
+{{define "policy"}}{{$d := .Data}}<div class="ui-stack" data-gap="lg">
+{{template "header" (dict "Title" .Title "Sub" "The kaas-policy.toml layers, widest first. A save runs the same check as factory policy check, then compiles every layer; only a clean file is written." "Notice" .Notice)}}
+{{if $d.None}}{{template "empty" (empty "No policy is configured" "Set FACTORY_POLICY_ORG to the org kaas-policy.toml. Without it every allowlist is empty, so nothing runs.")}}{{end}}
+{{range $d.Layers}}<section class="ui-card" aria-labelledby="layer-{{.Layer}}">
+<div class="ui-card-header"><h2 id="layer-{{.Layer}}">{{title .Layer}} layer</h2>
+<div class="ui-row"><span class="ui-mono ui-muted admin-path">{{.Path}}</span>{{if .Signed}}{{template "chip" (chip "Signed, read-only" "info")}}{{end}}</div></div>
+<div class="ui-card-body ui-stack">
+{{if .ReadErr}}{{template "attention" (attention "fail" "This file could not be read" "Check the path and its permissions on the factory host.")}}{{end}}
+{{with .Problems}}<div class="ui-attention" role="alert" data-status="fail">
+<p class="ui-attention-title">Not saved: the check found {{len .}} problem{{if gt (len .) 1}}s{{end}}</p>
+<ul class="ui-attention-body admin-list">{{range .}}<li><span class="ui-mono">{{.Code}}</span> {{.Message}}</li>{{end}}</ul>
+</div>{{end}}
+{{if .Summary}}<dl class="admin-dl">{{range .Summary}}<div><dt>{{index . 0}}</dt><dd>{{index . 1}}</dd></div>{{end}}</dl>{{end}}
+{{if and $d.CanEdit (not .Signed)}}<form class="ui-form admin-wide" method="post" action="/admin/policy">
+<input type="hidden" name="layer" value="{{.Layer}}">
+<div class="ui-field"{{if .Problems}} data-status="fail"{{end}}><label for="text-{{.Layer}}">{{title .Layer}} kaas-policy.toml</label>
+<textarea class="ui-input ui-mono admin-editor" id="text-{{.Layer}}" name="text" spellcheck="false" rows="18"{{if .Problems}} aria-invalid="true"{{end}} aria-describedby="help-{{.Layer}}">{{.Text}}</textarea>
+<p class="ui-field-help" id="help-{{.Layer}}">A lower layer may only narrow the one above. Approval lists add up and can never be shortened below.</p></div>
+<button class="ui-button" data-variant="primary" type="submit">Check and save {{.Layer}} layer</button>
+</form>{{else}}<pre class="ui-mono admin-pre" tabindex="0" aria-label="{{.Layer}} kaas-policy.toml">{{.Text}}</pre>{{end}}
+</div></section>
+{{end}}</div>{{end}}

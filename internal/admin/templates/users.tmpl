@@ -1,0 +1,37 @@
+{{define "users"}}{{$d := .Data}}<div class="ui-stack" data-gap="lg">
+{{template "header" (dict "Title" .Title "Sub" "Who can use the factory and with which role. Roles bind at org scope here; SCIM users get theirs from IdP groups." "Notice" .Notice)}}
+<section class="ui-card" aria-labelledby="scim-h">
+<div class="ui-card-header"><h2 id="scim-h">Provisioned by SCIM</h2><span class="ui-chip">Read-only</span></div>
+{{if $d.SCIMError}}<div class="ui-card-body">{{template "attention" (attention "fail" "SCIM users could not be loaded" $d.SCIMError)}}</div>
+{{else if $d.SCIM}}<div class="ui-table-wrap" role="region" aria-label="SCIM users, scrollable" tabindex="0">
+<table class="ui-table">
+<thead><tr><th scope="col">Name</th><th scope="col">ID</th><th scope="col">Roles</th><th scope="col">From groups</th><th scope="col">Status</th></tr></thead>
+<tbody>{{range $d.SCIM}}<tr><td>{{.Name}}</td><td class="ui-mono">{{.ID}}</td><td>{{.Roles}}</td><td>{{or .Via "–"}}</td><td>{{template "status" .}}</td></tr>
+{{end}}</tbody></table></div>
+<p class="ui-card-body ui-muted admin-note">Change these users and their groups in your identity provider. A SCIM delete or deactivate turns the user off on the next request.</p>
+{{else}}{{template "empty" (empty "No SCIM users yet" "Point your identity provider's SCIM client at /scim/v2 to provision people here.")}}{{end}}
+</section>
+<section class="ui-card" aria-labelledby="local-h">
+<div class="ui-card-header"><h2 id="local-h">Managed in the console</h2>{{if not $d.CanEdit}}<span class="ui-chip">Owners change these</span>{{end}}</div>
+{{if $d.LocalOff}}{{template "empty" (empty "Console users are off" "Set a console user file to add service accounts here.")}}
+{{else}}{{if $d.Local}}<div class="ui-table-wrap" role="region" aria-label="Console users, scrollable" tabindex="0">
+<table class="ui-table">
+<thead><tr><th scope="col">Name</th><th scope="col">ID</th><th scope="col">Kind</th><th scope="col">Role</th><th scope="col">Status</th>{{if $d.CanEdit}}<th scope="col"><span class="ui-visually-hidden">Actions</span></th>{{end}}</tr></thead>
+<tbody>{{range $d.Local}}<tr><td>{{.Name}}</td><td class="ui-mono">{{.ID}}</td><td>{{.Kind}}</td>
+<td>{{if .Editable}}<form class="admin-inline" method="post" action="/admin/users/role"><input type="hidden" name="id" value="{{.ID}}"><label class="ui-visually-hidden" for="role-{{.ID}}">Role for {{.Name}}</label><select class="ui-input" id="role-{{.ID}}" name="role">{{$r := .Role}}{{range $d.Roles}}<option{{if eq . $r}} selected{{end}}>{{.}}</option>{{end}}</select><button class="ui-button" data-size="sm" type="submit">Save<span class="ui-visually-hidden"> role for {{.Name}}</span></button></form>{{else}}{{.Role}}{{end}}</td>
+<td>{{template "status" .}}</td>
+{{if $d.CanEdit}}<td><form method="post" action="/admin/users/status"><input type="hidden" name="id" value="{{.ID}}"><input type="hidden" name="disabled" value="{{if .Disabled}}false{{else}}true{{end}}"><button class="ui-button" data-size="sm" type="submit"{{if not .Disabled}} data-variant="danger"{{end}}>{{if .Disabled}}Enable{{else}}Disable{{end}}<span class="ui-visually-hidden"> {{.Name}}</span></button></form></td>{{end}}</tr>
+{{end}}</tbody></table></div>
+{{else}}{{template "empty" (empty "No console users yet" "Add a service account for CI or another factory below.")}}{{end}}
+{{if $d.CanEdit}}<div class="ui-card-body admin-divider">
+<h3 class="admin-h3">Add a user</h3>
+<form class="admin-inline" method="post" action="/admin/users">
+<div class="ui-field"><label for="add-name">Name</label><input class="ui-input" id="add-name" name="name" required placeholder="ci-release"></div>
+<div class="ui-field"><label for="add-kind">Kind</label><select class="ui-input" id="add-kind" name="kind">{{range $d.Kinds}}<option>{{.}}</option>{{end}}</select></div>
+<div class="ui-field"><label for="add-role">Role</label><select class="ui-input" id="add-role" name="role">{{range $d.Roles}}<option{{if eq . "member"}} selected{{end}}>{{.}}</option>{{end}}</select></div>
+<button class="ui-button" data-variant="primary" type="submit">Add user</button>
+</form></div>{{end}}{{end}}
+</section>
+</div>{{end}}
+
+{{define "status"}}{{if .Disabled}}{{template "chip" (chip "Deprovisioned" "fail")}}{{else}}{{template "chip" (chip "Active" "pass")}}{{end}}{{end}}

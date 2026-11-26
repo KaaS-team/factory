@@ -1,0 +1,131 @@
+/* Admin console additions on the KaaS ui tokens. Candidates for the ui repo: the usage bar, the
+   inline row form, the definition grid and the code editor. */
+
+.admin-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--ui-space-2);
+}
+.admin-inline .ui-input {
+  width: auto;
+  min-width: 112px;
+}
+.admin-inline .ui-field {
+  min-width: 160px;
+}
+.admin-num {
+  max-width: 120px;
+}
+.admin-small,
+.admin-note {
+  font-size: var(--ui-type-xs);
+}
+.admin-divider {
+  border-top: 1px solid var(--ui-border);
+}
+.admin-h3 {
+  margin-bottom: var(--ui-space-3);
+  font-size: var(--ui-type-sm);
+}
+.admin-path {
+  font-size: var(--ui-type-xs);
+  overflow-wrap: anywhere;
+}
+.admin-list {
+  padding-left: var(--ui-space-4);
+}
+.admin-wide {
+  max-width: none;
+  width: 100%;
+}
+.admin-editor {
+  min-height: 320px;
+  font-family: var(--ui-font-mono);
+  font-size: var(--ui-type-xs);
+  line-height: var(--ui-leading);
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+}
+.admin-pre {
+  max-height: 420px;
+  margin: 0;
+  padding: var(--ui-space-3);
+  overflow: auto;
+  background: var(--ui-raised);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-md);
+  font-size: var(--ui-type-xs);
+}
+.admin-dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: var(--ui-space-3) var(--ui-space-5);
+  margin: 0;
+}
+.admin-dl dt {
+  color: var(--ui-muted);
+  font-size: var(--ui-type-xs);
+}
+.admin-dl dd {
+  margin: 0;
+  font-size: var(--ui-type-sm);
+  overflow-wrap: anywhere;
+}
+.admin-filters .ui-form {
+  flex-direction: row;
+  flex-wrap: wrap;
+  max-width: none;
+}
+.admin-filters .ui-form > .ui-field {
+  flex: 1 1 160px;
+  align-self: auto;
+}
+.admin-filters .ui-form > .ui-button {
+  align-self: flex-end;
+}
+.admin-filters .ui-form > .ui-form-error {
+  flex-basis: 100%;
+}
+
+/* usage bar: a native progress element, coloured by status */
+.admin-usage {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-2);
+  min-width: 200px;
+}
+.admin-bar {
+  flex: 1 1 120px;
+  height: 8px;
+  border: 0;
+  border-radius: var(--ui-radius-pill);
+  background: var(--ui-raised);
+  overflow: hidden;
+  appearance: none;
+}
+.admin-bar::-webkit-progress-bar {
+  background: var(--ui-raised);
+  border-radius: var(--ui-radius-pill);
+}
+.admin-bar::-webkit-progress-value {
+  background: var(--ui-pass);
+  border-radius: var(--ui-radius-pill);
+}
+.admin-bar::-moz-progress-bar {
+  background: var(--ui-pass);
+  border-radius: var(--ui-radius-pill);
+}
+.admin-bar[data-status='wait']::-webkit-progress-value {
+  background: var(--ui-wait);
+}
+.admin-bar[data-status='wait']::-moz-progress-bar {
+  background: var(--ui-wait);
+}
+.admin-bar[data-status='fail']::-webkit-progress-value {
+  background: var(--ui-fail);
+}
+.admin-bar[data-status='fail']::-moz-progress-bar {
+  background: var(--ui-fail);
+}

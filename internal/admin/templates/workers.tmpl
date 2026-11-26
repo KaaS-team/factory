@@ -1,0 +1,15 @@
+{{define "workers"}}{{$d := .Data}}<div class="ui-stack" data-gap="lg">
+{{template "header" (dict "Title" .Title "Sub" "Self-hosted workers by pool. A worker is late after one missed heartbeat window and lost after three." "Notice" .Notice)}}
+{{if $d.Off}}{{template "empty" (empty "No worker plane is connected" "Run factory worker plane and point the console at it to see pools here.")}}
+{{else}}{{if $d.Pools}}<div class="ui-grid">{{range $d.Pools}}{{template "stat" .Stat}}{{end}}</div>{{end}}
+<section class="ui-card" aria-labelledby="workers-h">
+<div class="ui-card-header"><h2 id="workers-h">Workers</h2></div>
+{{if $d.Rows}}<div class="ui-table-wrap" role="region" aria-label="Workers, scrollable" tabindex="0">
+<table class="ui-table">
+<thead><tr><th scope="col">Worker</th><th scope="col">Pool</th><th scope="col">Health</th><th scope="col">Last seen</th><th scope="col">Job</th><th scope="col">Labels</th><th scope="col">Capabilities</th><th scope="col"><span class="ui-visually-hidden">Actions</span></th></tr></thead>
+<tbody>{{range $d.Rows}}<tr><td class="ui-mono">{{.ID}}</td><td>{{.Pool}}</td><td>{{template "chip" .Health}}</td><td>{{.Seen}}</td><td class="ui-mono">{{.Job}}</td><td class="ui-mono">{{or .Labels "–"}}</td><td>{{.Caps}}</td>
+<td>{{if .CanDrain}}<form method="post" action="/admin/workers/drain"><input type="hidden" name="id" value="{{.ID}}"><button class="ui-button" data-size="sm" type="submit">Drain<span class="ui-visually-hidden"> {{.ID}}</span></button></form>{{end}}</td></tr>
+{{end}}</tbody></table></div>
+{{else}}{{template "empty" (empty "No workers registered" "Start one with factory worker run --plane and a pool token.")}}{{end}}
+</section>{{end}}
+</div>{{end}}

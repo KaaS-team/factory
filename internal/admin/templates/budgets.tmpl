@@ -1,0 +1,21 @@
+{{define "budgets"}}{{$d := .Data}}<div class="ui-stack" data-gap="lg">
+{{template "header" (dict "Title" .Title "Sub" "The limits in force after layering, and what is spent or held against each this period. A change is written to the layer that sets the limit and checked first." "Notice" .Notice)}}
+{{with $d.Problem}}{{template "attention" (attention "fail" "Not saved" .)}}{{end}}
+{{with $d.Problems}}<div class="ui-attention" role="alert" data-status="fail">
+<p class="ui-attention-title">Not saved: the policy check refused it</p>
+<ul class="ui-attention-body admin-list">{{range .}}<li><span class="ui-mono">{{.Code}}</span> {{.Message}}</li>{{end}}</ul>
+</div>{{end}}
+{{if $d.NoUsage}}{{template "attention" (attention "info" "Usage is not connected" "Limits are shown from policy. Spend appears once the factory runs with a budget state file.")}}{{end}}
+<section class="ui-card" aria-labelledby="budgets-h">
+<div class="ui-card-header"><h2 id="budgets-h">Limits by scope</h2></div>
+{{if $d.Rows}}<div class="ui-table-wrap" role="region" aria-label="Budgets, scrollable" tabindex="0">
+<table class="ui-table">
+<thead><tr><th scope="col">Scope</th><th scope="col">ID</th><th scope="col">Period</th><th scope="col">Usage</th><th scope="col" class="ui-num">Limit</th>{{if $d.CanEdit}}<th scope="col">Change limit</th>{{end}}</tr></thead>
+<tbody>{{range $i, $r := $d.Rows}}<tr><td>{{.Scope}}</td><td class="ui-mono">{{.ID}}</td><td>{{.Period}}</td>
+<td>{{if .Known}}<div class="admin-usage"><progress class="admin-bar" data-status="{{.Status}}" max="{{.Max}}" value="{{.Value}}" aria-label="{{.Scope}} {{.ID}} usage">{{.Percent}}%</progress><span class="ui-num">{{.Used}} · {{.Percent}}%</span></div>{{else}}<span class="ui-muted">not connected</span>{{end}}</td>
+<td class="ui-num">{{.Limit}}</td>
+{{if $d.CanEdit}}<td><form class="admin-inline" method="post" action="/admin/budgets"><input type="hidden" name="scope" value="{{.Scope}}"><input type="hidden" name="id" value="{{.ID}}"><input type="hidden" name="period" value="{{.Period}}"><label class="ui-visually-hidden" for="usd-{{$i}}">New {{.Period}} limit in dollars for {{.Scope}} {{.ID}}</label><input class="ui-input admin-num" id="usd-{{$i}}" name="usd" type="number" min="0" step="0.01" value="{{.LimitUSD}}"><button class="ui-button" data-size="sm" type="submit">Save<span class="ui-visually-hidden"> limit for {{.Scope}} {{.ID}}</span></button><span class="ui-muted admin-small">{{.Layer}} layer</span></form></td>{{end}}</tr>
+{{end}}</tbody></table></div>
+{{else}}{{template "empty" (empty "No budget limits" "Add [[budgets]] entries to the org kaas-policy.toml. A key with no limit is unlimited.")}}{{end}}
+</section>
+</div>{{end}}

@@ -5,6 +5,7 @@ go 1.26.0
 require (
 	charm.land/huh/v2 v2.0.3
 	github.com/BurntSushi/toml v1.5.0
+	github.com/KaaS-team/ui v0.0.0-20261126201939-a34104b922e4
 	github.com/a2aproject/a2a-go/v2 v2.8.0
 	github.com/beevik/etree v1.8.1
 	github.com/bmatcuk/doublestar/v4 v4.9.1
