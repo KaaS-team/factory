@@ -62,6 +62,7 @@ func connect(t *testing.T, ctl api.Control, h factorymcp.Handlers) *sdk.ClientSe
 
 var toolNames = []string{"plan", "approve_plan", "list_tickets", "status", "dispatch", "steer", "cancel", "retry", "queue", "explain_config", "first_run", "report",
 	"create_task", "hand_off_task", "queue_followup", "list_events", "list_repos", "policy", "attention", "manage", "version", "doctor", "packs", "shadow", "repomap", "ask"}
+	"create_task", "hand_off_task", "queue_followup", "list_events", "list_repos", "policy", "attention", "manage", "version", "doctor", "packs", "shadow", "repomap", "onboard"}
 
 // callArgs gives each tool a valid input.
 var callArgs = map[string]map[string]any{
@@ -88,6 +89,7 @@ var callArgs = map[string]map[string]any{
 	"doctor":         {},
 	"packs":          {},
 	"shadow":         {},
+	"onboard":        {},
 	"repomap":        {"budget": 64},
 	"ask":            {"ticket": "7", "question": "why"},
 }
@@ -229,6 +231,7 @@ func TestNoToolOutputLeaksUsageCostOrModel(t *testing.T) {
 		Doctor:        func(context.Context) (string, error) { return "fine", nil },
 		Packs:         func(context.Context) (string, error) { return "fine", nil },
 		Shadow:        func(context.Context) (string, error) { return "fine", nil },
+		Onboard:       func(context.Context) (string, error) { return "fine", nil },
 		Repomap:       func(context.Context, factorymcp.RepomapInput) (string, error) { return "fine", nil },
 		Ask:           func(context.Context, factorymcp.AskInput) (string, error) { return "fine", nil },
 	}

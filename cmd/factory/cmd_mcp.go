@@ -35,6 +35,7 @@ func mcpHandlers() mcp.Handlers {
 		Ask: func(ctx context.Context, in mcp.AskInput) (string, error) {
 			return runSub(ctx, "ask", in.Ticket, in.Question)
 		},
+		Onboard: func(ctx context.Context) (string, error) { return runSub(ctx, "onboard", "--dry-run") },
 		Repomap: func(ctx context.Context, in mcp.RepomapInput) (string, error) {
 			args := []string{"repomap"}
 			if in.Budget > 0 {
