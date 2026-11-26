@@ -61,7 +61,8 @@ func connect(t *testing.T, ctl api.Control, h factorymcp.Handlers) *sdk.ClientSe
 }
 
 var toolNames = []string{"plan", "approve_plan", "list_tickets", "status", "dispatch", "steer", "cancel", "retry", "queue", "explain_config", "first_run", "report",
-	"create_task", "hand_off_task", "queue_followup", "list_events", "list_repos"}
+	"create_task", "hand_off_task", "queue_followup", "list_events", "list_repos",
+	"version", "doctor", "packs", "shadow", "repomap"}
 
 // callArgs gives each tool a valid input.
 var callArgs = map[string]map[string]any{
@@ -82,6 +83,11 @@ var callArgs = map[string]map[string]any{
 	"queue_followup": {"id": "7", "message": "m"},
 	"list_events":    {"id": "7"},
 	"list_repos":     {},
+	"version":        {},
+	"doctor":         {},
+	"packs":          {},
+	"shadow":         {},
+	"repomap":        {"budget": 64},
 }
 
 func text(t *testing.T, r *sdk.CallToolResult) string {
@@ -217,6 +223,11 @@ func TestNoToolOutputLeaksUsageCostOrModel(t *testing.T) {
 		ExplainConfig: func(context.Context, factorymcp.ExplainConfigInput) (string, error) { return "fine", nil },
 		FirstRun:      func(context.Context) (string, error) { return "fine", nil },
 		Report:        func(context.Context) (string, error) { return "fine", nil },
+		Version:       func(context.Context) (string, error) { return "fine", nil },
+		Doctor:        func(context.Context) (string, error) { return "fine", nil },
+		Packs:         func(context.Context) (string, error) { return "fine", nil },
+		Shadow:        func(context.Context) (string, error) { return "fine", nil },
+		Repomap:       func(context.Context, factorymcp.RepomapInput) (string, error) { return "fine", nil },
 	}
 	cs := connect(t, newFake(), h)
 	for _, n := range toolNames {
@@ -846,7 +857,7 @@ func TestTokenIsEnvOnlyAndComparedInConstantTime(t *testing.T) {
 		t.Error("no --http flag")
 	}
 	cmd.Flags().VisitAll(func(f *pflag.Flag) {
-		if f.Name != "http" && f.Name != "read-only" && f.Name != "help" {
+		if f.Name != "http" && f.Name != "read-only" && f.Name != "resource-url" && f.Name != "help" {
 			t.Errorf("unexpected flag --%s", f.Name)
 		}
 	})

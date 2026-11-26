@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -27,6 +28,20 @@ func mcpHandlers() mcp.Handlers {
 	return mcp.Handlers{
 		FirstRun: func(ctx context.Context) (string, error) { return runSub(ctx, "first-run", "--dry-run") },
 		Report:   func(ctx context.Context) (string, error) { return runSub(ctx, "report") },
+		Version:  func(ctx context.Context) (string, error) { return runSub(ctx, "version") },
+		Doctor:   func(ctx context.Context) (string, error) { return runSub(ctx, "doctor") },
+		Packs:    func(ctx context.Context) (string, error) { return runSub(ctx, "packs", "list") },
+		Shadow:   func(ctx context.Context) (string, error) { return runSub(ctx, "shadow") },
+		Repomap: func(ctx context.Context, in mcp.RepomapInput) (string, error) {
+			args := []string{"repomap"}
+			if in.Budget > 0 {
+				args = append(args, "--budget="+strconv.Itoa(in.Budget))
+			}
+			if in.Ticket != "" {
+				args = append(args, "--ticket="+in.Ticket)
+			}
+			return runSub(ctx, args...)
+		},
 		Plan: func(ctx context.Context, in mcp.PlanInput) (string, error) {
 			return dataSub(ctx, "plan", in.Goal, "plan", "goal must be text")
 		},

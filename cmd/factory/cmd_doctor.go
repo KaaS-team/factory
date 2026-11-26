@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	register("doctor", doctorCmd, noTool("gap: no doctor tool yet; it checks the host the CLI runs on"))
+	register("doctor", doctorCmd)
 }
 
 // checkStatus is the outcome of one doctor check.

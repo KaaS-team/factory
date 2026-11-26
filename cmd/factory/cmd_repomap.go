@@ -5,5 +5,5 @@ import (
 )
 
 func init() {
-	register("repomap", repomap.NewCommand, noTool("gap: no repomap tool yet"))
+	register("repomap", repomap.NewCommand)
 }
