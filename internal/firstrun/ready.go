@@ -154,7 +154,7 @@ func ciCheck(dir string) Check {
 func protectionCheck(ctx context.Context, p Protection) Check {
 	const name = "branch protection"
 	if p == nil {
-		return Check{Name: name, Status: Unknown, Detail: "pass --gh owner/repo to check it"}
+		return Check{Name: name, Status: Unknown, Detail: "needs the GitHub repo and a token in the config to check it"}
 	}
 	ok, err := p(ctx)
 	switch {
