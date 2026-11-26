@@ -76,7 +76,7 @@ func TestAfterLandProvesLoneCulprit(t *testing.T) {
 		"1@a,2@b":     {IDs: []string{"1", "2"}, Heads: []string{"a", "b"}, Base: "B", Log: "FAIL"},
 		"1@a,2@b,3@c": {IDs: []string{"1", "2", "3"}, Heads: []string{"a", "b", "c"}, Base: "B", Log: "FAIL"},
 	}
-	out := AfterLand(results, []string{"1"}, []string{"a"})
+	out := AfterLand(results, []string{"1"}, []string{"a"}, true)
 	if r := out["2@b"]; r.Pass || r.Inferred || r.Log != "FAIL" {
 		t.Fatalf("lone culprit %+v, want a proven red", r)
 	}
@@ -85,7 +85,7 @@ func TestAfterLandProvesLoneCulprit(t *testing.T) {
 	}
 	// A green prefix on a different base proves nothing.
 	results["1@a"] = Result{IDs: []string{"1"}, Heads: []string{"a"}, Base: "B0", Pass: true}
-	if r := AfterLand(results, []string{"1"}, []string{"a"})["2@b"]; !r.Inferred {
+	if r := AfterLand(results, []string{"1"}, []string{"a"}, true)["2@b"]; !r.Inferred {
 		t.Fatalf("other base %+v, want inferred", r)
 	}
 }

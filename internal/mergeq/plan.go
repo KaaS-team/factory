@@ -191,7 +191,9 @@ func land(es []Entry, r Result) Action {
 
 // AfterLand returns the results with a red result for the PRs left over from every red set that
 // began with the landed PRs, because the culprit of such a set is among the rest.
-func AfterLand(results map[string]Result, landedIDs, landedHeads []string) map[string]Result {
+// With prove, a lone PR left from a red set whose landed prefix passed on the
+// same base is a proven red, not an inferred one, so it is ejected without a run of its own.
+func AfterLand(results map[string]Result, landedIDs, landedHeads []string, prove bool) map[string]Result {
 	out := make(map[string]Result, len(results))
 	for k, r := range results {
 		out[k] = r
@@ -206,7 +208,7 @@ func AfterLand(results map[string]Result, landedIDs, landedHeads []string) map[s
 		if _, ok := out[k]; !ok {
 			// One PR left, and the landed prefix passed on the same base: the stacked set failed because of
 			// this PR alone, so its failure was observed and needs no run of its own.
-			proven := len(ids) == 1 && landedOK && landed.Pass && landed.Base == r.Base
+			proven := prove && len(ids) == 1 && landedOK && landed.Pass && landed.Base == r.Base
 			out[k] = Result{IDs: ids, Heads: heads, Log: r.Log, Inferred: !proven}
 		}
 	}

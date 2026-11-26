@@ -57,9 +57,7 @@ type queued struct {
 	Approved string `json:"approved,omitempty"`
 }
 
-func queuedMarker(pr int, head string) string { return queuedMarkerPinned(pr, head, "") }
-
-func queuedMarkerPinned(pr int, head, approved string) string {
+func queuedMarker(pr int, head, approved string) string {
 	b, _ := json.Marshal(queued{PR: pr, Head: head, Approved: approved})
 	return marker.Wrap("queued", string(b))
 }
@@ -117,7 +115,7 @@ func (q *CoreQueue) Enqueue(ctx context.Context, id api.TicketID, pr int) error 
 	if err != nil {
 		return fmt.Errorf("pr %d: %w", pr, err)
 	}
-	if err := q.d.Tracker.Comment(marker.Allow(ctx), id, "Queued for merge as PR #"+strconv.Itoa(pr)+".\n\n"+queuedMarkerPinned(pr, st.Head, st.Head)); err != nil {
+	if err := q.d.Tracker.Comment(marker.Allow(ctx), id, "Queued for merge as PR #"+strconv.Itoa(pr)+".\n\n"+queuedMarker(pr, st.Head, st.Head)); err != nil {
 		return err
 	}
 	return q.d.Tracker.SetPhase(ctx, id, api.PhaseQueued)
@@ -228,5 +226,5 @@ func (s coreStore) Requeue(ctx context.Context, id, head string) error {
 	if err != nil {
 		return err
 	}
-	return s.q.d.Tracker.Comment(marker.Allow(ctx), api.TicketID(id), "The PR moved; queued again at its new head.\n\n"+queuedMarkerPinned(m.PR, head, m.Approved))
+	return s.q.d.Tracker.Comment(marker.Allow(ctx), api.TicketID(id), "The PR moved; queued again at its new head.\n\n"+queuedMarker(m.PR, head, m.Approved))
 }

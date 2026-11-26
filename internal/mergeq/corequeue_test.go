@@ -338,7 +338,7 @@ func TestCoreQueueEnqueueTwiceIsNoOp(t *testing.T) {
 }
 
 func TestQueuedMarkerWireFormat(t *testing.T) {
-	if got, want := queuedMarker(7, "abc"), `<!-- factory:queued {"pr":7,"head":"abc"} -->`; got != want {
+	if got, want := queuedMarker(7, "abc", ""), `<!-- factory:queued {"pr":7,"head":"abc"} -->`; got != want {
 		t.Fatalf("queue marker = %q, want %q", got, want)
 	}
 }
@@ -349,8 +349,8 @@ func TestMarkerRoundTrip(t *testing.T) {
 		ok         bool
 		pr         int
 	}{
-		{"plain", queuedMarker(7, "abc"), true, 7},
-		{"embedded", "hello\n" + queuedMarker(9, "d") + "\nbye", true, 9},
+		{"plain", queuedMarker(7, "abc", ""), true, 7},
+		{"embedded", "hello\n" + queuedMarker(9, "d", "") + "\nbye", true, 9},
 		{"none", "no marker", false, 0},
 		{"bad json", "<!-- factory:queued {nope} -->", false, 0},
 		{"zero pr", `<!-- factory:queued {"pr":0,"head":"x"} -->`, false, 0},

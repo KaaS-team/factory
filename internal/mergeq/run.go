@@ -332,5 +332,5 @@ func (r *Runner) land(ctx context.Context, a Action, st State, results map[strin
 			}
 		}
 	}
-	return AfterLand(results, a.IDs, a.Heads), nil
+	return AfterLand(results, a.IDs, a.Heads, r.Cfg.Speculate), nil
 }

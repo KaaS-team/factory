@@ -19,13 +19,13 @@ func (p *pinned) PR(ctx context.Context, id string) (PRState, error) {
 		p.onPR(id)
 	}
 	st, err := p.world.PR(ctx, id)
-	st.Approved = p.world.queued[id]
+	st.Approved = p.queued[id]
 	return st, err
 }
 
 func (p *pinned) Refuse(_ context.Context, id, approved, head string) error {
 	p.refused = append(p.refused, id+":"+approved+"->"+head)
-	p.world.remove(id)
+	p.remove(id)
 	return nil
 }
 
