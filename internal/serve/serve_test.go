@@ -289,3 +289,25 @@ func TestHandlerRoutes(t *testing.T) {
 		}
 	}
 }
+
+// TestServe_LearnHookRunsBesideTheLoop: the learn hook is called on every interval while the loop
+// runs, and a hook that fails (it reports to its own log) does not stop the loop or the next call.
+func TestServe_LearnHookRunsBesideTheLoop(t *testing.T) {
+	fc := newFakeCore()
+	calls := make(chan struct{}, 8)
+	s := New(fc, Options{Interval: 10 * time.Millisecond, Learn: func(context.Context, time.Time) { calls <- struct{}{} }})
+	cancel, done := startServe(t, s, 5*time.Second)
+	<-fc.started
+	for i := 0; i < 3; i++ {
+		select {
+		case <-calls:
+		case <-time.After(5 * time.Second):
+			t.Fatalf("learn hook ran %d times, want 3 while the loop was up", i)
+		}
+	}
+	cancel()
+	close(fc.release)
+	if err := <-done; err != nil {
+		t.Fatal(err)
+	}
+}

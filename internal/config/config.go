@@ -23,6 +23,13 @@ type Trust struct {
 	Allow   []string `key:"allow"`
 }
 
+// Learn sends each new lesson to an MCP tool. SinkCommand is the stdio MCP server to start and
+// SinkTool the tool to call on it; both empty means no sink.
+type Learn struct {
+	SinkCommand string `key:"sink_command"`
+	SinkTool    string `key:"sink_tool"`
+}
+
 // GitHubApp names a GitHub App installation the factory acts as. ID zero means no app: a token
 // from the environment is used. KeyFile is a path to the PEM private key, never the key.
 type GitHubApp struct {
@@ -65,6 +72,7 @@ type Config struct {
 	SandboxRuntime         string            `key:"sandbox_runtime"`
 	Trust                  Trust             `key:"trust"`
 	GitHubApp              GitHubApp         `key:"github_app"`
+	Learn                  Learn             `key:"learn"`
 }
 
 // field finds the struct field a key path names. For "models.<tier>" it returns the map and the tier.
