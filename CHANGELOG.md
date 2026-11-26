@@ -11,6 +11,7 @@
 - Review drops findings that do not cite a diff line and quote it, learns rules from dismissed findings (`factory review-dismiss`, `.factory/review-rules.yml`), dedupes across rounds, cuts low-confidence findings and merges an optional second reviewer by citation.
 - `factory dashboard` serves the fleet app: a board of runs by state and wave, the attention inbox, and a run page with a live timeline and log that can retry, cancel and steer (with `--allow-actions`). Built on the KaaS ui partials; every route checks the ee Authorizer.
 - Run ledger (`.factory/ledger/runs.jsonl`, `spend.json`), the analytics API (`/api/v1/analytics/runs` and `/spend`, JSON and CSV) and an OTLP export of run counts, durations and cost.
+- Build prompts open with a goal checklist built from the issue's acceptance lines and six deviation checkpoints. Verify fails a build report that leaves a row unchecked, names no test or leaves a checkpoint unanswered, the manager loop steers the agent on the same check, and an issue with no acceptance lines is refused.
 
 ## v6.3.0
 
