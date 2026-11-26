@@ -122,6 +122,12 @@
   }
 }
 @media (max-width: 720px) {
+  .fw-board > [data-col='needs'] {
+    order: -1;
+  }
+  .fw-stats {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 104px), 1fr));
+  }
   .ui-nav-foot.fw-signout {
     display: block;
     flex: none;

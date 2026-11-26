@@ -15,7 +15,7 @@ Available Commands:
   checkpoint   Snapshot and restore the worktree around an agent session
   completion   Generate the autocompletion script for the specified shell
   config       Read resolved configuration
-  dashboard    Serve the read-only web view
+  dashboard    Serve the fleet web app: board, attention inbox and run timelines
   design       Make design edits to a JSX tree without a coding agent
   dispatch     Start a session for a ticket now
   doctor       Check the tools and settings the factory needs
@@ -254,15 +254,16 @@ Flags:
   -h, --help   help for get
 
 === factory dashboard
-Serve the read-only web view
+Serve the fleet web app: board, attention inbox and run timelines
 
 Usage:
   factory dashboard [flags]
 
 Flags:
-      --addr string   listen address (loopback by default) (default "127.0.0.1:8787")
-  -h, --help          help for dashboard
-      --operator      show usage and budget numbers
+      --addr string     listen address (loopback by default) (default "127.0.0.1:8787")
+      --allow-actions   let the local user retry, cancel, steer and resolve attention items
+  -h, --help            help for dashboard
+      --operator        show usage and budget numbers
 
 === factory design
 Make design edits to a JSX tree without a coding agent

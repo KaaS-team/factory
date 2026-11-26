@@ -7,10 +7,10 @@
 <div class="ui-shell">
 <nav class="ui-nav" aria-label="Main">
 <p class="ui-nav-brand">Factory</p>
-<ul>
+{{if ne .Page.Nav "signin"}}<ul>
 <li><a href="/"{{if eq .Page.Nav "board"}} aria-current="page"{{end}}>Board</a></li>
 <li><a href="/attention"{{if eq .Page.Nav "attention"}} aria-current="page"{{end}}>Attention{{with .Page.Inbox}} <span class="ui-nav-count" aria-label="{{.}} open">{{.}}</span>{{end}}</a></li>
-</ul>
+</ul>{{end}}
 {{if not .Page.Local}}{{if ne .Page.Nav "signin"}}<div class="ui-nav-foot fw-signout">
 <form method="post" action="/signout"><input type="hidden" name="csrf" value="{{.Page.CSRF}}">{{template "button" (button "Sign out" "submit" "")}}</form>
 </div>{{end}}{{end}}

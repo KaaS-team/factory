@@ -1,5 +1,6 @@
 {{/* error: a plain message with a way back. It never shows the cause. Data: page with failure. */}}
 {{define "error"}}<div class="fw-narrow ui-stack">
-<div class="ui-attention" role="alert" data-status="fail"><p class="ui-attention-title">{{.Data.Heading}}</p><p class="ui-attention-body">{{.Data.Body}}</p></div>
+<header class="ui-page-header"><div><h1>{{.Data.Heading}}</h1></div></header>
+<div class="ui-attention" role="alert" data-status="fail"><p class="ui-attention-title">{{.Data.Body}}</p></div>
 <p><a href="/">Back to the board</a></p>
 </div>{{end}}

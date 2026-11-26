@@ -9,14 +9,13 @@
 {{else if eq $v.Total 0}}{{template "empty" (empty "No runs yet" "Label an issue factory:ready, or run factory plan, and its runs appear here." )}}
 {{else}}<section class="ui-grid fw-stats" aria-label="Summary">{{range $v.Stats}}{{template "stat" .}}{{end}}</section>
 <div class="fw-board">
-{{range $v.Columns}}<section class="fw-col" aria-labelledby="col-{{.Key}}">
+{{range $v.Columns}}<section class="fw-col" data-col="{{.Key}}" aria-labelledby="col-{{.Key}}">
 <h2 id="col-{{.Key}}" class="fw-col-head">{{.Title}} <span class="ui-muted ui-num">{{len .Cards}}</span></h2>
 {{if .Cards}}<ul class="fw-cards">
 {{range .Cards}}<li class="ui-card fw-card">
 <a class="fw-card-link" href="/runs/{{.ID}}"><span class="ui-mono ui-muted">{{.ID}}</span> <span class="fw-card-title">{{.Title}}</span></a>
-<div class="ui-row fw-card-meta">{{template "chip" .Chip}}{{with .Wave}}<span class="ui-muted">Wave {{.}}</span>{{end}}{{with .QueuePos}}<span class="ui-muted">#{{.}} in queue</span>{{end}}{{with .Attempt}}<span class="ui-muted">Attempt {{.}}</span>{{end}}</div>
-{{with .Repo}}<p class="ui-muted fw-card-sub">{{.}}</p>{{end}}
-{{with .Since}}<p class="ui-muted fw-card-sub">Last push <time class="ui-num">{{.}}</time> UTC</p>{{end}}
+<div class="ui-row fw-card-meta">{{template "chip" .Chip}}{{with .Wave}}<span class="ui-muted">Wave {{.}}</span>{{end}}{{with .QueuePos}}<span class="ui-muted">#{{.}} in queue</span>{{end}}</div>
+{{with .Sub}}<p class="ui-muted fw-card-sub">{{.}}</p>{{end}}
 {{if $.Operator}}<p class="ui-muted ui-num fw-card-sub">{{.Usage.InputTokens}} in / {{.Usage.OutputTokens}} out tokens · ${{printf "%.2f" .Usage.CostUSD}}</p>{{end}}
 </li>
 {{end}}</ul>{{else}}<p class="ui-muted fw-col-empty">{{.Empty}}</p>{{end}}
