@@ -69,8 +69,8 @@ factory retry <ticket>
 
 | Group | Commands |
 |---|---|
-| Set up | `doctor`, `smoke`, `init`, `first-run`, `config`, `packs`, `add`, `upgrade`, `version` |
-| Plan and run | `plan`, `triage`, `run`, `dispatch`, `serve`, `eval`, `design`, `review`, `repomap`, `checkpoint`, `browsercheck` |
+| Set up | `doctor`, `smoke`, `init`, `first-run`, `ready`, `config`, `packs`, `add`, `upgrade`, `version` |
+| Plan and run | `plan`, `plan-review`, `triage`, `run`, `dispatch`, `serve`, `eval`, `design`, `review`, `repomap`, `checkpoint`, `browsercheck` |
 | Watch and steer | `status`, `queue`, `logs`, `steer`, `cancel`, `retry`, `board`, `dashboard`, `report`, `shadow`, `audit` |
 | Connect | `mcp`, `a2a` |
 
