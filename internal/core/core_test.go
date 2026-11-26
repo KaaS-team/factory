@@ -371,6 +371,31 @@ func TestRetryAfterNeedsHuman(t *testing.T) {
 	}
 }
 
+// A state that does not fit is an *api.StateError, returned before anything changes, so a client can show it as a conflict.
+func TestWrongStateIsStateError(t *testing.T) {
+	r := newRig(t, 2, meter.Budgets{}, tkt("a", 0))
+	ctx := context.Background()
+	var se *api.StateError
+	if err := r.c.Steer(ctx, "a", "hi"); !errors.As(err, &se) {
+		t.Errorf("steer untracked: %v, want StateError", err)
+	}
+	if err := r.c.Cancel(ctx, "a"); !errors.As(err, &se) {
+		t.Errorf("cancel untracked: %v, want StateError", err)
+	}
+	if err := r.c.Dispatch(ctx, "a"); err != nil {
+		t.Fatal(err)
+	}
+	e := r.c.state.Entries["a"]
+	e.Phase = api.PhaseQueued
+	r.c.state.Entries["a"] = e
+	if err := r.c.Retry(ctx, "a"); !errors.As(err, &se) {
+		t.Errorf("retry queued: %v, want StateError", err)
+	}
+	if len(r.disp.Sessions) != 1 {
+		t.Errorf("sessions = %d, want 1: a refused retry changes nothing", len(r.disp.Sessions))
+	}
+}
+
 // countEvents reads ch until it has seen n ticks and reports the tick and drop counts through get.
 func countEvents(ch <-chan api.Event, n int) (done chan struct{}, get func() (ticks, dropped int)) {
 	var ticks, dropped int
