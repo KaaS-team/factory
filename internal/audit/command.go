@@ -31,6 +31,14 @@ func Install(ctx context.Context) (flush func()) {
 	if o != nil {
 		sinks = append(sinks, o)
 	}
+	for _, open := range extraSinks {
+		x, err := open()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "audit: chain off:", err)
+			continue
+		}
+		sinks = append(sinks, x)
+	}
 	restore := SetSink(sinks)
 	return func() {
 		if o != nil {
@@ -61,5 +69,8 @@ func NewCommand() *cobra.Command {
 	export.Flags().StringVar(&since, "since", "7d", "how far back to read, such as 7d or 12h")
 	export.Flags().StringVar(&format, "format", "jsonl", "jsonl or csv")
 	root.AddCommand(export)
+	for _, build := range extraCmds {
+		root.AddCommand(build())
+	}
 	return root
 }
