@@ -31,6 +31,16 @@ Pin a file from a GitHub repository (MIT or Apache-2.0 only) in factory.lock
 | `--kind` | string | `` | skill, agent, workflow or check (default: from the path) |
 | `--root` | string | `.` | repository root holding factory.lock and .factory/cache |
 
+## factory ask
+
+`factory ask <ticket> <question...> [flags]`
+
+Ask a read-only question about a running or finished ticket, answered from its ledger and transcript
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--json` | bool | `false` | print the answer as JSON |
+
 ## factory attention
 
 `factory attention [flags]`

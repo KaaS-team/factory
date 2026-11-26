@@ -51,6 +51,7 @@ type Handlers struct {
 	Packs         func(ctx context.Context) (string, error)
 	Shadow        func(ctx context.Context) (string, error)
 	Repomap       func(ctx context.Context, in RepomapInput) (string, error)
+	Ask           func(ctx context.Context, in AskInput) (string, error)
 	// ReadOnly hides every write tool, so a call to one is refused (the --read-only flag).
 	ReadOnly bool
 }

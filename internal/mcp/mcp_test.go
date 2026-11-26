@@ -61,7 +61,7 @@ func connect(t *testing.T, ctl api.Control, h factorymcp.Handlers) *sdk.ClientSe
 }
 
 var toolNames = []string{"plan", "approve_plan", "list_tickets", "status", "dispatch", "steer", "cancel", "retry", "queue", "explain_config", "first_run", "report",
-	"create_task", "hand_off_task", "queue_followup", "list_events", "list_repos", "policy", "attention", "manage", "version", "doctor", "packs", "shadow", "repomap"}
+	"create_task", "hand_off_task", "queue_followup", "list_events", "list_repos", "policy", "attention", "manage", "version", "doctor", "packs", "shadow", "repomap", "ask"}
 
 // callArgs gives each tool a valid input.
 var callArgs = map[string]map[string]any{
@@ -89,6 +89,7 @@ var callArgs = map[string]map[string]any{
 	"packs":          {},
 	"shadow":         {},
 	"repomap":        {"budget": 64},
+	"ask":            {"ticket": "7", "question": "why"},
 }
 
 func text(t *testing.T, r *sdk.CallToolResult) string {
@@ -229,6 +230,7 @@ func TestNoToolOutputLeaksUsageCostOrModel(t *testing.T) {
 		Packs:         func(context.Context) (string, error) { return "fine", nil },
 		Shadow:        func(context.Context) (string, error) { return "fine", nil },
 		Repomap:       func(context.Context, factorymcp.RepomapInput) (string, error) { return "fine", nil },
+		Ask:           func(context.Context, factorymcp.AskInput) (string, error) { return "fine", nil },
 	}
 	factorymcp.PolicyRun = func(context.Context, factorymcp.PolicyInput) (string, error) { return "fine", nil }
 	t.Cleanup(func() { factorymcp.PolicyRun = nil })
@@ -889,7 +891,7 @@ func TestReadOnlyRefusesWriteTools(t *testing.T) {
 		}
 		have[tool.Name] = true
 	}
-	for _, n := range []string{"status", "list_tickets", "queue", "list_events", "list_repos", "explain_config", "first_run", "report"} {
+	for _, n := range []string{"status", "list_tickets", "queue", "list_events", "list_repos", "explain_config", "first_run", "report", "ask"} {
 		if !have[n] {
 			t.Errorf("read tool %s missing in read-only mode", n)
 		}
@@ -950,5 +952,23 @@ func TestServeRefusesForeignHostAndOrigin(t *testing.T) {
 		if res.StatusCode != c.want {
 			t.Errorf("%s: status %d, want %d", c.name, res.StatusCode, c.want)
 		}
+	}
+}
+
+// TestAskToolPassesTheQuestionAndChangesNothing: the ask tool hands ticket and question to its
+// handler, returns the answer text, and never reaches a Control write.
+func TestAskToolPassesTheQuestionAndChangesNothing(t *testing.T) {
+	f := newFake()
+	var got factorymcp.AskInput
+	cs := connect(t, f, factorymcp.Handlers{ReadOnly: true, Ask: func(_ context.Context, in factorymcp.AskInput) (string, error) {
+		got = in
+		return "[ledger] run r1 status failed", nil
+	}})
+	res, err := cs.CallTool(t.Context(), &sdk.CallToolParams{Name: "ask", Arguments: map[string]any{"ticket": "7", "question": "why failed"}})
+	if err != nil || res.IsError {
+		t.Fatalf("err = %v res = %+v", err, res)
+	}
+	if got.Ticket != "7" || got.Question != "why failed" || !strings.Contains(text(t, res), "run r1") {
+		t.Fatalf("got %+v text %q", got, text(t, res))
 	}
 }

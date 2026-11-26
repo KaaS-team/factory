@@ -32,6 +32,9 @@ func mcpHandlers() mcp.Handlers {
 		Doctor:   func(ctx context.Context) (string, error) { return runSub(ctx, "doctor") },
 		Packs:    func(ctx context.Context) (string, error) { return runSub(ctx, "packs", "list") },
 		Shadow:   func(ctx context.Context) (string, error) { return runSub(ctx, "shadow") },
+		Ask: func(ctx context.Context, in mcp.AskInput) (string, error) {
+			return runSub(ctx, "ask", in.Ticket, in.Question)
+		},
 		Repomap: func(ctx context.Context, in mcp.RepomapInput) (string, error) {
 			args := []string{"repomap"}
 			if in.Budget > 0 {
