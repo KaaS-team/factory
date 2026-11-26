@@ -109,7 +109,11 @@ func newServe() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return serve.New(core, serve.Options{Interval: l.Config.PollInterval, Wrap: wrap, Schedule: sched}).Serve(ctx, listen, drain)
+			lt, err := learnTick(l.Config, c, cmd.ErrOrStderr())
+			if err != nil {
+				_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "factory serve: lessons PR disabled: %v\n", err)
+			}
+			return serve.New(core, serve.Options{Interval: l.Config.PollInterval, Wrap: wrap, Schedule: sched, Learn: lt}).Serve(ctx, listen, drain)
 		},
 	}
 	cmd.Flags().StringVar(&addr, "addr", "127.0.0.1:8787", "address for /healthz, /readyz and /events")

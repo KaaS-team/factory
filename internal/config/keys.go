@@ -98,6 +98,8 @@ var specs = []spec{
 	{key: "sandbox_runtime", kind: kString, def: ""},
 	{key: "trust.min_role", kind: kRole, ceil: ceilFloor, def: "write"},
 	{key: "trust.allow", kind: kList, def: []string{}},
+	{key: "learn.sink_command", kind: kString, def: ""},
+	{key: "learn.sink_tool", kind: kString, def: ""},
 	{key: "github_app.id", kind: kInt, min: 0, def: 0},
 	{key: "github_app.installation_id", kind: kInt, min: 0, def: 0},
 	{key: "github_app.key_file", kind: kString, def: ""},

@@ -24,6 +24,7 @@ Available Commands:
   help           Help about any command
   init           Write .factory/factory.yaml from a tier preset
   intake         Take work from Slack and Sentry
+  learn          Open the lessons PR, or with --export print lessons as JSONL (--all: every registered repo)
   logs           Print what a ticket's session is doing
   manage         Watch active runs: nudge or restart stalled ones, handle failing CI, feed review comments back
   mcp            Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
@@ -591,6 +592,17 @@ Flags:
       --slack-secret-env string    env var holding the Slack signing secret (default "FACTORY_SLACK_SIGNING_SECRET")
       --slack-token-env string     env var holding the Slack bot token (default "FACTORY_SLACK_BOT_TOKEN")
       --store string               ticket file (default ".factory/intake/tickets.jsonl")
+
+=== factory learn
+Open the lessons PR, or with --export print lessons as JSONL (--all: every registered repo)
+
+Usage:
+  factory learn [flags]
+
+Flags:
+      --all      cover every registered repo
+      --export   print lessons as JSONL instead of opening a PR; writes no database
+  -h, --help     help for learn
 
 === factory logs
 Print what a ticket's session is doing

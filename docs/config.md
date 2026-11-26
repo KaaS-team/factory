@@ -40,6 +40,8 @@ Keys under `models.` are open: any tier name takes a string.
 | `sandbox_runtime` | string | `""` | any layer may set it |
 | `trust.min_role` | role | `"write"` | the org value is a floor; lower layers may only pick a role at or above it |
 | `trust.allow` | list | `[]` | any layer may set it |
+| `learn.sink_command` | string | `""` | any layer may set it |
+| `learn.sink_tool` | string | `""` | any layer may set it |
 | `github_app.id` | int | `0` | any layer may set it |
 | `github_app.installation_id` | int | `0` | any layer may set it |
 | `github_app.key_file` | string | `""` | any layer may set it |

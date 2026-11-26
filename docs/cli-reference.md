@@ -341,6 +341,17 @@ Serve the Slack events and Sentry webhook endpoints
 | `--slack-token-env` | string | `FACTORY_SLACK_BOT_TOKEN` | env var holding the Slack bot token |
 | `--store` | string | `.factory/intake/tickets.jsonl` | ticket file |
 
+## factory learn
+
+`factory learn [flags]`
+
+Open the lessons PR, or with --export print lessons as JSONL (--all: every registered repo)
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--all` | bool | `false` | cover every registered repo |
+| `--export` | bool | `false` | print lessons as JSONL instead of opening a PR; writes no database |
+
 ## factory logs
 
 `factory logs <ticket> [flags]`
