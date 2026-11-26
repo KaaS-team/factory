@@ -378,6 +378,20 @@ Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
 | `--read-only` | bool | `false` | serve only the read tools; write tools are refused |
 | `--resource-url` | string | `` | public URL of the /mcp endpoint, published in the protected resource metadata (default: FACTORY_OIDC_AUDIENCE when it is a URL) |
 
+## factory onboard
+
+`factory onboard [flags]`
+
+Detect this repo, write a starter shadow config and list what is missing
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--dir` | string | `.` | the repository to onboard |
+| `--dry-run` | bool | `false` | show the config and the gaps; write nothing |
+| `--force` | bool | `false` | overwrite an existing .factory/factory.yaml |
+| `--tier` | string | `solo` | starter tier preset, as in `factory init` |
+| `--tracker` | string | `github` | issue tracker, as in `factory init` |
+
 ## factory packs
 
 `factory packs`

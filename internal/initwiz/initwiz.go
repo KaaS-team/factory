@@ -55,6 +55,8 @@ func Dispatchers() []string { return []string{"local", "claude-cloud", "fire"} }
 // and no repo key are used then.
 type Answers struct {
 	Tier, Tracker, Repo, Dispatcher string
+	// Shadow writes `shadow: true`, so the factory records what it would do and changes nothing.
+	Shadow bool
 }
 
 type file struct {
@@ -68,6 +70,7 @@ type file struct {
 	Budgets                *budgets `yaml:"budgets,omitempty"`
 	AutoMerge              *bool    `yaml:"auto_merge,omitempty"`
 	RequesterCannotApprove *bool    `yaml:"requester_cannot_approve,omitempty"`
+	Shadow                 bool     `yaml:"shadow,omitempty"`
 }
 
 type budgets struct {
@@ -92,7 +95,7 @@ func Render(a Answers) ([]byte, error) {
 		return nil, fmt.Errorf("unknown dispatcher %q (one of %s)", d, strings.Join(Dispatchers(), ", "))
 	}
 	f := file{Repo: a.Repo, Tracker: a.Tracker, Approval: p.approval, Dispatcher: d, Slots: p.slots,
-		MergeMode: "queue", BatchSize: p.batchSize}
+		MergeMode: "queue", BatchSize: p.batchSize, Shadow: a.Shadow}
 	if p.teamDay > 0 || p.month > 0 {
 		f.Budgets = &budgets{TeamDay: p.teamDay, Month: p.month}
 	}

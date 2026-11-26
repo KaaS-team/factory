@@ -27,6 +27,7 @@ Available Commands:
   logs           Print what a ticket's session is doing
   manage         Watch active runs: nudge or restart stalled ones, handle failing CI, feed review comments back
   mcp            Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
+  onboard        Detect this repo, write a starter shadow config and list what is missing
   packs          Inspect the packs pinned in factory.lock
   plan           Turn a goal, epic or spec into a ticket DAG; --approve files it
   policy         Check actions and kaas-policy.toml files against policy (enterprise)
@@ -628,6 +629,20 @@ Flags:
       --http string           serve streamable HTTP at /mcp on this address (default host 127.0.0.1); with FACTORY_OIDC_ISSUER and FACTORY_OIDC_AUDIENCE it requires OIDC bearer tokens; otherwise the static token is read from FACTORY_MCP_TOKEN
       --read-only             serve only the read tools; write tools are refused
       --resource-url string   public URL of the /mcp endpoint, published in the protected resource metadata (default: FACTORY_OIDC_AUDIENCE when it is a URL)
+
+=== factory onboard
+Detect this repo, write a starter shadow config and list what is missing
+
+Usage:
+  factory onboard [flags]
+
+Flags:
+      --dir string             the repository to onboard (default ".")
+      --dry-run                show the config and the gaps; write nothing
+      --force                  overwrite an existing .factory/factory.yaml
+  -h, --help                   help for onboard
+      --tier factory init      starter tier preset, as in factory init (default "solo")
+      --tracker factory init   issue tracker, as in factory init (default "github")
 
 === factory packs
 Inspect the packs pinned in factory.lock

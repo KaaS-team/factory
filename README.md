@@ -14,7 +14,7 @@ factory first-run --dry-run
 ```
 
 `doctor` checks your tools. `init` writes `factory.yaml` into your repo's `.factory` folder. `first-run --dry-run` audits the
-repository, lists the first fixes, and changes nothing.
+repository, lists the first fixes, and changes nothing. On a real repo, run `factory onboard` first: it writes a shadow-mode config and lists the gaps.
 
 ## The loop
 
@@ -69,7 +69,7 @@ factory retry <ticket>
 
 | Group | Commands |
 |---|---|
-| Set up | `doctor`, `smoke`, `init`, `first-run`, `config`, `packs`, `add`, `upgrade`, `version` |
+| Set up | `doctor`, `smoke`, `init`, `onboard`, `first-run`, `config`, `packs`, `add`, `upgrade`, `version` |
 | Plan and run | `plan`, `triage`, `run`, `stack`, `program`, `resume`, `dispatch`, `serve`, `worker`, `eval`, `design`, `review`, `review-dismiss`, `repomap`, `checkpoint`, `browsercheck` |
 | Watch and steer | `status`, `queue`, `logs`, `steer`, `manage`, `cancel`, `retry`, `board`, `dashboard`, `report`, `shadow`, `audit`, `attention` |
 | Connect | `mcp`, `a2a`, `intake` |
