@@ -25,7 +25,7 @@ paths:
   /api/runs/{repo}/{issue}/steer:
     post:
       summary: Send a message to the running session (factory steer, the steer tool)
-      description: Needs run.steer. 409 when the ticket has no running session.
+      description: Needs run.steer. With no running session the message is queued as a follow-up for the next attempt.
       security: [{bearer: []}]
       parameters: [{$ref: "#/components/parameters/repo"}, {$ref: "#/components/parameters/issue"}]
       requestBody:

@@ -133,7 +133,6 @@ func (c *Core) Steer(ctx context.Context, id api.TicketID, message string) error
 	if !ok || !holdsSlot(e.Phase) {
 		c.mu.Unlock()
 		return c.queueSteer(ctx, id, message)
-		return &api.StateError{Msg: fmt.Sprintf("ticket %s has no running session", id)}
 	}
 	err := c.d.Dispatcher.Steer(ctx, c.sessionOf(e), message)
 	c.mu.Unlock()
