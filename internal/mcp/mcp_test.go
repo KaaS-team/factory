@@ -61,7 +61,7 @@ func connect(t *testing.T, ctl api.Control, h factorymcp.Handlers) *sdk.ClientSe
 }
 
 var toolNames = []string{"plan", "approve_plan", "list_tickets", "status", "dispatch", "steer", "cancel", "retry", "queue", "explain_config", "first_run", "report",
-	"create_task", "hand_off_task", "queue_followup", "list_events", "list_repos"}
+	"create_task", "hand_off_task", "queue_followup", "list_events", "list_repos", "policy", "attention", "manage", "version", "doctor", "packs", "shadow", "repomap"}
 
 // callArgs gives each tool a valid input.
 var callArgs = map[string]map[string]any{
@@ -82,6 +82,13 @@ var callArgs = map[string]map[string]any{
 	"queue_followup": {"id": "7", "message": "m"},
 	"list_events":    {"id": "7"},
 	"list_repos":     {},
+	"policy":         {"action": "check"},
+	"attention":      {},
+	"version":        {},
+	"doctor":         {},
+	"packs":          {},
+	"shadow":         {},
+	"repomap":        {"budget": 64},
 }
 
 func text(t *testing.T, r *sdk.CallToolResult) string {
@@ -217,7 +224,14 @@ func TestNoToolOutputLeaksUsageCostOrModel(t *testing.T) {
 		ExplainConfig: func(context.Context, factorymcp.ExplainConfigInput) (string, error) { return "fine", nil },
 		FirstRun:      func(context.Context) (string, error) { return "fine", nil },
 		Report:        func(context.Context) (string, error) { return "fine", nil },
+		Version:       func(context.Context) (string, error) { return "fine", nil },
+		Doctor:        func(context.Context) (string, error) { return "fine", nil },
+		Packs:         func(context.Context) (string, error) { return "fine", nil },
+		Shadow:        func(context.Context) (string, error) { return "fine", nil },
+		Repomap:       func(context.Context, factorymcp.RepomapInput) (string, error) { return "fine", nil },
 	}
+	factorymcp.PolicyRun = func(context.Context, factorymcp.PolicyInput) (string, error) { return "fine", nil }
+	t.Cleanup(func() { factorymcp.PolicyRun = nil })
 	cs := connect(t, newFake(), h)
 	for _, n := range toolNames {
 		r, err := cs.CallTool(t.Context(), &sdk.CallToolParams{Name: n, Arguments: callArgs[n]})
@@ -477,6 +491,9 @@ func TestErrorsAreToolErrorsWithoutOperatorDetail(t *testing.T) {
 	}
 	cs := connect(t, &spy{Control: newFake(), failWith: boom}, h)
 	for _, n := range toolNames {
+		if n == "attention" {
+			continue // reads the optional attention list, not the Control; see tool_attention_test.go
+		}
 		r, err := cs.CallTool(t.Context(), &sdk.CallToolParams{Name: n, Arguments: callArgs[n]})
 		if err != nil {
 			t.Fatalf("%s: protocol error %v", n, err)
@@ -846,7 +863,7 @@ func TestTokenIsEnvOnlyAndComparedInConstantTime(t *testing.T) {
 		t.Error("no --http flag")
 	}
 	cmd.Flags().VisitAll(func(f *pflag.Flag) {
-		if f.Name != "http" && f.Name != "read-only" && f.Name != "help" {
+		if f.Name != "http" && f.Name != "read-only" && f.Name != "resource-url" && f.Name != "help" {
 			t.Errorf("unexpected flag --%s", f.Name)
 		}
 	})

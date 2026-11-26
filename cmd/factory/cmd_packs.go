@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	register("packs", packsCommand, noTool("gap: no packs tool yet"))
+	register("packs", packsCommand)
 }
 
 // packsCommand is `factory packs`, with `packs upgrade` bumping pinned packs.

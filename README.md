@@ -70,9 +70,9 @@ factory retry <ticket>
 | Group | Commands |
 |---|---|
 | Set up | `doctor`, `smoke`, `init`, `first-run`, `config`, `packs`, `add`, `upgrade`, `version` |
-| Plan and run | `plan`, `run`, `dispatch`, `serve`, `eval`, `design`, `review`, `repomap`, `checkpoint`, `browsercheck` |
-| Watch and steer | `status`, `queue`, `logs`, `steer`, `cancel`, `retry`, `board`, `dashboard`, `report`, `shadow`, `audit` |
-| Connect | `mcp`, `a2a` |
+| Plan and run | `plan`, `triage`, `run`, `stack`, `program`, `resume`, `dispatch`, `serve`, `worker`, `eval`, `design`, `review`, `review-dismiss`, `repomap`, `checkpoint`, `browsercheck` |
+| Watch and steer | `status`, `queue`, `logs`, `steer`, `manage`, `cancel`, `retry`, `board`, `dashboard`, `report`, `shadow`, `audit`, `attention` |
+| Connect | `mcp`, `a2a`, `intake` |
 
 The full flag list for every command is in [docs/cli-reference.md](docs/cli-reference.md). A test keeps
 it equal to the real command tree.

@@ -30,6 +30,7 @@ import (
 	"github.com/KaaS-team/factory/internal/meter/price"
 	"github.com/KaaS-team/factory/internal/observe"
 	"github.com/KaaS-team/factory/internal/observe/ghsource"
+	"github.com/KaaS-team/factory/internal/policygate"
 	"github.com/KaaS-team/factory/internal/reconcile"
 	"github.com/KaaS-team/factory/internal/reconcile/eventlog"
 	"github.com/KaaS-team/factory/internal/store"
@@ -414,7 +415,7 @@ func buildDispatcher(ctx context.Context, c config.Config) (api.Dispatcher, erro
 		return nil, err
 	}
 	configureBudget()
-	return spend.Wrap(d), nil
+	return policygate.Wrap(spend.Wrap(d)), nil
 }
 
 func buildDeps(c config.Config) (core.Deps, error) {

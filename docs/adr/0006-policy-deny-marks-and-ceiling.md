@@ -2,7 +2,7 @@
 
 ## Status
 
-accepted
+superseded: superseded: only the org ceiling remains, in `internal/config/ceiling.go`.
 
 ## Context
 
@@ -60,3 +60,10 @@ The org level itself is not checked against marks. The org sets its own values.
 - `src/team/apply.ts`: `applyTeam`, which calls `resolveTeam` with the org and team files.
 - `src/team/explain.ts`: the lines that name a rule as hard-deny or soft-deny.
 - `src/team/always-allow.ts`: refuses an entry the org ceiling does not allow (uses `resolveTeam`).
+
+## Current code
+
+The Go line has the ceiling (`checkCeilings`, `ErrCeiling`) but no hard-deny or soft-deny marks and no
+pre-approval. The TypeScript code is in tag `ts-final`.
+
+The text above is kept as history. Its `src/` and `scripts/` paths are in tag `ts-final`.

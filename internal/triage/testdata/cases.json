@@ -1,0 +1,18 @@
+{
+  "protected": [".github/workflows/", "ee/"],
+  "open": [
+    {"ID": "10", "Title": "Login page crashes on empty password", "Body": "Submitting the login form with an empty password raises a panic in the handler and the page shows a 500 error instead of a message."},
+    {"ID": "11", "Title": "Add dark mode to the dashboard", "Body": "Users want a dark theme for the dashboard board view, following the system setting, with a toggle in the header."}
+  ],
+  "cases": [
+    {"name": "clear bug", "issue": {"ID": "20", "Title": "Export fails on large reports", "Body": "Running the export for a report with more than 5000 rows returns an error after thirty seconds. Expected: the file downloads. Seen in the reports page."}},
+    {"name": "vague", "issue": {"ID": "21", "Title": "Make it better", "Body": "It is slow."}},
+    {"name": "exact duplicate", "issue": {"ID": "22", "Title": "Login page crashes on empty password", "Body": "Submitting the login form with an empty password raises a panic in the handler and the page shows a 500 error instead of a message. Seen today."}},
+    {"name": "likely duplicate confirmed", "issue": {"ID": "23", "Title": "Add dark theme to the dashboard", "Body": "Users want a dark theme for the dashboard board view that follows the system setting, with a toggle in the header, so it is easy on the eyes at night."}, "confirm": true},
+    {"name": "likely duplicate not confirmed", "issue": {"ID": "24", "Title": "Add dark theme to the dashboard", "Body": "Users want a dark theme for the dashboard board view that follows the system setting, with a toggle in the header, so it is easy on the eyes at night."}, "confirm": false},
+    {"name": "protected path", "issue": {"ID": "25", "Title": "Add a release job", "Body": "Edit .github/workflows/release.yml to publish the binary on every tag, with a checksum file attached to the release page."}},
+    {"name": "security is P0", "issue": {"ID": "26", "Title": "SQL injection in search", "Body": "The search box passes the query into SQL without escaping. A crafted query returns other users' rows. Expected: the query is parameterised."}},
+    {"name": "docs", "issue": {"ID": "27", "Title": "README typo in install steps", "Body": "The install section says brew intall. It should say brew install. Fix the spelling in the README."}},
+    {"name": "label wins", "issue": {"ID": "28", "Title": "Handle the retry case", "Body": "When the worker retries a ticket the second attempt should reuse the branch and not open a new pull request each time.", "Labels": ["P3", "feature"]}}
+  ]
+}

@@ -40,6 +40,9 @@ func Configure(g *Guard) {
 // budget is spent. A scope with no budget, or no configured guard, is allowed. Dispatch calls it
 // before it starts a session.
 func Allow(scope string) error {
+	if err := enforce(scope); err != nil {
+		return err
+	}
 	mu.RLock()
 	g := current
 	mu.RUnlock()

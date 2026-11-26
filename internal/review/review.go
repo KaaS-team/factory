@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/KaaS-team/factory/internal/reviewlearn"
 )
 
 // Status is how one check ended.
@@ -45,6 +47,9 @@ type Result struct {
 	Patch    string
 	Output   string
 	Duration time.Duration
+	// Findings are the cited findings that survived the station; Dropped says why the rest did not.
+	Findings []Finding
+	Dropped  []Dropped
 }
 
 // DefaultDiffCap is the diff size in bytes put into a prompt when Runner.DiffCap is zero.
@@ -59,6 +64,9 @@ type Runner struct {
 	DiffCap int           // bytes of diff in the prompt; zero means DefaultDiffCap
 	// Base is the ref the diff in the prompt starts from. Empty reviews only the uncommitted changes.
 	Base string
+	// Second is an optional reviewer from another model family, for example an ACP harness agent.
+	// Its findings merge with the first reviewer's by citation. Its failure is not the check's.
+	Second Agent
 }
 
 // Run returns one Result per check. A failing check does not stop the others; the error is for
@@ -118,7 +126,51 @@ func (r Runner) runOne(ctx context.Context, c Check) (res Result) {
 	if res.Patch != "" {
 		res.Status = StatusFail
 	}
+	r.station(actx, w, prompt, &res)
 	return res
+}
+
+// station parses cited findings out of the agent's output and filters them. Output with no findings
+// array is a plain verdict, so a parse failure is not an error.
+func (r Runner) station(ctx context.Context, w *worktree, prompt string, res *Result) {
+	base := r.Base
+	if base == "" {
+		base = "HEAD~1"
+	}
+	diff, err := git(ctx, w.dir, nil, "diff", base, "HEAD")
+	if err != nil {
+		return
+	}
+	st := &Station{}
+	if rules, err := (reviewlearn.Learner{Root: r.Repo}).Rules(); err == nil {
+		st.Rules = rules
+	}
+	var seconds []Reviewer
+	if r.Second != nil {
+		seconds = append(seconds, agentReviewer{name: "second", agent: r.Second, dir: w.dir, prompt: prompt})
+	}
+	res.Findings, res.Dropped, _ = st.Round(ctx, diff, outputReviewer{res.Output}, seconds...)
+}
+
+type outputReviewer struct{ out string }
+
+func (outputReviewer) Name() string { return "primary" }
+func (o outputReviewer) Review(context.Context, string) ([]Finding, error) {
+	return ParseFindings(o.out)
+}
+
+type agentReviewer struct {
+	name, dir, prompt string
+	agent             Agent
+}
+
+func (a agentReviewer) Name() string { return a.name }
+func (a agentReviewer) Review(ctx context.Context, _ string) ([]Finding, error) {
+	out, err := a.agent.Run(ctx, a.dir, a.prompt)
+	if err != nil {
+		return nil, err
+	}
+	return ParseFindings(out)
 }
 
 // prompt builds the diff-only prompt: the check's rules, the changed files, the diff cut at the cap,
@@ -151,6 +203,8 @@ func (r Runner) prompt(ctx context.Context, w *worktree, c Check) (string, error
 	b.WriteString("- Do NOT report pre-existing issues; in a changed file, only the changed lines are in scope.\n")
 	b.WriteString("- You may read a changed file for context, but do not flag unchanged parts of it.\n")
 	b.WriteString("- Edit only the changed files, and only to fix a violation of the rule above. If there is none, edit nothing and say so.\n\n")
+	b.WriteString("## Findings\n")
+	b.WriteString("Report each problem as an entry in a JSON array with the keys kind, file, line, quote, message and confidence (0 to 1). The line is the line number in the new file and the quote is that line's text. An entry without a valid line and quote is discarded.\n\n")
 	b.WriteString("## Changed files\n")
 	for _, f := range strings.FieldsFunc(names, func(r rune) bool { return r == 0 }) {
 		fmt.Fprintf(&b, "- %s\n", f)

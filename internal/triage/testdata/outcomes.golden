@@ -1,0 +1,9 @@
+clear bug: {"outcome":"proceed","type":"bug","priority":1,"labels":["type:bug","P1"],"reason":"Clear enough to plan."}
+vague: {"outcome":"needs-info","type":"feature","priority":2,"labels":["type:feature","P2"],"reason":"Say what done looks like in one sentence a test could check: what you see now, what you expect, and where."}
+exact duplicate: {"outcome":"duplicate","type":"bug","priority":1,"labels":["type:bug","P1"],"duplicate_of":"10","reason":"This covers the same ground as #10. Follow that ticket instead."}
+likely duplicate confirmed: {"outcome":"duplicate","type":"feature","priority":2,"labels":["type:feature","P2"],"duplicate_of":"11","reason":"This covers the same ground as #11. Follow that ticket instead."}
+likely duplicate not confirmed: {"outcome":"proceed","type":"feature","priority":2,"labels":["type:feature","P2"],"reason":"Clear enough to plan."}
+protected path: {"outcome":"refused","type":"feature","priority":2,"labels":["type:feature","P2"],"reason":"This asks for a change under .github/workflows/, which agents may not edit. A person needs to make it."}
+security is P0: {"outcome":"proceed","type":"security","priority":0,"labels":["type:security","P0"],"reason":"Clear enough to plan."}
+docs: {"outcome":"proceed","type":"docs","priority":3,"labels":["type:docs","P3"],"reason":"Clear enough to plan."}
+label wins: {"outcome":"proceed","type":"feature","priority":3,"labels":["type:feature","P3"],"reason":"Clear enough to plan."}

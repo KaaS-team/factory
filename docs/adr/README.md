@@ -1,7 +1,8 @@
 # Architecture decision records
 
-Each record states one decision, the context it was made in, and what follows from it. Every
-status here is `accepted`.
+Each record states one decision, the context it was made in, and what follows from it. A
+superseded record keeps its text as history and ends with a `Current code` section that cites the
+Go paths. Only 0005 is still accepted.
 
 - [0001 Team model: teams are config files](0001-team-model.md)
 - [0002 Resolution rules for team config](0002-resolution-rules.md)

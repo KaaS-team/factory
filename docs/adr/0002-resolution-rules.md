@@ -2,7 +2,7 @@
 
 ## Status
 
-accepted
+superseded: superseded by the layer order and org ceiling in `internal/config`.
 
 ## Context
 
@@ -40,3 +40,13 @@ Preferences (`model`, `workflow`, `labels`, `timeouts`) are not ceilings: the mo
 - Last file wins for every key. Rejected: a team file could then loosen a limit the org set.
 - Merge roles by deep merge. Rejected: a partial role would silently keep fields the team did not mean
   to keep.
+
+## Current code
+
+Layers run builtin, org, team, repo, env, flags, and a later layer wins (`internal/config/keys.go`). The
+org layer is a ceiling: `checkCeilings` in `internal/config/ceiling.go` returns an error wrapping
+`ErrCeiling` when a lower layer goes past it. `internal/config/ceiling_test.go` and
+`internal/config/fixtures_test.go` hold the cases. The `locked` names, `policy.extend` and the config
+hash stamp in the rules above are TypeScript-era and have no Go counterpart.
+
+The text above is kept as history. Its `src/` and `scripts/` paths are in tag `ts-final`.

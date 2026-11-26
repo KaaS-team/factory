@@ -20,6 +20,7 @@ type Dispatcher struct {
 	Steers   []string
 	Cancels  []string
 	UsageBy  map[string]api.Usage
+	Lost     map[string]bool // session keys the dispatcher no longer knows
 	Err      error
 }
 
@@ -68,6 +69,9 @@ func (d *Dispatcher) Cancel(_ context.Context, s api.Session) error {
 func (d *Dispatcher) Usage(_ context.Context, s api.Session) (api.Usage, error) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
+	if d.Lost[s.Key] {
+		return api.Usage{}, fmt.Errorf("fake: no run for session %q: %w", s.Key, api.ErrUnknownSession)
+	}
 	return d.UsageBy[s.Key], nil
 }
 

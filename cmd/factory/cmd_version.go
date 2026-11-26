@@ -15,5 +15,5 @@ func init() {
 				_, _ = fmt.Fprintln(cmd.OutOrStdout(), version)
 			},
 		}
-	}, noTool("gap: no version tool yet; the MCP server reports its version in the handshake"))
+	})
 }

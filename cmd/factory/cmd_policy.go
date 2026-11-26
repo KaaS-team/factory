@@ -13,15 +13,15 @@ import (
 )
 
 func init() {
-	register("policy", policyCmd, noTool("gap: no policy tool yet; E2 owns ee/policy"))
+	register("policy", policyCmd)
 }
 
 func policyCmd() *cobra.Command {
 	var rules, role, repo string
 	var usd float64
 	cmd := &cobra.Command{
-		Use:   "policy <action>",
-		Short: "Check an action against a policy rules file (enterprise)",
+		Use:   "policy <action> | check [path] | explain <action>",
+		Short: "Check actions and kaas-policy.toml files against policy (enterprise)",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			e, err := loadPolicy(rules)
@@ -40,6 +40,7 @@ func policyCmd() *cobra.Command {
 			return nil
 		},
 	}
+	cmd.AddCommand(policyCheckCmd(), policyExplainCmd())
 	cmd.Flags().StringVar(&rules, "rules", "", "path to the YAML rules file")
 	cmd.Flags().StringVar(&role, "role", "", "actor role")
 	cmd.Flags().StringVar(&repo, "repo", "", "repository the action touches")
