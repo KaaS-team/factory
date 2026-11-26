@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 
+	"github.com/KaaS-team/factory/internal/brand"
+
 	"github.com/spf13/cobra"
 )
 
@@ -12,7 +14,7 @@ func init() {
 			Use:   "version",
 			Short: "Print the factory version",
 			Run: func(cmd *cobra.Command, _ []string) {
-				_, _ = fmt.Fprintln(cmd.OutOrStdout(), version)
+				_, _ = fmt.Fprintln(cmd.OutOrStdout(), version+"\n"+brand.URL)
 			},
 		}
 	})

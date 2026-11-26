@@ -68,6 +68,7 @@ var roles = []string{"read", "triage", "write", "maintain", "admin"}
 var specs = []spec{
 	{key: "repo", kind: kString, def: ""},
 	{key: "tracker", kind: kString, def: "github"},
+	{key: "brand_footer", kind: kString, def: ""},
 	{key: "approval", kind: kString, def: "risk"},
 	{key: "dispatcher", kind: kString, def: "claude-cloud"},
 	{key: "slots", kind: kInt, ceil: ceilMax, min: 1, def: 6},

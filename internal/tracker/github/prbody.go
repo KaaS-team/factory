@@ -2,8 +2,9 @@ package github
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
+
+	"github.com/KaaS-team/factory/internal/brand"
 )
 
 // Proof is the verify stage's test-that-bites result.
@@ -20,6 +21,8 @@ type PRParts struct {
 	Closes      string
 	// RunDetails names the issue holding the run-details comment (see IssueRef).
 	RunDetails string
+	// Footer is the configured footer line; empty gives brand.DefaultFooter. Every body ends with it.
+	Footer string
 }
 
 // IssueRef names a GitHub issue so the PR body links to it.
@@ -65,8 +68,8 @@ func orDefault(s, d string) string {
 }
 
 // RenderPRBody assembles the PR body: What changed, the pr stage's text, Acceptance, the closing
-// line and the pointer to the run-details comment. It carries no footer, and Redact runs over the
-// result so no model name, token count, cost or claude.ai link reaches the PR (#210).
+// line and the pointer to the run-details comment. Redact runs first so no model name, token count,
+// cost or claude.ai link reaches the PR, then the one brand footer ends the body (#210).
 func RenderPRBody(body string, p PRParts) string {
 	if p.WhatChanged != "" {
 		body = p.WhatChanged + "\n\n" + body
@@ -80,26 +83,10 @@ func RenderPRBody(body string, p PRParts) string {
 	if p.RunDetails != "" {
 		body += "\n\nThe receipt is in the run-details comment on " + p.RunDetails + "."
 	}
-	return Redact(body)
+	return brand.AppendFooter(Redact(body), p.Footer)
 }
 
-// leakRE matches operator detail that must never reach a customer: model names,
-// token counts, cost, claude.ai links, attribution trailers and provider keys.
-var leakRE = regexp.MustCompile(`(?i)` + strings.Join([]string{
-	`\bclaude[-\s]?(opus|sonnet|haiku|fable|instant|\d)`,
-	`\b(opus|sonnet|haiku|fable|gemini|gpt)[-\s]?\d`,
-	`claude\.ai`,
-	`claude-session:`,
-	`co-authored-by:.*(claude|anthropic)`,
-	`generated with.*claude`,
-	`\b\d[\d,._]*\s*[km]?\s*(input |output |cache )?tokens?\b`,
-	`\btokens?\b\s*[:=]\s*\d`,
-	`\$\s?\d`,
-	`\b\d+(\.\d+)?\s*(usd|dollars)\b`,
-	`\b(cost|spend|spent)\b\s*[:=]?\s*(usd|us\$)?\s*\d`,
-	`cost_usd`,
-	`sk-ant-`,
-}, "|"))
+var leakRE = brand.LeakRE
 
 // Redact drops every line that carries model, token, cost, claude.ai or key detail.
 func Redact(s string) string {

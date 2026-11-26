@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/KaaS-team/factory/internal/brand"
 	"github.com/KaaS-team/factory/internal/gitx"
 	"github.com/KaaS-team/factory/internal/mergeq"
 )
@@ -111,7 +112,7 @@ func (g Git) Merge(ctx context.Context, heads []string) (mergeq.Merged, error) {
 		}
 		tree := strings.TrimSpace(out)
 		if cur, err = g.must(ctx, "-c", "user.name=factory", "-c", "user.email=factory@localhost", "-c", "commit.gpgsign=false",
-			"commit-tree", tree, "-p", cur, "-p", h, "-m", "Merge "+short(h)+" (merge queue)"); err != nil {
+			"commit-tree", tree, "-p", cur, "-p", h, "-m", brand.WithTrailer("Merge "+short(h)+" (merge queue)")); err != nil {
 			return mergeq.Merged{}, err
 		}
 	}

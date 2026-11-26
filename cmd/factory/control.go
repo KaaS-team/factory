@@ -165,6 +165,7 @@ func canJail(c sandbox.Capabilities) bool { return c.Landlock || c.SandboxExec }
 // gitHubConn is what the GitHub tracker, observer source and merge queue share: one repo, one token.
 type gitHubConn struct {
 	owner, repo, baseURL string
+	footer               string
 	http                 *http.Client
 }
 
@@ -177,7 +178,7 @@ func newGitHubConn(c config.Config) (gitHubConn, error) {
 	if err != nil {
 		return gitHubConn{}, err
 	}
-	return gitHubConn{owner: owner, repo: repo, baseURL: os.Getenv(envGitHubURL),
+	return gitHubConn{owner: owner, repo: repo, footer: c.BrandFooter, baseURL: os.Getenv(envGitHubURL),
 		http: &http.Client{Timeout: 30 * time.Second, Transport: auth}}, nil
 }
 
@@ -212,7 +213,7 @@ func gitHubAuth(c config.Config) (http.RoundTripper, error) {
 }
 
 func (g gitHubConn) tracker() (*github.Tracker, error) {
-	return github.New(github.Config{Owner: g.owner, Repo: g.repo, BaseURL: g.baseURL, HTTPClient: g.http})
+	return github.New(github.Config{Owner: g.owner, Repo: g.repo, BaseURL: g.baseURL, HTTPClient: g.http, Footer: g.footer})
 }
 
 func (g gitHubConn) client() (*gogithub.Client, error) {

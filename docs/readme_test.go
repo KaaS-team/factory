@@ -62,3 +62,19 @@ func TestNoOldRepoName(t *testing.T) {
 		}
 	}
 }
+
+// TestBrandBlock fails when the README or the README template loses its "Built by KaaS" block, the
+// public-repo table is empty, or the repo has no security policy (#210).
+func TestBrandBlock(t *testing.T) {
+	for _, p := range []string{"../README.md", "brand.md"} {
+		if s := read(t, p); !strings.Contains(s, "Built by [KaaS](https://kaas.team)") || !strings.Contains(s, "https://kaas.team") {
+			t.Errorf("%s lacks the Built by KaaS block", p)
+		}
+	}
+	if !regexp.MustCompile(`(?m)^\| kaas-team/\S+ \| \S`).MatchString(read(t, "brand.md")) {
+		t.Error("docs/brand.md lists no public repo with a description")
+	}
+	if !strings.Contains(read(t, "../SECURITY.md"), "## Reporting") {
+		t.Error("SECURITY.md has no Reporting section")
+	}
+}

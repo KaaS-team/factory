@@ -42,6 +42,7 @@ type GitHubApp struct {
 // .factory/factory.yaml, in FACTORY_* variable names and in flag names.
 type Config struct {
 	Repo                   string            `key:"repo"`
+	BrandFooter            string            `key:"brand_footer"`
 	Tracker                string            `key:"tracker"`
 	Approval               string            `key:"approval"`
 	Dispatcher             string            `key:"dispatcher"`

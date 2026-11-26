@@ -116,4 +116,4 @@ file, `FACTORY_*` variables, and flags. The org layer is a ceiling. Every key is
 
 ## Contributing and license
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) and [LICENSE](LICENSE).
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [LICENSE](LICENSE). Built by [KaaS](https://kaas.team). Security: [SECURITY.md](SECURITY.md).
