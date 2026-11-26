@@ -558,3 +558,42 @@ Replace this binary with the latest factory release
 `factory version`
 
 Print the factory version
+
+## factory worker
+
+`factory worker`
+
+Run a self-hosted worker, or the plane that leases to it
+
+## factory worker plane
+
+`factory worker plane [flags]`
+
+Serve the worker API: registry, leases and re-leasing
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--listen` | string | `:8080` | address to listen on |
+| `--pools` | string | `` | file of `pool sha256hex` lines; hashes only, never tokens |
+| `--ttl` | duration | `30s` | lease and worker lifetime without a heartbeat |
+
+## factory worker run
+
+`factory worker run [flags]`
+
+Connect outbound to the control plane, lease jobs and run them here
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--allow` | stringSlice | `[factory]` | program names a job may run |
+| `--cap` | stringSlice | `[]` | capability this worker offers, for example docker |
+| `--drain` | duration | `5m0s` | how long SIGTERM lets the current job finish |
+| `--label` | stringSlice | `[]` | label key=value (os and arch are added) |
+| `--plane` | string | `` | control plane URL (https) |
+| `--token-file` | string | `` | file holding the pool token |
+
+## factory worker token
+
+`factory worker token <pool>`
+
+Mint a pool token: the token goes to stdout, the line for --pools to stderr
