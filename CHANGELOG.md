@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `factory dashboard` serves the fleet app: a board of runs by state and wave, the attention inbox, and a run page with a live timeline and log that can retry, cancel and steer (with `--allow-actions`). Built on the KaaS ui partials; every route checks the ee Authorizer.
 - Run ledger (`.factory/ledger/runs.jsonl`, `spend.json`), the analytics API (`/api/v1/analytics/runs` and `/spend`, JSON and CSV) and an OTLP export of run counts, durations and cost.
 
 ## v6.3.0
