@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/KaaS-team/factory/internal/api"
+	"github.com/KaaS-team/factory/internal/brand"
 )
 
 // Marker is the first line of every partial PR body.
@@ -124,7 +125,7 @@ func (s *Submitter) Submit(ctx context.Context, e Exit) (string, error) {
 		return "", err
 	}
 	if exec.CommandContext(ctx, "git", "-C", e.Dir, "diff", "--cached", "--quiet").Run() != nil { // staged work exists
-		if err := git("commit", "-q", "--no-verify", "-m", fmt.Sprintf("partial: %s attempt %d", b.Ticket, b.Attempt)); err != nil {
+		if err := git("commit", "-q", "--no-verify", "-m", brand.WithTrailer(fmt.Sprintf("partial: %s attempt %d", b.Ticket, b.Attempt))); err != nil {
 			return "", err
 		}
 	}
