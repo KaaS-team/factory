@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- `factory worker`: self-hosted workers that connect outbound only, lease runs from a control plane with expiry and re-leasing, and drain on SIGTERM. A Dockerfile and a Helm chart in `deploy/helm/factory` run the plane and the worker pools.
+
 ## v6.3.0
 
 A stricter verify and review loop, a safer runner, and the groundwork for building on cloud agents.
