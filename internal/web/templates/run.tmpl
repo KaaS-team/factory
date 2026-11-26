@@ -1,0 +1,31 @@
+{{/* run: one run with its live timeline, event log and actions. Data: page with runView. */}}
+{{define "run"}}{{$v := .Data}}{{$id := $v.Slot.Ticket.ID}}<nav class="ui-breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Board</a></li><li aria-current="page">{{$id}}</li></ol></nav>
+<header class="ui-page-header">
+<div><h1><span class="ui-mono ui-muted">{{$id}}</span> {{$v.Slot.Ticket.Title}}</h1>
+<div class="ui-row fw-run-meta">{{template "chip" $v.Chip}}{{with $v.Wave}}<span class="ui-muted">Wave {{.}}</span>{{end}}{{with $v.Slot.Ticket.Repo}}<span class="ui-muted">{{.}}</span>{{end}}{{with $v.Slot.Session}}<span class="ui-muted">Attempt {{.Attempt}}</span>{{with .Dispatcher}}<span class="ui-muted">on {{.}}</span>{{end}}{{end}}{{if not $v.Slot.LastPush.IsZero}}<span class="ui-muted">Last push <time class="ui-num">{{$v.Slot.LastPush.UTC.Format "2006-01-02 15:04:05"}}</time> UTC</span>{{end}}</div></div>
+{{if not $v.Finished}}<p class="fw-live ui-muted" data-live="/runs/{{$id}}/events" data-run="{{$id}}" aria-live="polite">Connecting…</p>{{end}}
+</header>
+{{with $v.Done}}<div class="ui-attention" role="status" data-status="pass"><p class="ui-attention-title">{{.}}</p></div>{{end}}
+{{if .Operator}}<section class="ui-grid fw-stats" aria-label="Usage">{{template "stat" (stat "Tokens in" $v.Slot.Usage.InputTokens)}}{{template "stat" (stat "Tokens out" $v.Slot.Usage.OutputTokens)}}{{template "stat" (stat "Spend" (usd $v.Slot.Usage.CostUSD))}}{{template "stat" (stat "Token cap" $v.Slot.Budget.Tokens)}}</section>{{end}}
+<div class="fw-run">
+<div class="ui-stack fw-run-main">
+<section class="ui-card" aria-labelledby="tl-h"><header class="ui-card-header"><h2 id="tl-h">Timeline</h2></header><div class="ui-card-body">
+{{with $v.HistoryErr}}<div class="ui-attention" role="alert" data-status="fail"><p class="ui-attention-title">History unavailable</p><p class="ui-attention-body">{{.}}</p></div>{{end}}
+{{if and (not $v.HasHistory) (not $v.HistoryErr)}}<p class="ui-muted">Past events are not kept here; new events appear as they happen.</p>{{end}}
+<div data-timeline>{{template "timeline" $v.Timeline}}</div>
+</div></section>
+<section class="ui-card fw-log" aria-label="Event log"><div class="ui-card-body" data-log>{{template "log" $v.Log}}</div></section>
+</div>
+<aside class="ui-stack fw-run-side" aria-label="Actions">
+<section class="ui-card"><header class="ui-card-header"><h2>Steer</h2></header><div class="ui-card-body">
+{{if $v.CanSteer}}{{template "form" $v.Steer}}{{else if $v.Finished}}<p class="ui-muted">This run has finished.</p>{{else if $v.Ready}}<p class="ui-muted">The run has not started. Steer it once a session is running.</p>{{else}}<p class="ui-muted">{{or $v.ActionsNote "Steering is not available for this run."}}</p>{{end}}
+</div></section>
+<section class="ui-card"><header class="ui-card-header"><h2>Run</h2></header><div class="ui-card-body ui-stack" data-gap="sm">
+{{if or $v.CanRetry $v.CanCancel}}<div class="ui-row">
+{{if $v.CanRetry}}<form method="post" action="/runs/{{$id}}/retry"><input type="hidden" name="csrf" value="{{$.CSRF}}">{{template "button" (button "Retry" "submit" "")}}</form>{{end}}
+{{if $v.CanCancel}}<form method="post" action="/runs/{{$id}}/cancel"><input type="hidden" name="csrf" value="{{$.CSRF}}">{{template "button" (button "Cancel run" "submit" "danger")}}</form>{{end}}
+</div><p class="ui-muted fw-hint">Retry starts a new attempt. Cancel stops the session; the branch stays.</p>
+{{else}}<p class="ui-muted">{{if $v.Finished}}No actions apply to a finished run.{{else}}{{or $v.ActionsNote "No actions apply right now."}}{{end}}</p>{{end}}
+</div></section>
+</aside>
+</div>{{end}}
