@@ -43,6 +43,9 @@ func TestGitHubHostRebaseOnRealGit(t *testing.T) {
 	sh(t, root, "init", "-q", "--bare", "-b", "main", remote)
 	work := filepath.Join(root, "work")
 	sh(t, root, "clone", "-q", remote, work)
+	// GitHubHost runs git with the ambient environment, so the clone carries its own identity for the rebase.
+	sh(t, work, "config", "user.name", "t")
+	sh(t, work, "config", "user.email", "t@e")
 	commit(t, work, "base")
 	sh(t, work, "push", "-q", "origin", "HEAD:main")
 	sh(t, work, "checkout", "-q", "-b", "b1")
