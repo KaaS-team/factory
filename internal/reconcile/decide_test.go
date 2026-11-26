@@ -15,7 +15,7 @@ func cfg() Config {
 }
 
 func tkt(id string, files ...string) api.Ticket {
-	return api.Ticket{ID: api.TicketID(id), Files: files, CreatedAt: t0.Add(-time.Hour)}
+	return api.Ticket{ID: api.TicketID(id), Files: files, CreatedAt: t0.Add(-time.Hour), Body: "## Acceptance\n- AC-1: it works\n"}
 }
 
 func running(id string, attempt int, started time.Time) Entry {

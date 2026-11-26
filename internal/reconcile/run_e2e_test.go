@@ -259,7 +259,7 @@ func golden(t *testing.T, name, got string) {
 }
 
 func tk(id string, n int) api.Ticket {
-	return api.Ticket{ID: api.TicketID(id), Repo: "demo/app", Title: "ticket " + id, CreatedAt: time.Date(2026, 1, 1, 0, n, 0, 0, time.UTC)}
+	return api.Ticket{ID: api.TicketID(id), Repo: "demo/app", Title: "ticket " + id, Body: "## Acceptance\n- AC-1: it works\n", CreatedAt: time.Date(2026, 1, 1, 0, n, 0, 0, time.UTC)}
 }
 
 // Acceptance (f-run): two tickets go from ready to a pushed branch, a report and an opened PR,

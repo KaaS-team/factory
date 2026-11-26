@@ -43,7 +43,7 @@ func scenario() []api.Ticket {
 	mk := func(i int, id, file string) api.Ticket {
 		return api.Ticket{
 			ID: api.TicketID(id), Repo: "example/tiny", Title: "solve " + id, Files: []string{file},
-			CreatedAt: at.Add(time.Duration(i) * time.Minute),
+			CreatedAt: at.Add(time.Duration(i) * time.Minute), Body: "## Acceptance\n- AC-1: it works\n",
 		}
 	}
 	return []api.Ticket{mk(1, "t1", "a.go"), mk(2, "t2", "b.go"), mk(3, "t3", "shared.go"), mk(4, "t4", "shared.go"), mk(5, "t5", "e.go")}

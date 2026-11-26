@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/KaaS-team/factory/internal/plan"
 )
 
 type fake struct {
@@ -133,5 +135,62 @@ func TestCIByClass(t *testing.T) {
 	// ticket a hits the rerun limit on pass two; ticket c is repo_setup, raised once over two passes.
 	if len(f.attention) != 2 {
 		t.Fatalf("attention = %q", f.attention)
+	}
+}
+
+// reportFake is a fake Source that also reads the build report.
+type reportFake struct {
+	*fake
+	goal   plan.Goal
+	report string
+	has    bool
+}
+
+func (r *reportFake) Report(context.Context, int) (plan.Goal, string, bool, error) {
+	return r.goal, r.report, r.has, nil
+}
+
+func completeReport(g plan.Goal) string {
+	var s string
+	for _, row := range g.Rows {
+		s += "- [x] " + row.ID + ": " + row.Text + " | test: TestA\n"
+	}
+	for _, c := range plan.Checkpoints {
+		s += "- [x] " + c.ID + ": none\n"
+	}
+	return s
+}
+
+func TestIncompleteBuildReportSteersOnce(t *testing.T) {
+	g := plan.ParseGoal("## Acceptance\n- AC-1: a\n")
+	f := &fake{runs: []Run{{Ticket: "42", Attempt: 1, LastPush: now, PR: 7}}, comments: map[int][]Comment{}}
+	src := &reportFake{fake: f, goal: g, report: "- [x] AC-1: a | test: TestA\n", has: true}
+	m := New(Config{Now: func() time.Time { return now }}, src, f, f)
+	for i := 0; i < 2; i++ {
+		if err := m.Pass(context.Background()); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if len(f.steers) != 1 || !strings.Contains(f.steers[0], "checkpoint files-outside-plan is unanswered") || !strings.Contains(f.steers[0], "Verify will fail") {
+		t.Fatalf("steers = %q, want one naming the unanswered checkpoint", f.steers)
+	}
+	if len(f.audits) != 1 || f.audits[0] != "manager.report_gap 42" {
+		t.Fatalf("audits = %v", f.audits)
+	}
+	src.report = completeReport(g) // fixed: the manager stays quiet
+	_ = m.Pass(context.Background())
+	if len(f.steers) != 1 {
+		t.Fatalf("a complete report was steered: %q", f.steers)
+	}
+}
+
+func TestBuildReportNotCheckedWithoutGoalOrSource(t *testing.T) {
+	g := plan.ParseGoal("## Acceptance\n- AC-1: a\n")
+	f := &fake{runs: []Run{{Ticket: "42", Attempt: 1, LastPush: now, PR: 7}}, comments: map[int][]Comment{}}
+	_ = mgr(f).Pass(context.Background()) // f is not a ReportSource
+	src := &reportFake{fake: f, goal: g, has: false}
+	_ = New(Config{Now: func() time.Time { return now }}, src, f, f).Pass(context.Background())
+	if len(f.steers) != 0 {
+		t.Fatalf("steers = %q, want none", f.steers)
 	}
 }

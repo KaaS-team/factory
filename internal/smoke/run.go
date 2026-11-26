@@ -180,7 +180,7 @@ func Run(ctx context.Context, cfg Config) (Result, error) {
 }
 
 func issueBody(file string) string {
-	return "Planned by the smoke test.\n\n## Plan\n\n- Add one file, `" + file + "`, with one line of text.\n- Change nothing else.\n"
+	return "Planned by the smoke test.\n\n## Acceptance\n\n- AC-1: `" + file + "` exists with one line of text.\n\n## Plan\n\n- Add one file, `" + file + "`, with one line of text.\n- Change nothing else.\n"
 }
 
 func logTail(path string) string {

@@ -17,7 +17,7 @@ import (
 var t0 = time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 
 func tk(id string, prio int, created time.Time, files ...string) api.Ticket {
-	return api.Ticket{ID: api.TicketID(id), Repo: "o/r", Title: "t " + id, Priority: prio, CreatedAt: created, Files: files}
+	return api.Ticket{ID: api.TicketID(id), Repo: "o/r", Title: "t " + id, Priority: prio, CreatedAt: created, Files: files, Body: "## Acceptance\n- AC-1: it works\n"}
 }
 
 // log records every port call in order, so tests assert from what happened.
