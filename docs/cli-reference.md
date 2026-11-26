@@ -427,6 +427,16 @@ Turn a goal, epic or spec into a ticket DAG; --approve files it
 | `--repo-dir` | string | `` | the repository the agent reads when drafting from a goal (default: here) |
 | `--spec` | string | `` | read the spec and tickets from `file` |
 
+## factory program
+
+`factory program <epic> [flags]`
+
+Run an epic as a program: a tech lead dispatches worker tickets and adjusts the plan
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--run` | string | `` | the run id (default program-<epic>) |
+
 ## factory queue
 
 `factory queue`
@@ -460,6 +470,12 @@ Show tokens per merged PR, rework, human touches and cycle time (operator only)
 | `--json` | bool | `false` | write JSON instead of markdown |
 | `--out` | string | `` | write the report to this file; never under .github/ or a PR body file |
 | `--since` | string | `7d` | window length ending now, such as 7d or 36h |
+
+## factory resume
+
+`factory resume <run>`
+
+Continue a stack or program run from its state on disk after a crash
 
 ## factory retry
 
@@ -526,6 +542,18 @@ Run the loop once against a sandbox GitHub repository with a fake agent
 |---|---|---|---|
 | `--shadow` | bool | `false` | shadow run: nothing is dispatched or merged |
 | `--timeout` | duration | `5m0s` | how long to wait for the work to land |
+
+## factory stack
+
+`factory stack <epic> [flags]`
+
+Open an epic's plan as a stack of branches and PRs, each based on the one below
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--prefix` | string | `stack/` | the prefix of each branch name |
+| `--run` | string | `` | the run id (default stack-<epic>) |
+| `--trunk` | string | `main` | the branch the bottom PR targets |
 
 ## factory status
 

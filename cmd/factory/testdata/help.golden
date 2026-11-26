@@ -26,15 +26,18 @@ Available Commands:
   mcp          Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
   packs        Inspect the packs pinned in factory.lock
   plan         Turn a goal, epic or spec into a ticket DAG; --approve files it
+  program      Run an epic as a program: a tech lead dispatches worker tickets and adjusts the plan
   queue        Show tickets ready to run and the merge queue
   repomap      Print a ranked, token-budgeted symbol map of the repository for a context pack
   report       Show tokens per merged PR, rework, human touches and cycle time (operator only)
+  resume       Continue a stack or program run from its state on disk after a crash
   retry        Queue a new attempt for a ticket
   review       Run the check packs in .factory/checks against the uncommitted changes, edits returned as patches
   run          Run the factory; --headless streams one JSON event per line
   serve        Run the factory loop as a service with /healthz, /readyz and /events
   shadow       Summarize what shadow mode would have dispatched
   smoke        Run the loop once against a sandbox GitHub repository with a fake agent
+  stack        Open an epic's plan as a stack of branches and PRs, each based on the one below
   status       Show the board, one row per slot
   steer        Send a message to a ticket's running session
   upgrade      Replace this binary with the latest factory release
@@ -625,6 +628,16 @@ Flags:
       --repo-dir string   the repository the agent reads when drafting from a goal (default: here)
       --spec file         read the spec and tickets from file
 
+=== factory program
+Run an epic as a program: a tech lead dispatches worker tickets and adjusts the plan
+
+Usage:
+  factory program <epic> [flags]
+
+Flags:
+  -h, --help         help for program
+      --run string   the run id (default program-<epic>)
+
 === factory queue
 Show tickets ready to run and the merge queue
 
@@ -661,6 +674,15 @@ Flags:
       --json           write JSON instead of markdown
       --out string     write the report to this file; never under .github/ or a PR body file
       --since string   window length ending now, such as 7d or 36h (default "7d")
+
+=== factory resume
+Continue a stack or program run from its state on disk after a crash
+
+Usage:
+  factory resume <run> [flags]
+
+Flags:
+  -h, --help   help for resume
 
 === factory retry
 Queue a new attempt for a ticket
@@ -740,6 +762,18 @@ Flags:
   -h, --help               help for smoke
       --shadow             shadow run: nothing is dispatched or merged
       --timeout duration   how long to wait for the work to land (default 5m0s)
+
+=== factory stack
+Open an epic's plan as a stack of branches and PRs, each based on the one below
+
+Usage:
+  factory stack <epic> [flags]
+
+Flags:
+  -h, --help            help for stack
+      --prefix string   the prefix of each branch name (default "stack/")
+      --run string      the run id (default stack-<epic>)
+      --trunk string    the branch the bottom PR targets (default "main")
 
 === factory status
 Show the board, one row per slot

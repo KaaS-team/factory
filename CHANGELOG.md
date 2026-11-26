@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Stacked PRs and program mode: `factory stack <epic>` opens an epic as a stack of PRs that retargets and rebases as lower ones change or merge, `factory program <epic>` runs a tech-lead session over worker tickets, and `factory resume <run>` continues either after a crash from `.factory/runs`.
+
 ## v6.3.0
 
 A stricter verify and review loop, a safer runner, and the groundwork for building on cloud agents.
