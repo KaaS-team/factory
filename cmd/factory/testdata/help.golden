@@ -23,6 +23,7 @@ Available Commands:
   help         Help about any command
   init         Write .factory/factory.yaml from a tier preset
   logs         Print what a ticket's session is doing
+  manage       Watch active runs: nudge or restart stalled ones, handle failing CI, feed review comments back
   mcp          Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
   packs        Inspect the packs pinned in factory.lock
   plan         Turn a goal, epic or spec into a ticket DAG; --approve files it
@@ -498,6 +499,19 @@ Flags:
   -h, --help                help for logs
       --interval duration   poll interval for --follow (default 5s)
       --json                print one JSON event per line
+
+=== factory manage
+Watch active runs: nudge or restart stalled ones, handle failing CI, feed review comments back
+
+Usage:
+  factory manage [flags]
+
+Flags:
+      --every duration           time between passes (default 5m0s)
+  -h, --help                     help for manage
+      --once                     run one pass and exit
+      --restart-after duration   no progress for this long: queue a new attempt (0 = never) (default 2h0m0s)
+      --stall-after duration     no progress for this long: send a nudge (default 30m0s)
 
 === factory mcp
 Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
