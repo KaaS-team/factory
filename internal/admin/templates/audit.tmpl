@@ -5,7 +5,7 @@
 <div class="ui-card-body admin-filters">{{template "form" $d.Filter}}</div>
 </section>
 <section class="ui-section" aria-labelledby="results-h">
-<div class="ui-row" data-justify="between"><h2 id="results-h">Showing {{$d.Shown}} of {{$d.Total}} matching events</h2>
+<div class="ui-row" data-justify="between"><h2 class="admin-h2" id="results-h">Showing {{$d.Shown}} of {{$d.Total}} matching events</h2>
 {{if $d.CanExport}}<div class="ui-row"><a class="ui-button" data-size="sm" href="{{$d.ExportCSV}}">Export CSV</a><a class="ui-button" data-size="sm" href="{{$d.ExportJSON}}">Export JSON lines</a></div>{{end}}</div>
 <div class="ui-card">{{template "table" $d.Table}}</div>
 </section>

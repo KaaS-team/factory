@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Admin console (ee build, `internal/admin`): users and roles with SCIM users read-only, a policy editor that runs the `policy check` validation before it saves, budgets with usage bars, audit search and export, and worker pools with health. Admins only; every change is an audit event.
+- `factory worker`: self-hosted workers that connect outbound only, lease runs from a control plane with expiry and re-leasing, and drain on SIGTERM. A Dockerfile and a Helm chart in `deploy/helm/factory` run the plane and the worker pools.
 - E3 (ee build): a hash-chained audit log with `factory audit verify`, `search` and `forward` (file, Splunk HEC, webhook), and enforced budgets: a run whose team budget is spent is refused before it starts, and a running session is stopped at its cap.
 
 ## v6.3.0

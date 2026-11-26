@@ -162,7 +162,9 @@ func (c *Console) budgetSave(w http.ResponseWriter, r *http.Request, p contract.
 		f.Budgets = append(f.Budgets, contract.BudgetLimit{Scope: scope, ID: id, USD: amount, Period: per})
 	}
 	var buf bytes.Buffer
-	if err := toml.NewEncoder(&buf).Encode(f); err != nil {
+	enc := toml.NewEncoder(&buf)
+	enc.Indent = ""
+	if err := enc.Encode(f); err != nil {
 		c.budgetProblem(w, r, "The policy file could not be written.")
 		return
 	}

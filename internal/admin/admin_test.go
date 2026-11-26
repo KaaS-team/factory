@@ -327,7 +327,7 @@ func TestHealthOf(t *testing.T) {
 func TestPagesRender(t *testing.T) {
 	f := newFixture(t)
 	want := map[string]string{"/admin/users": "ci-release", "/admin/policy": "provider-small-2026", "/admin/budgets": "$5,000.00",
-		"/admin/audit": "Chain intact", "/admin/workers": "2 of 3 healthy"}
+		"/admin/audit": "Chain intact", "/admin/workers": "2 / 3"}
 	for p, s := range want {
 		if res, body := f.do(t, "ana", "GET", p, nil); res.StatusCode != http.StatusOK || !strings.Contains(body, s) {
 			t.Errorf("%s: %d, missing %q", p, res.StatusCode, s)

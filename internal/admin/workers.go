@@ -120,7 +120,7 @@ func (c *Console) workers(w http.ResponseWriter, r *http.Request, _ contract.Pri
 		case ps.Healthy < ps.Total:
 			st = ui.StatusWait
 		}
-		ps.Stat = ui.Stat{Label: "Pool " + ps.Pool, Value: itoa(ps.Healthy) + " of " + itoa(ps.Total) + " healthy", Status: st}
+		ps.Stat = ui.Stat{Label: "Pool " + ps.Pool, Value: itoa(ps.Healthy) + " / " + itoa(ps.Total), Delta: "workers healthy", Status: st}
 		d.Pools = append(d.Pools, *ps)
 	}
 	slices.SortFunc(d.Pools, func(a, b poolStat) int { return strings.Compare(a.Pool, b.Pool) })
