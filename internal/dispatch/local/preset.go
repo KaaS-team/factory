@@ -2,11 +2,15 @@ package local
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/KaaS-team/factory/ee/contract"
+	"github.com/KaaS-team/factory/internal/policygate"
 )
 
 // Ported by hand from src/agents/presets/claude.ts and src/stage-permissions.ts
@@ -172,6 +176,11 @@ func ClaudeArgv(in ClaudeInput) ([]string, error) {
 	}
 	if in.Issue == "" {
 		return nil, errors.New("local: issue is required")
+	}
+	for _, srv := range in.MCPServers {
+		if err := policygate.Check(context.Background(), contract.CheckMCPServer, srv); err != nil {
+			return nil, fmt.Errorf("local: mcp server %q: %w", srv, err)
+		}
 	}
 	if in.ReadOnly {
 		tools = withoutEditTools(tools)

@@ -6,6 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"time"
+
+	"github.com/KaaS-team/factory/ee/contract"
+	"github.com/KaaS-team/factory/internal/policygate"
 )
 
 // ErrConflict is returned by Git.Merge when the heads do not merge cleanly onto the base.
@@ -116,6 +119,9 @@ func (r *Runner) Run(ctx context.Context) (Report, error) {
 			if st.PRs[e.ID], err = r.Store.PR(ctx, e.ID); err != nil {
 				return rep, fmt.Errorf("pr %s: %w", e.ID, err)
 			}
+		}
+		if queue, err = r.policy(ctx, queue, &rep); err != nil {
+			return rep, err
 		}
 		if queue, err = r.precheck(ctx, queue, st, &rep); err != nil {
 			return rep, err
@@ -277,4 +283,22 @@ func (r *Runner) land(ctx context.Context, a Action, st State, results map[strin
 		return results, fmt.Errorf("landed: %w", err)
 	}
 	return AfterLand(results, a.IDs, a.Heads), nil
+}
+
+// policy ejects the PRs whose risk class the policy does not allow to merge without a human. A PR
+// with no risk class counts as outside the policy. With no policy configured nothing is ejected.
+func (r *Runner) policy(ctx context.Context, queue []Entry, rep *Report) ([]Entry, error) {
+	var keep []Entry
+	for _, e := range queue {
+		err := policygate.Check(ctx, contract.CheckAutoMerge, e.Risk)
+		if err == nil {
+			keep = append(keep, e)
+			continue
+		}
+		if err := r.Store.Eject(ctx, e.ID, err.Error()+"; a human review is needed"); err != nil {
+			return nil, fmt.Errorf("eject %s: %w", e.ID, err)
+		}
+		rep.Ejected = append(rep.Ejected, Ejection{ID: e.ID, LogTail: err.Error()})
+	}
+	return keep, nil
 }

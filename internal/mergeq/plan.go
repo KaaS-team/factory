@@ -14,7 +14,8 @@ const DefaultBatchSize = 4
 type Entry struct {
 	ID     string
 	Head   string
-	Single bool // tested alone, never in a batch with other PRs
+	Single bool   // tested alone, never in a batch with other PRs
+	Risk   string // the risk class the classifier gave the change: low, medium or high; empty when unclassified
 }
 
 // PRState is what the outside world says about a PR now. A PR missing from State.PRs counts as closed.

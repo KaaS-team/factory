@@ -26,7 +26,7 @@ Available Commands:
   mcp          Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
   packs        Inspect the packs pinned in factory.lock
   plan         Turn a goal, epic or spec into a ticket DAG; --approve files it
-  policy       Check an action against a policy rules file (enterprise)
+  policy       Check actions and kaas-policy.toml files against policy (enterprise)
   queue        Show tickets ready to run and the merge queue
   repomap      Print a ranked, token-budgeted symbol map of the repository for a context pack
   report       Show tokens per merged PR, rework, human touches and cycle time (operator only)
@@ -628,10 +628,15 @@ Flags:
       --spec file         read the spec and tickets from file
 
 === factory policy
-Check an action against a policy rules file (enterprise)
+Check actions and kaas-policy.toml files against policy (enterprise)
 
 Usage:
-  factory policy <action> [flags]
+  factory policy <action> | check [path] | explain <action> [flags]
+  factory policy [command]
+
+Available Commands:
+  check       Validate a kaas-policy.toml and print its violations
+  explain     Show whether policy allows an action, model, harness, MCP server, host or risk class, and which layer decided
 
 Flags:
   -h, --help           help for policy
@@ -639,6 +644,34 @@ Flags:
       --role string    actor role
       --rules string   path to the YAML rules file
       --usd float      spend the action would add
+
+Use "factory policy [command] --help" for more information about a command.
+
+=== factory policy check
+Validate a kaas-policy.toml (default .factory/kaas-policy.toml). A team or repo file is also
+checked against the layers above it, so a file that widens the org policy fails.
+Exits non-zero when there are violations.
+
+Usage:
+  factory policy check [path] [flags]
+
+Flags:
+  -h, --help          help for check
+      --org string    org layer file (default $FACTORY_POLICY_ORG)
+      --team string   team layer file (default $FACTORY_POLICY_TEAM)
+
+=== factory policy explain
+Show whether policy allows an action, model, harness, MCP server, host or risk class, and which layer decided
+
+Usage:
+  factory policy explain <value> [flags]
+
+Flags:
+      --check string   what the value is: action, model, harness, mcp_server, egress_host, auto_merge (default "action")
+  -h, --help           help for explain
+      --org string     org layer file (default $FACTORY_POLICY_ORG)
+      --repo string    repo layer file (default .factory/kaas-policy.toml)
+      --team string    team layer file (default $FACTORY_POLICY_TEAM)
 
 === factory queue
 Show tickets ready to run and the merge queue
