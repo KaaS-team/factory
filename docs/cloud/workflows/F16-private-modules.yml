@@ -1,0 +1,12 @@
+# F16: github.com/KaaS-team/ui is a private repository, and internal/tui now imports its term package.
+# CI cannot download it without a token. The orchestrator adds these two pieces to the `push` job of
+# .github/workflows/ci.yml (and to release.yml), before the first step that runs `go`.
+# KAAS_UI_READ_TOKEN is a fine-grained token with read access to KaaS-team/ui contents only.
+# Making KaaS-team/ui public removes the need for both, and also lets `go install` work outside the org.
+jobs:
+  push:
+    env:
+      GOPRIVATE: github.com/KaaS-team/*
+    steps:
+      - name: Read the private KaaS-team modules
+        run: git config --global url."https://x-access-token:${{ secrets.KAAS_UI_READ_TOKEN }}@github.com/KaaS-team/".insteadOf "https://github.com/KaaS-team/"
