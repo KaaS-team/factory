@@ -8,10 +8,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
 
+	"github.com/KaaS-team/factory/ee/authz"
 	"github.com/KaaS-team/factory/ee/contract"
 	"github.com/KaaS-team/factory/ee/policy"
 	"github.com/KaaS-team/factory/internal/api"
@@ -22,8 +25,7 @@ import (
 
 func init() {
 	mcp.PolicyRun = func(ctx context.Context, in mcp.PolicyInput) (string, error) {
-		out, _, err := runPolicy(ctx, in)
-		return out, err
+		return runPolicyMCP(ctx, in)
 	}
 	rootHooks = append(rootHooks, enforcePolicy)
 }
@@ -82,6 +84,74 @@ func runPolicy(_ context.Context, in mcp.PolicyInput) (out string, violated bool
 		return fmt.Sprintf("%s %s\ndecided by layer: %s\n", verdict, r.Reason, layer), !r.Allow, nil
 	}
 	return "", false, fmt.Errorf("unknown policy action %q: use check or explain", in.Action)
+}
+
+// errPolicyMCP is all a remote caller learns about a refusal or failure.
+var errPolicyMCP = errors.New("policy: request refused or failed")
+
+// runPolicyMCP serves the MCP tool. The caller must be authenticated and hold the policy admin
+// role (contract.ActionPolicyEdit) from the ee Authorizer. Client-supplied layer paths are ignored,
+// the file is limited to the repo's .factory directory, and every failure is one generic error, so
+// a remote caller cannot read other files or see parser detail.
+func runPolicyMCP(ctx context.Context, in mcp.PolicyInput) (string, error) {
+	p, ok := mcp.PrincipalFrom(ctx)
+	if !ok || !authz.New().Can(ctx, p, contract.ActionPolicyEdit, contract.Resource{Org: p.Org}).Allow {
+		return "", errPolicyMCP
+	}
+	in.Org, in.Team, in.Repo = "", "", ""
+	if in.Action == "check" {
+		root, err := os.Getwd()
+		if err != nil {
+			return "", errPolicyMCP
+		}
+		if in.Path, err = confinePolicyPath(root, in.Path); err != nil {
+			return "", errPolicyMCP
+		}
+	}
+	out, _, err := runPolicy(ctx, in)
+	if err != nil {
+		return "", errPolicyMCP
+	}
+	if in.Action == "check" {
+		// Violation messages quote the file and the parser; only the reason codes go back.
+		var codes []string
+		for _, l := range strings.Split(out, "\n") {
+			if rest, ok := strings.CutPrefix(l, "violation "); ok {
+				code, _, _ := strings.Cut(rest, ":")
+				codes = append(codes, "violation "+code)
+			}
+		}
+		if len(codes) == 0 {
+			return "ok\n", nil
+		}
+		return strings.Join(codes, "\n") + "\n", nil
+	}
+	return out, nil
+}
+
+// confinePolicyPath returns the file to check under root/.factory. An empty path means the repo
+// file. The cleaned path must stay inside .factory, and no part of it may be a symlink.
+func confinePolicyPath(root, path string) (string, error) {
+	if path == "" {
+		path = policy.RepoFile
+	}
+	if filepath.IsAbs(path) {
+		return "", errPolicyMCP
+	}
+	dir := filepath.Join(root, ".factory")
+	full := filepath.Join(root, filepath.Clean(path))
+	if rel, err := filepath.Rel(dir, full); err != nil || rel == "." || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return "", errPolicyMCP
+	}
+	cur := root
+	for _, part := range strings.Split(strings.TrimPrefix(full, root+string(filepath.Separator)), string(filepath.Separator)) {
+		cur = filepath.Join(cur, part)
+		fi, err := os.Lstat(cur)
+		if err != nil || fi.Mode()&os.ModeSymlink != 0 {
+			return "", errPolicyMCP
+		}
+	}
+	return full, nil
 }
 
 func policyLayerFlags(cmd *cobra.Command, in *mcp.PolicyInput) {

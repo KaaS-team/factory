@@ -257,3 +257,43 @@ func TestWorktreeSkipsRepoHooks(t *testing.T) {
 		t.Fatal("post-checkout hook ran in the review worktree")
 	}
 }
+
+// A PR must not suppress its own findings: review-rules.yml counts only as committed at the base,
+// or from the operator's file, never from the working tree or the head commit.
+func TestRulesComeFromBaseNotHead(t *testing.T) {
+	const suppress = "rules:\n  - kind: naming\n    action: suppress\n    confidence: 0.9\n    dismissals: 3\n"
+	dir := t.TempDir()
+	tgit(t, dir, "init", "-q", "-b", "main")
+	writeFile(t, dir, "a.go", "package a\n")
+	tgit(t, dir, "add", ".")
+	tgit(t, dir, "commit", "-q", "-m", "base")
+	tgit(t, dir, "checkout", "-q", "-b", "pr")
+	writeFile(t, dir, ".factory/review-rules.yml", suppress)
+	tgit(t, dir, "add", ".")
+	tgit(t, dir, "commit", "-q", "-m", "pr suppresses itself")
+
+	if got := (Runner{Repo: dir, Base: "main"}).rules(context.Background()); len(got) != 0 {
+		t.Fatalf("head's rules applied: %v", got)
+	}
+	if got := (Runner{Repo: dir}).rules(context.Background()); len(got) != 0 {
+		t.Fatalf("no base must read no repo rules: %v", got)
+	}
+	if got := (Runner{Repo: dir, Base: "--output=x"}).rules(context.Background()); len(got) != 0 {
+		t.Fatalf("option-like base: %v", got)
+	}
+	// Once the rules are on the base, they apply.
+	tgit(t, dir, "checkout", "-q", "main")
+	tgit(t, dir, "merge", "-q", "pr")
+	tgit(t, dir, "checkout", "-q", "-b", "pr2")
+	if _, ok := (Runner{Repo: dir, Base: "main"}).rules(context.Background()).Apply("naming"); !ok {
+		t.Fatal("base rules not applied")
+	}
+	// An operator file applies with no base.
+	op := filepath.Join(t.TempDir(), "rules.yml")
+	if err := os.WriteFile(op, []byte(suppress), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := (Runner{Repo: dir, RulesPath: op}).rules(context.Background()).Apply("naming"); !ok {
+		t.Fatal("operator rules not applied")
+	}
+}

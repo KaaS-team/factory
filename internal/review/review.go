@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
 	"strings"
 	"time"
 
@@ -67,6 +68,8 @@ type Runner struct {
 	// Second is an optional reviewer from another model family, for example an ACP harness agent.
 	// Its findings merge with the first reviewer's by citation. Its failure is not the check's.
 	Second Agent
+	// RulesPath is an operator-owned review-rules.yml outside the repository. Empty means none.
+	RulesPath string
 }
 
 // Run returns one Result per check. A failing check does not stop the others; the error is for
@@ -142,14 +145,33 @@ func (r Runner) station(ctx context.Context, w *worktree, prompt string, res *Re
 		return
 	}
 	st := &Station{}
-	if rules, err := (reviewlearn.Learner{Root: r.Repo}).Rules(); err == nil {
-		st.Rules = rules
-	}
+	st.Rules = r.rules(ctx)
 	var seconds []Reviewer
 	if r.Second != nil {
 		seconds = append(seconds, agentReviewer{name: "second", agent: r.Second, dir: w.dir, prompt: prompt})
 	}
 	res.Findings, res.Dropped, _ = st.Round(ctx, diff, outputReviewer{res.Output}, seconds...)
+}
+
+// rules returns the suppression rules. They come from the operator's RulesPath and from
+// .factory/review-rules.yml as committed at Base, never from the working tree or HEAD, because the
+// change under review could otherwise suppress its own findings. With no Base the repo file is not
+// read at all. A rule the base file or the operator file does not load is not applied.
+func (r Runner) rules(ctx context.Context) reviewlearn.Rules {
+	out := reviewlearn.Rules{}
+	if r.Base != "" && !strings.HasPrefix(r.Base, "-") {
+		if b, err := git(ctx, r.Repo, nil, "show", r.Base+":"+reviewlearn.DefaultPath); err == nil {
+			if rs, err := reviewlearn.ParseRules([]byte(b)); err == nil {
+				maps.Copy(out, rs)
+			}
+		}
+	}
+	if r.RulesPath != "" {
+		if rs, err := (reviewlearn.Learner{Path: r.RulesPath}).Rules(); err == nil {
+			maps.Copy(out, rs) // the operator's rule wins over the base file's
+		}
+	}
+	return out
 }
 
 type outputReviewer struct{ out string }

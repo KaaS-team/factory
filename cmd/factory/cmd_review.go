@@ -126,7 +126,7 @@ func reviewCmd() *cobra.Command {
 				c.budget = budget
 				agent = c
 			}
-			res, err := review.Runner{Repo: ".", Source: packSource{repo: "."}, Agent: agent, Base: base, Timeout: timeout}.Run(cmd.Context())
+			res, err := review.Runner{Repo: ".", Source: packSource{repo: "."}, Agent: agent, Base: base, Timeout: timeout, RulesPath: os.Getenv("FACTORY_REVIEW_RULES")}.Run(cmd.Context())
 			if err != nil {
 				return err
 			}

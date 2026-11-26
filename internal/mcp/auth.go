@@ -38,6 +38,11 @@ func PrincipalFrom(ctx context.Context) (contract.Principal, bool) {
 	return p, ok
 }
 
+// WithPrincipal returns ctx carrying p, as AuthHandler does after it authenticates a caller.
+func WithPrincipal(ctx context.Context, p contract.Principal) context.Context {
+	return context.WithValue(ctx, principalKey{}, p)
+}
+
 // AuthHandler serves srv at /mcp for callers with a valid bearer token and the metadata document at
 // MetadataPath. A missing, bad or wrong-audience token gets 401 with a WWW-Authenticate header that
 // points at the metadata (RFC 9728). A principal with no roles, or a deprovisioned one, gets 403.
