@@ -415,6 +415,20 @@ Cost per accepted outcome per workflow or team, or per prompt variant of one wor
 | `--until` | string | `` | window end, RFC 3339 or YYYY-MM-DD (exclusive) |
 | `--workflow` | string | `` | compare the prompt variants of this workflow |
 
+## factory onboard
+
+`factory onboard [flags]`
+
+Detect this repo, write a starter shadow config and list what is missing
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--dir` | string | `.` | the repository to onboard |
+| `--dry-run` | bool | `false` | show the config and the gaps; write nothing |
+| `--force` | bool | `false` | overwrite an existing .factory/factory.yaml |
+| `--tier` | string | `solo` | starter tier preset, as in `factory init` |
+| `--tracker` | string | `github` | issue tracker, as in `factory init` |
+
 ## factory packs
 
 `factory packs`
@@ -519,6 +533,16 @@ Turn a goal, epic or spec into a ticket DAG; --approve files it
 | `--slice` | bool | `false` | cut straight dependency chains into units of about 30 minutes, one PR each |
 | `--spec` | string | `` | read the spec and tickets from `file` |
 
+## factory plan-review
+
+`factory plan-review [flags]`
+
+Review a plan in the terminal: its epic, tickets and acceptance criteria; approve or revise
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--from-prd` | string | `` | review the epic and tickets drafted from the PRD in `file` |
+
 ## factory program
 
 `factory program <epic> [flags]`
@@ -534,6 +558,16 @@ Run an epic as a program: a tech lead dispatches worker tickets and adjusts the 
 `factory queue`
 
 Show tickets ready to run and the merge queue
+
+## factory ready
+
+`factory ready [flags]`
+
+Open the first-run readiness report: checks, fixes, and a key to apply them
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--dir` | string | `.` | the repository to check |
 
 ## factory repomap
 

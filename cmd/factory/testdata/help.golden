@@ -16,7 +16,7 @@ Available Commands:
   checkpoint     Snapshot and restore the worktree around an agent session
   completion     Generate the autocompletion script for the specified shell
   config         Read resolved configuration
-  dashboard      Serve the read-only web view
+  dashboard      Serve the fleet web app: board, attention inbox and run timelines
   design         Make design edits to a JSX tree without a coding agent
   dispatch       Start a session for a ticket now
   doctor         Check the tools and settings the factory needs
@@ -30,10 +30,13 @@ Available Commands:
   manage         Watch active runs: nudge or restart stalled ones, handle failing CI, feed review comments back
   mcp            Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
   metrics        Cost per accepted outcome per workflow or team, or per prompt variant of one workflow
+  onboard        Detect this repo, write a starter shadow config and list what is missing
   packs          Inspect the packs pinned in factory.lock
   plan           Turn a goal, epic or spec into a ticket DAG; --approve files it
+  plan-review    Review a plan in the terminal: its epic, tickets and acceptance criteria; approve or revise
   program        Run an epic as a program: a tech lead dispatches worker tickets and adjusts the plan
   queue          Show tickets ready to run and the merge queue
+  ready          Open the first-run readiness report: checks, fixes, and a key to apply them
   repomap        Print a ranked, token-budgeted symbol map of the repository for a context pack
   report         Show tokens per merged PR, rework, human touches and cycle time (operator only)
   resume         Continue a stack or program run from its state on disk after a crash
@@ -272,15 +275,16 @@ Flags:
   -h, --help   help for get
 
 === factory dashboard
-Serve the read-only web view
+Serve the fleet web app: board, attention inbox and run timelines
 
 Usage:
   factory dashboard [flags]
 
 Flags:
-      --addr string   listen address (loopback by default) (default "127.0.0.1:8787")
-  -h, --help          help for dashboard
-      --operator      show usage and budget numbers
+      --addr string     listen address (loopback by default) (default "127.0.0.1:8787")
+      --allow-actions   let the local user retry, cancel, steer and resolve attention items
+  -h, --help            help for dashboard
+      --operator        show usage and budget numbers
 
 === factory design
 Make design edits to a JSX tree without a coding agent
@@ -627,6 +631,20 @@ Flags:
       --until string      window end, RFC 3339 or YYYY-MM-DD (exclusive)
       --workflow string   compare the prompt variants of this workflow
 
+=== factory onboard
+Detect this repo, write a starter shadow config and list what is missing
+
+Usage:
+  factory onboard [flags]
+
+Flags:
+      --dir string             the repository to onboard (default ".")
+      --dry-run                show the config and the gaps; write nothing
+      --force                  overwrite an existing .factory/factory.yaml
+  -h, --help                   help for onboard
+      --tier factory init      starter tier preset, as in factory init (default "solo")
+      --tracker factory init   issue tracker, as in factory init (default "github")
+
 === factory packs
 Inspect the packs pinned in factory.lock
 
@@ -745,6 +763,16 @@ Flags:
       --slice             cut straight dependency chains into units of about 30 minutes, one PR each
       --spec file         read the spec and tickets from file
 
+=== factory plan-review
+Review a plan in the terminal: its epic, tickets and acceptance criteria; approve or revise
+
+Usage:
+  factory plan-review [flags]
+
+Flags:
+      --from-prd file   review the epic and tickets drafted from the PRD in file
+  -h, --help            help for plan-review
+
 === factory program
 Run an epic as a program: a tech lead dispatches worker tickets and adjusts the plan
 
@@ -763,6 +791,16 @@ Usage:
 
 Flags:
   -h, --help   help for queue
+
+=== factory ready
+Open the first-run readiness report: checks, fixes, and a key to apply them
+
+Usage:
+  factory ready [flags]
+
+Flags:
+      --dir string   the repository to check (default ".")
+  -h, --help         help for ready
 
 === factory repomap
 Print a ranked, token-budgeted symbol map of the repository for a context pack
