@@ -499,11 +499,13 @@ Turn a goal, epic or spec into a ticket DAG; --approve files it
 
 | Flag | Type | Default | Description |
 |---|---|---|---|
-| `--approve` | bool | `false` | file the tickets; without it nothing is written |
+| `--approve` | bool | `false` | file the tickets (or write the ranks); without it nothing is written |
 | `--epic` | int | `0` | read the spec and tickets from epic issue `n` |
 | `--from-prd` | string | `` | read a PRD from `file` and draft the epic and ordered tickets from it |
 | `--json` | bool | `false` | print the DAG as JSON |
+| `--rank` | string | `` | rank ready tickets by `method` (rice or wsjf) from their Score line; with --approve write the priorities |
 | `--repo-dir` | string | `` | the repository the agent reads when drafting from a goal (default: here) |
+| `--slice` | bool | `false` | cut straight dependency chains into units of about 30 minutes, one PR each |
 | `--spec` | string | `` | read the spec and tickets from `file` |
 
 ## factory program
