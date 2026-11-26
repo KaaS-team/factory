@@ -55,7 +55,7 @@ func (w *Worker) call(ctx context.Context, path string, in, out any) (int, error
 	if err != nil {
 		return 0, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	switch {
 	case resp.StatusCode == http.StatusNotFound || resp.StatusCode == http.StatusGone:
 		return resp.StatusCode, errGone

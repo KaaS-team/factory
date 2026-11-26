@@ -68,12 +68,12 @@ func TestLostWorkerLeaseIsReLeased(t *testing.T) {
 	a := &Worker{PlaneURL: srv.URL, Token: toks["default"], Labels: map[string]string{"name": "a"},
 		Client: &http.Client{Transport: net}, Beat: 50 * time.Millisecond, Wait: time.Second,
 		Run: func(ctx context.Context, _ broker.Job, out io.Writer) (json.RawMessage, error) {
-			io.WriteString(out, "a started\n")
+			_, _ = io.WriteString(out, "a started\n")
 			close(started)
 			<-ctx.Done() // a hangs until the test ends
 			return nil, ctx.Err()
 		}}
-	go a.Serve(ctx, 0)
+	go func() { _ = a.Serve(ctx, 0) }()
 
 	id, err := l.Submit(broker.Job{ID: "j1"})
 	if err != nil {
@@ -85,10 +85,10 @@ func TestLostWorkerLeaseIsReLeased(t *testing.T) {
 	b := &Worker{PlaneURL: srv.URL, Token: toks["default"], Labels: map[string]string{"name": "b"},
 		Beat: 50 * time.Millisecond, Wait: time.Second,
 		Run: func(_ context.Context, _ broker.Job, out io.Writer) (json.RawMessage, error) {
-			io.WriteString(out, "b ran\n")
+			_, _ = io.WriteString(out, "b ran\n")
 			return json.RawMessage(`{"by":"b"}`), nil
 		}}
-	go b.Serve(ctx, time.Second)
+	go func() { _ = b.Serve(ctx, time.Second) }()
 
 	st := waitState(t, l, id, broker.StateDone)
 	if st.Attempts != 2 || string(st.Result) != `{"by":"b"}` {
@@ -102,7 +102,7 @@ func TestLostWorkerLeaseIsReLeased(t *testing.T) {
 func TestStaleCompleteIsRejected(t *testing.T) {
 	now := time.Now()
 	l := broker.NewLeaser(broker.LeaserOptions{TTL: time.Second, Now: func() time.Time { return now }})
-	l.Submit(broker.Job{ID: "j"})
+	_, _ = l.Submit(broker.Job{ID: "j"})
 	w1 := l.Register("p", nil, nil)
 	first, _ := l.TryLease(w1.ID)
 	now = now.Add(2 * time.Second) // w1 misses its heartbeat
@@ -122,7 +122,7 @@ func TestStaleCompleteIsRejected(t *testing.T) {
 func TestAttemptsRunOut(t *testing.T) {
 	now := time.Now()
 	l := broker.NewLeaser(broker.LeaserOptions{TTL: time.Second, MaxAttempts: 2, Now: func() time.Time { return now }})
-	l.Submit(broker.Job{ID: "j"})
+	_, _ = l.Submit(broker.Job{ID: "j"})
 	for range 2 {
 		w := l.Register("p", nil, nil)
 		if ls, _ := l.TryLease(w.ID); ls == nil {
@@ -137,8 +137,8 @@ func TestAttemptsRunOut(t *testing.T) {
 
 func TestSelectionByLabelsAndCaps(t *testing.T) {
 	l := broker.NewLeaser(broker.LeaserOptions{})
-	l.Submit(broker.Job{ID: "gpu", Selector: map[string]string{"pool": "gpu"}})
-	l.Submit(broker.Job{ID: "docker", Caps: []string{"docker"}})
+	_, _ = l.Submit(broker.Job{ID: "gpu", Selector: map[string]string{"pool": "gpu"}})
+	_, _ = l.Submit(broker.Job{ID: "docker", Caps: []string{"docker"}})
 	plain := l.Register("default", map[string]string{"os": "linux"}, nil)
 	if ls, _ := l.TryLease(plain.ID); ls != nil {
 		t.Fatalf("plain worker took %s", ls.Job.ID)
@@ -155,7 +155,7 @@ func TestSelectionByLabelsAndCaps(t *testing.T) {
 
 func TestDrainStopsLeases(t *testing.T) {
 	l := broker.NewLeaser(broker.LeaserOptions{})
-	l.Submit(broker.Job{ID: "j"})
+	_, _ = l.Submit(broker.Job{ID: "j"})
 	w := l.Register("p", nil, nil)
 	if err := l.Drain(w.ID); err != nil {
 		t.Fatal(err)
@@ -176,7 +176,7 @@ func TestAuth(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		resp.Body.Close()
+		_ = resp.Body.Close()
 		return resp.StatusCode
 	}
 	if c := do("POST", "/v1/workers", ""); c != 401 {
@@ -205,7 +205,7 @@ func TestWorkerCannotUseAnotherPoolsWorkerID(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	resp.Body.Close()
+	_ = resp.Body.Close()
 	if resp.StatusCode != 401 {
 		t.Fatalf("got %d", resp.StatusCode)
 	}

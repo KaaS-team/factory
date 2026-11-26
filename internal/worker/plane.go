@@ -4,6 +4,7 @@ package worker
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -69,10 +70,10 @@ func writeJSON(w http.ResponseWriter, code int, v any) {
 
 func fail(w http.ResponseWriter, err error) {
 	code := http.StatusBadRequest
-	switch err {
-	case broker.ErrUnknownWorker, broker.ErrStaleLease:
+	switch {
+	case errors.Is(err, broker.ErrUnknownWorker), errors.Is(err, broker.ErrStaleLease):
 		code = http.StatusNotFound
-	case broker.ErrLostWorker:
+	case errors.Is(err, broker.ErrLostWorker):
 		code = http.StatusGone
 	}
 	http.Error(w, err.Error(), code)

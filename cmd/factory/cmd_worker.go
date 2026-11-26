@@ -50,9 +50,9 @@ func newWorkerRun() *cobra.Command {
 			ctx, stop := signal.NotifyContext(cmd.Context(), syscall.SIGTERM, os.Interrupt)
 			defer stop()
 			w := &worker.Worker{PlaneURL: strings.TrimRight(plane, "/"), Token: tok, Labels: lb, Caps: caps, Run: worker.ExecRunner(allow)}
-			fmt.Fprintln(cmd.ErrOrStderr(), "worker: started, outbound only")
+			_, _ = fmt.Fprintln(cmd.ErrOrStderr(), "worker: started, outbound only")
 			err = w.Serve(ctx, drain)
-			fmt.Fprintln(cmd.ErrOrStderr(), "worker: drained")
+			_, _ = fmt.Fprintln(cmd.ErrOrStderr(), "worker: drained")
 			return err
 		},
 	}
@@ -113,8 +113,8 @@ func newWorkerToken() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Fprintf(cmd.ErrOrStderr(), "%s %s\n", args[0], broker.HashToken(tok))
-			fmt.Fprintln(cmd.OutOrStdout(), tok)
+			_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "%s %s\n", args[0], broker.HashToken(tok))
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), tok)
 			return nil
 		},
 	}
@@ -147,7 +147,7 @@ func loadPools(path string) (*broker.Pools, error) {
 	if err != nil {
 		return nil, fmt.Errorf("worker: pools file: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	p, n := broker.NewPools(), 0
 	sc := bufio.NewScanner(f)
 	for sc.Scan() {
