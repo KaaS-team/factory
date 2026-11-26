@@ -71,16 +71,8 @@ func (a *Access) guard(action contract.Action, next http.Handler) http.Handler {
 			refuse(w, http.StatusForbidden, d.Reason)
 			return
 		}
-		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), principalKey{}, p)))
+		next.ServeHTTP(w, r)
 	})
-}
-
-type principalKey struct{}
-
-// PrincipalFrom returns the principal Access authenticated for the request.
-func PrincipalFrom(ctx context.Context) (contract.Principal, bool) {
-	p, ok := ctx.Value(principalKey{}).(contract.Principal)
-	return p, ok
 }
 
 func refuse(w http.ResponseWriter, status int, why contract.ReasonCode) {
