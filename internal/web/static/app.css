@@ -1,0 +1,132 @@
+/* Fleet app layout on the KaaS ui tokens. Only var(--ui-*) values; no colours of its own.
+   Candidates for the ui repo: .fw-board (kanban columns), .fw-skip (skip link). */
+
+.fw-skip {
+  position: absolute;
+  top: var(--ui-space-2);
+  left: var(--ui-space-2);
+  z-index: 20;
+  transform: translateY(-200%);
+}
+.fw-skip:focus-visible {
+  transform: none;
+}
+.ui-main:focus {
+  outline: none;
+}
+
+.fw-live {
+  font-size: var(--ui-type-xs);
+}
+
+.fw-stats {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+}
+
+/* board: five columns side by side on a wide screen, stacked on a phone */
+.fw-board {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--ui-space-3);
+  align-items: start;
+}
+.fw-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  min-width: 0;
+  padding: var(--ui-space-2);
+  background: var(--ui-bg);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-lg);
+}
+.fw-col-head {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--ui-space-1) var(--ui-space-1) 0;
+  font-size: var(--ui-type-sm);
+  font-weight: 600;
+}
+.fw-col-empty {
+  padding: var(--ui-space-2) var(--ui-space-1);
+  font-size: var(--ui-type-xs);
+}
+.fw-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+}
+.fw-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-1);
+  padding: var(--ui-space-2) var(--ui-space-3);
+  font-size: var(--ui-type-sm);
+}
+.fw-card:hover {
+  border-color: var(--ui-border-strong);
+}
+.fw-card-link {
+  color: var(--ui-text);
+  font-weight: 500;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.fw-card-link:hover .fw-card-title {
+  text-decoration: underline;
+}
+.fw-card-meta {
+  gap: var(--ui-space-1) var(--ui-space-2);
+  font-size: var(--ui-type-xs);
+}
+.fw-card-sub {
+  font-size: var(--ui-type-xs);
+  overflow-wrap: anywhere;
+}
+
+/* run page: timeline and log beside the actions */
+.fw-run {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--ui-space-4);
+  align-items: start;
+}
+.fw-run-meta {
+  margin-top: var(--ui-space-2);
+  font-size: var(--ui-type-sm);
+}
+.fw-hint {
+  font-size: var(--ui-type-xs);
+}
+.fw-log .ui-log {
+  max-height: 320px;
+  overflow: auto;
+}
+
+/* inbox */
+.fw-item-meta {
+  margin-top: var(--ui-space-1);
+  font-size: var(--ui-type-xs);
+}
+
+.fw-narrow {
+  max-width: 28rem;
+}
+
+@media (max-width: 1100px) {
+  .fw-board {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  }
+  .fw-run {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 720px) {
+  .ui-nav-foot.fw-signout {
+    display: block;
+    flex: none;
+    margin: 0 0 0 auto;
+    padding: 0;
+    border: 0;
+  }
+}

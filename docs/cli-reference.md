@@ -153,11 +153,12 @@ Print the resolved value of a key
 
 `factory dashboard [flags]`
 
-Serve the read-only web view
+Serve the fleet web app: board, attention inbox and run timelines
 
 | Flag | Type | Default | Description |
 |---|---|---|---|
 | `--addr` | string | `127.0.0.1:8787` | listen address (loopback by default) |
+| `--allow-actions` | bool | `false` | let the local user retry, cancel, steer and resolve attention items |
 | `--operator` | bool | `false` | show usage and budget numbers |
 
 ## factory design

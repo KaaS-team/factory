@@ -1,0 +1,5 @@
+{{/* signin: the token sign-in form. Data: page with ui.Form. */}}
+{{define "signin"}}<div class="fw-narrow ui-stack">
+<header class="ui-page-header"><div><h1>Sign in</h1><p>Use the API token your admin gave you.</p></div></header>
+<section class="ui-card"><div class="ui-card-body">{{template "form" .Data}}</div></section>
+</div>{{end}}

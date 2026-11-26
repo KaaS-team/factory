@@ -1,0 +1,17 @@
+{{/* inbox: what needs a person, from internal/attention. Data: page with inboxView. */}}
+{{define "inbox"}}{{$v := .Data}}<header class="ui-page-header">
+<div><h1>Attention</h1><p>Decisions and failures only a person can settle. Oldest first.</p></div>
+<p class="fw-live ui-muted" data-live="/events" aria-live="polite">Connecting…</p>
+</header>
+<div id="inbox" class="ui-stack" data-refresh>
+{{with $v.Done}}<div class="ui-attention" role="status" data-status="pass"><p class="ui-attention-title">{{.}}</p></div>{{end}}
+{{if $v.Error}}<div class="ui-attention" role="alert" data-status="fail"><p class="ui-attention-title">Attention list unavailable</p><p class="ui-attention-body">{{$v.Error}}</p></div>
+{{else if $v.Unavailable}}{{template "empty" (empty "No attention list" "This factory does not keep an attention list. Runs that need you still show in the Needs you column of the board." )}}
+{{else if not $v.Items}}{{template "empty" (empty "Nothing needs you" "Plan approvals, policy refusals, budget stops and merges to approve land here.")}}
+{{else}}<ul class="ui-stack" data-gap="sm" aria-label="Open items">
+{{range $v.Items}}<li><form method="post" action="/attention/{{.ID}}" class="fw-item"><input type="hidden" name="csrf" value="{{$.CSRF}}">
+{{template "attention" .Card}}
+<p class="ui-muted fw-item-meta"><a href="/runs/{{.Ticket}}">Open run {{.Ticket}}</a> · raised <time class="ui-num">{{.Created}}</time> UTC</p>
+</form></li>
+{{end}}</ul>{{end}}
+</div>{{end}}
