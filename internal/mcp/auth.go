@@ -26,7 +26,7 @@ type AuthConfig struct {
 	Resource string
 	// AuthorizationServers lists the issuers a client may get a token from.
 	AuthorizationServers []string
-	// ReadOnly, when set, serves principals that hold no role above viewer. Without it they get Server.
+	// ReadOnly serves principals that hold no role above viewer. It is required, so a viewer never gets Server.
 	ReadOnly *sdk.Server
 }
 
@@ -51,6 +51,9 @@ func AuthHandler(srv *sdk.Server, cfg AuthConfig) (http.Handler, error) {
 	if cfg.Identity == nil || cfg.Resource == "" || len(cfg.AuthorizationServers) == 0 {
 		return nil, errors.New("mcp: auth needs an identity, a resource url and an authorization server")
 	}
+	if cfg.ReadOnly == nil {
+		return nil, errors.New("mcp: auth needs a read-only server for viewers")
+	}
 	meta, _ := json.Marshal(map[string]any{
 		"resource":                 cfg.Resource,
 		"authorization_servers":    cfg.AuthorizationServers,
@@ -58,7 +61,7 @@ func AuthHandler(srv *sdk.Server, cfg AuthConfig) (http.Handler, error) {
 	})
 	challenge := `Bearer resource_metadata="` + strings.TrimSuffix(cfg.Resource, "/mcp") + MetadataPath + `"`
 	pick := func(r *http.Request) *sdk.Server {
-		if p, ok := PrincipalFrom(r.Context()); ok && cfg.ReadOnly != nil && viewerOnly(p) {
+		if p, ok := PrincipalFrom(r.Context()); ok && viewerOnly(p) {
 			return cfg.ReadOnly
 		}
 		return srv

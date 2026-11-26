@@ -146,6 +146,12 @@ func TestAuthConfigNeedsEveryField(t *testing.T) {
 	if _, err := factorymcp.AuthHandler(factorymcp.NewServer(newFake(), factorymcp.Handlers{}), factorymcp.AuthConfig{}); err == nil {
 		t.Error("empty config must be refused")
 	}
+	srv := factorymcp.NewServer(newFake(), factorymcp.Handlers{})
+	if _, err := factorymcp.AuthHandler(srv, factorymcp.AuthConfig{
+		Identity: fakeIdentity{}, Resource: "https://factory.example/mcp", AuthorizationServers: []string{"https://idp.example"},
+	}); err == nil {
+		t.Error("a config without a read-only server must be refused, or viewers would get every write tool")
+	}
 }
 
 func newTS(t *testing.T, h http.Handler) string {
