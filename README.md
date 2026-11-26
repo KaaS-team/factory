@@ -117,3 +117,7 @@ file, `FACTORY_*` variables, and flags. The org layer is a ceiling. Every key is
 ## Contributing and license
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [LICENSE](LICENSE).
+
+## Built by KaaS
+
+Built by [KaaS](https://kaas.team). Security reports go through [SECURITY.md](SECURITY.md); the brand rules are in [docs/brand.md](docs/brand.md).

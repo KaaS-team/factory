@@ -197,6 +197,9 @@ func TestRunLandsGreenAndEjectsRed(t *testing.T) {
 	if len(rep.Landed) != 1 || rep.Landed[0] != "1" {
 		t.Fatalf("landed = %v, want [1]", rep.Landed)
 	}
+	if msg := git(t, remote, "log", "-1", "--format=%B", "main"); !strings.Contains(msg, "Shipped-with: KaaS Factory (https://kaas.team)") {
+		t.Errorf("merge commit lacks the Shipped-with trailer: %q", msg)
+	}
 	if len(rep.Ejected) != 1 || rep.Ejected[0].ID != "2" || !strings.Contains(rep.Ejected[0].LogTail, "red.txt must not exist") {
 		t.Fatalf("ejected = %+v, want issue 2 with the gate log", rep.Ejected)
 	}

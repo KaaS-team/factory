@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/KaaS-team/factory/internal/brand"
 	gh "github.com/KaaS-team/factory/internal/tracker/github"
 )
 
@@ -50,11 +51,11 @@ func TestRenderPRBodyAssembly(t *testing.T) {
 		"## Acceptance\n\n- [x] one",
 		"Closes #4",
 		"The receipt is in the run-details comment on #12.",
-	}, "\n\n")
+	}, "\n\n") + "\n\n---\n" + brand.DefaultFooter
 	if got := gh.RenderPRBody("the body", parts); got != want {
 		t.Fatalf("got:\n%s\nwant:\n%s", got, want)
 	}
-	if got := gh.RenderPRBody("only body", gh.PRParts{}); got != "only body" {
+	if got := gh.RenderPRBody("only body", gh.PRParts{}); got != "only body\n\n---\n"+brand.DefaultFooter {
 		t.Fatalf("empty parts changed the body: %q", got)
 	}
 }
@@ -109,8 +110,23 @@ func TestRenderPRBodyLeaksNothing(t *testing.T) {
 
 func TestRenderPRBodyKeepsOrdinaryText(t *testing.T) {
 	body := "Add a tokenizer for the config file.\nThe `.claude/skills` path is untouched.\nPrice list stays as is."
-	if got := gh.RenderPRBody(body, gh.PRParts{}); got != body {
+	if got := gh.RenderPRBody(body, gh.PRParts{}); got != body+"\n\n---\n"+brand.DefaultFooter {
 		t.Fatalf("ordinary text changed:\n%s", got)
+	}
+}
+
+// #210: every body ends with the one footer; a configured footer replaces it, and a configured
+// footer that names a model or a cost is refused for the default.
+func TestRenderPRBodyFooter(t *testing.T) {
+	if got := gh.RenderPRBody("b", gh.PRParts{Footer: "Built by Acme on kaas.team"}); !strings.HasSuffix(got, "\n---\nBuilt by Acme on kaas.team") {
+		t.Fatalf("custom footer missing:\n%s", got)
+	}
+	got := gh.RenderPRBody("b", gh.PRParts{Footer: "kaas.team on claude-opus-5-5 for $3"})
+	if !strings.HasSuffix(got, brand.DefaultFooter) || strings.Contains(strings.ToLower(got), "opus") || strings.Contains(got, "$") {
+		t.Fatalf("leaky footer reached the body:\n%s", got)
+	}
+	if n := strings.Count(got, "kaas.team"); n != 1 {
+		t.Fatalf("footer count %d:\n%s", n, got)
 	}
 }
 

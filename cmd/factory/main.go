@@ -17,6 +17,7 @@ import (
 
 	"github.com/KaaS-team/factory/internal/api"
 	"github.com/KaaS-team/factory/internal/audit"
+	"github.com/KaaS-team/factory/internal/brand"
 	"github.com/KaaS-team/factory/internal/tracker/github"
 	"github.com/KaaS-team/factory/pkg/sandbox"
 )
@@ -35,7 +36,7 @@ func newRoot() *cobra.Command {
 		SilenceErrors: true,
 		Version:       fmt.Sprintf("%s (commit %s, built %s)", version, commit, date),
 	}
-	root.SetVersionTemplate("factory {{.Version}}\n")
+	root.SetVersionTemplate("factory {{.Version}}\n" + brand.URL + "\n")
 	addRegistered(root)
 	return root
 }
