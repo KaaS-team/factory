@@ -47,7 +47,7 @@ func prioritizeCmd() *cobra.Command {
 				if r.Scored {
 					score = fmt.Sprintf("%.2f", r.Score)
 				}
-				fmt.Fprintf(w, "%d. #%s %s (%s)\n", r.Rank, r.ID, r.Title, score)
+				_, _ = fmt.Fprintf(w, "%d. #%s %s (%s)\n", r.Rank, r.ID, r.Title, score)
 			}
 			if !approve {
 				_, err = fmt.Fprintln(w, "nothing stored; pass --approve to store the ranks")

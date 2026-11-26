@@ -48,7 +48,7 @@ func printDrafts(w io.Writer, ds []backlog.Draft, filed []backlog.Filed, asJSON 
 	}
 	if filed == nil {
 		for _, d := range ds {
-			fmt.Fprintf(w, "draft: %s\n", d.Title)
+			_, _ = fmt.Fprintf(w, "draft: %s\n", d.Title)
 		}
 		_, err := fmt.Fprintln(w, "nothing filed; pass --approve to file")
 		return err
@@ -58,7 +58,7 @@ func printDrafts(w io.Writer, ds []backlog.Draft, filed []backlog.Filed, asJSON 
 		if f.Existed {
 			verb = "exists"
 		}
-		fmt.Fprintf(w, "%s #%s %s\n", verb, f.ID, f.Title)
+		_, _ = fmt.Fprintf(w, "%s #%s %s\n", verb, f.ID, f.Title)
 	}
 	return nil
 }
