@@ -1,0 +1,30 @@
+factory  plan review
+Import a PRD as an epic  4 tickets  3 waves  6 criteria                            ready to approve 
+
+Wave 1                                   ╭─────────────────────────────────────────────────────────╮
+> T1  Parse the PRD slices          2 AC │ T1  Parse the PRD slices                                │
+                                         │ Wave 1  depends on none                                 │
+Wave 2                                   │                                                         │
+  T2  Split oversized slices        1 AC │ Problem                                                 │
+  T3  Wire --from-prd into factor…  2 AC │ A PRD arrives as markdown. The factory needs its title, │
+                                         │ intro and slices before it can draft tickets.           │
+Wave 3                                   │                                                         │
+  T4  Document the PRD format       1 AC │ Acceptance criteria                                     │
+                                         │ AC-1  a PRD with a title and two slices parses into two │
+                                         │       slices                                            │
+                                         │ AC-2  a PRD with no slices is refused with a message    │
+                                         │       that names the missing section                    │
+                                         │                                                         │
+                                         │ Files                                                   │
+                                         │   internal/plan/prd.go                                  │
+                                         │   internal/plan/prd_test.go                             │
+                                         ╰─────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+Enter sends the note, esc goes back
+revise> split 
