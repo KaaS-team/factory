@@ -281,9 +281,11 @@ Audit this repo and show what the factory would fix, at no cost
 | Flag | Type | Default | Description |
 |---|---|---|---|
 | `--annotations` | string | `.factory/annotations.yml` | reason-tagged suppressions file; the default is optional |
+| `--dir` | string | `.` | the repository --ready checks |
 | `--dry-run` | bool | `false` | stop after the report; say what would be dispatched |
-| `--fix` | bool | `false` | dispatch one build for the first covered finding and open a draft pull request |
+| `--fix` | bool | `false` | dispatch one build for the first covered finding and open a draft pull request; with --ready, repair failed checks in place instead |
 | `--gh` | string | `` | also audit this GitHub repo (owner/repo) |
+| `--ready` | bool | `false` | check the repo is ready for agents: builds, tests, AGENTS.md, gate script, CI, branch protection; with --fix, repair what can be repaired in place |
 | `--sarif` | string | `` | also write the findings to this file as SARIF 2.1.0 |
 
 ## factory init
@@ -423,6 +425,7 @@ Turn a goal, epic or spec into a ticket DAG; --approve files it
 |---|---|---|---|
 | `--approve` | bool | `false` | file the tickets; without it nothing is written |
 | `--epic` | int | `0` | read the spec and tickets from epic issue `n` |
+| `--from-prd` | string | `` | read a PRD from `file` and draft the epic and ordered tickets from it |
 | `--json` | bool | `false` | print the DAG as JSON |
 | `--repo-dir` | string | `` | the repository the agent reads when drafting from a goal (default: here) |
 | `--spec` | string | `` | read the spec and tickets from `file` |
@@ -542,6 +545,18 @@ Show the board, one row per slot
 `factory steer <ticket> [message...]`
 
 Send a message to a ticket's running session
+
+## factory triage
+
+`factory triage <ticket> [flags]`
+
+Classify a ticket and decide: proceed, needs-info, duplicate or refused
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--apply` | bool | `false` | write the decision back to the ticket as a comment; without it nothing is written |
+| `--json` | bool | `false` | print the decision as JSON |
+| `--protected` | stringSlice | `[]` | path `prefixes` agents may not edit; a ticket naming one is refused |
 
 ## factory upgrade
 
