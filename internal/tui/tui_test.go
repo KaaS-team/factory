@@ -120,6 +120,8 @@ func keyMsg(k string) tea.KeyPressMsg {
 		return tea.KeyPressMsg{Code: tea.KeyDown}
 	case "up":
 		return tea.KeyPressMsg{Code: tea.KeyUp}
+	case "pgdown":
+		return tea.KeyPressMsg{Code: tea.KeyPgDown}
 	}
 	r := []rune(k)[0]
 	return tea.KeyPressMsg{Code: r, Text: k}
@@ -280,7 +282,7 @@ func TestUsageBarWarning(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			raw, warn := usageBar(api.Usage{InputTokens: tc.used}, api.Budget{Tokens: tc.cap}, 10)
+			raw, warn := usageBar(newTheme(true), api.Usage{InputTokens: tc.used}, api.Budget{Tokens: tc.cap}, 10)
 			if warn != tc.warn {
 				t.Fatalf("warn = %v", warn)
 			}

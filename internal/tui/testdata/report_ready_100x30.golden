@@ -1,0 +1,30 @@
+factory  first-run report
+acme/api  5 of 6 pass  0 failing  1 not checked                                    ready for agents 
+
+╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ Readiness                                                                                        │
+│  PASS     builds              ok                                                                 │
+│                                                                                                  │
+│  PASS     tests run           ok                                                                 │
+│                                                                                                  │
+│  PASS     AGENTS.md           ok                                                                 │
+│                                                                                                  │
+│  PASS     gate script         ok                                                                 │
+│                                                                                                  │
+│  PASS     CI exists           ok                                                                 │
+│                                                                                                  │
+│  UNKNOWN  branch protection   needs the GitHub repo and a token in the config to check it        │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+
+j/k scroll  R recheck  q quit

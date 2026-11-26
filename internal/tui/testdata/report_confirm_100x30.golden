@@ -1,0 +1,30 @@
+factory  first-run report
+acme/api  2 of 6 pass  3 failing  1 not checked                                           not ready 
+
+╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ Readiness                                                                                        │
+│  PASS     builds              ok                                                                 │
+│                                                                                                  │
+│  FAIL     tests run           `go test ./...` failed: FAIL github.com/acme/api/store 0.41s       │
+│                               no automatic fix; fix it by hand                                   │
+│                                                                                                  │
+│  FAIL     AGENTS.md           no AGENTS.md; agents start with no rules for this repo             │
+│                               fix: write an AGENTS.md skeleton                                   │
+│                                                                                                  │
+│  PASS     gate script         ok                                                                 │
+│                                                                                                  │
+│  FAIL     CI exists           no CI config; nothing checks a pull request                        │
+│                               fix: add .github/workflows/ci.yml that runs gate.sh                │
+│                                                                                                  │
+│  UNKNOWN  branch protection   needs the GitHub repo and a token in the config to check it        │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+Apply 2 fixes in place? y/n

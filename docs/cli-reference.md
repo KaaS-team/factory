@@ -430,11 +430,31 @@ Turn a goal, epic or spec into a ticket DAG; --approve files it
 | `--repo-dir` | string | `` | the repository the agent reads when drafting from a goal (default: here) |
 | `--spec` | string | `` | read the spec and tickets from `file` |
 
+## factory plan-review
+
+`factory plan-review [flags]`
+
+Review a plan in the terminal: its epic, tickets and acceptance criteria; approve or revise
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--from-prd` | string | `` | review the epic and tickets drafted from the PRD in `file` |
+
 ## factory queue
 
 `factory queue`
 
 Show tickets ready to run and the merge queue
+
+## factory ready
+
+`factory ready [flags]`
+
+Open the first-run readiness report: checks, fixes, and a key to apply them
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--dir` | string | `.` | the repository to check |
 
 ## factory repomap
 

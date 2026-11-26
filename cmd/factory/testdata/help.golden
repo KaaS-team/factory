@@ -26,7 +26,9 @@ Available Commands:
   mcp          Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
   packs        Inspect the packs pinned in factory.lock
   plan         Turn a goal, epic or spec into a ticket DAG; --approve files it
+  plan-review  Review a plan in the terminal: its epic, tickets and acceptance criteria; approve or revise
   queue        Show tickets ready to run and the merge queue
+  ready        Open the first-run readiness report: checks, fixes, and a key to apply them
   repomap      Print a ranked, token-budgeted symbol map of the repository for a context pack
   report       Show tokens per merged PR, rework, human touches and cycle time (operator only)
   retry        Queue a new attempt for a ticket
@@ -629,6 +631,16 @@ Flags:
       --repo-dir string   the repository the agent reads when drafting from a goal (default: here)
       --spec file         read the spec and tickets from file
 
+=== factory plan-review
+Review a plan in the terminal: its epic, tickets and acceptance criteria; approve or revise
+
+Usage:
+  factory plan-review [flags]
+
+Flags:
+      --from-prd file   review the epic and tickets drafted from the PRD in file
+  -h, --help            help for plan-review
+
 === factory queue
 Show tickets ready to run and the merge queue
 
@@ -637,6 +649,16 @@ Usage:
 
 Flags:
   -h, --help   help for queue
+
+=== factory ready
+Open the first-run readiness report: checks, fixes, and a key to apply them
+
+Usage:
+  factory ready [flags]
+
+Flags:
+      --dir string   the repository to check (default ".")
+  -h, --help         help for ready
 
 === factory repomap
 Print a ranked, token-budgeted symbol map of the repository for a context pack

@@ -1,0 +1,30 @@
+factory  plan review
+Import a PRD as an epic  4 tickets  3 waves  5 criteria                                   1 problem 
+╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ Problems                                                                                         │
+│ - ticket T4 covers no acceptance criterion                                                       │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+Wave 1                                   ╭─────────────────────────────────────────────────────────╮
+  T1  Parse the PRD slices          2 AC │ T4  Document the PRD format                             │
+                                         │ Wave 3  depends on T2, T3                               │
+Wave 2                                   │                                                         │
+  T2  Split oversized slices        1 AC │ Problem                                                 │
+  T3  Wire --from-prd into factor…  2 AC │ Product managers write the PRD, so the format needs a   │
+                                         │ page they can read.                                     │
+Wave 3                                   │                                                         │
+> T4  Document the PRD format       0 AC │ Acceptance criteria                                     │
+                                         │ None. The ticket cannot be checked.                     │
+                                         │                                                         │
+                                         │ Files                                                   │
+                                         │   docs/prd.md                                           │
+                                         ╰─────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+j/k ticket  pgup/pgdn scroll  a approve  r revise  q quit
