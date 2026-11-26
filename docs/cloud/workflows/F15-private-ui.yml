@@ -1,0 +1,13 @@
+# F15: steps the ci.yml `push` job needs before `just check`, so Go can fetch the private
+# github.com/KaaS-team/ui module. Cloud sessions cannot push .github/workflows/**; the
+# orchestrator installs these. Insert them after actions/setup-go in .github/workflows/ci.yml.
+#
+# KAAS_UI_READ_TOKEN is a fine-grained token (or GitHub App installation token) with
+# contents:read on KaaS-team/ui only. The workflow GITHUB_TOKEN cannot read another repository.
+
+      - name: Read the private KaaS-team Go modules
+        env:
+          KAAS_UI_READ_TOKEN: ${{ secrets.KAAS_UI_READ_TOKEN }}
+        run: |
+          echo "GOPRIVATE=github.com/KaaS-team/*" >> "$GITHUB_ENV"
+          git config --global url."https://x-access-token:${KAAS_UI_READ_TOKEN}@github.com/KaaS-team/ui".insteadOf "https://github.com/KaaS-team/ui"
