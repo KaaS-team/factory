@@ -12,6 +12,10 @@ import (
 	"github.com/KaaS-team/factory/internal/gitx/checkpoint"
 )
 
+func init() {
+	register("checkpoint", checkpointCmd, noTool("snapshots the local worktree around an agent session; the agent is the caller, not a client"))
+}
+
 // scratchDir holds the per-session scratch index the worktree checkpoints reuse between snapshots.
 const scratchDir = ".factory/cache/checkpoints"
 

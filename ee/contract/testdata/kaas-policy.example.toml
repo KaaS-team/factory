@@ -1,0 +1,62 @@
+# kaas-policy.toml, the org layer. Team and repo layers use the same keys and may only narrow.
+# The schema is contract.PolicyFile in ee/contract/policy.go.
+
+version = 1
+layer = "org"
+name = "acme"
+
+# Model ids a session may run. Left out, a lower layer inherits this list; [] allows none.
+[models]
+allowed = ["provider-large-2026", "provider-small-2026"]
+
+# Coding-agent harnesses a session may run.
+[harnesses]
+allowed = ["claude-code", "codex"]
+
+# MCP servers a session may connect to, by the name in its MCP config.
+[mcp]
+allowed_servers = ["github", "linear", "sentry"]
+
+# Hosts the sandbox may reach. "*.d" matches any host ending in ".d", not "d" itself.
+[egress]
+allowed_hosts = ["github.com", "*.githubusercontent.com", "proxy.golang.org", "registry.npmjs.org"]
+
+# Risk classes that may merge without a human review: low, medium, high.
+[merge]
+auto_merge_risk = ["low"]
+
+# Actions that need a human approval first. Lower layers can add to this list, never remove.
+[approval]
+require_human = ["merge", "policy.edit", "budget.edit", "worker.manage"]
+
+# Spend limits in US dollars per period (day, week or month, reset at 00:00 UTC).
+# Scopes: org, team, factory, bot, action.
+[[budgets]]
+scope = "org"
+id = "acme"
+usd = 5000.0
+period = "month"
+
+[[budgets]]
+scope = "team"
+id = "payments"
+usd = 1200.0
+period = "month"
+
+[[budgets]]
+scope = "factory"
+id = "acme-prod"
+usd = 300.0
+period = "day"
+
+[[budgets]]
+scope = "bot"
+id = "bot-claude-1"
+usd = 50.0
+period = "day"
+
+[[budgets]]
+scope = "action"
+id = "run.start"
+usd = 4000.0
+period = "month"

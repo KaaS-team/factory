@@ -13,6 +13,10 @@ import (
 	"github.com/KaaS-team/factory/internal/graph"
 )
 
+func init() {
+	register("doctor", doctorCmd, noTool("gap: no doctor tool yet; it checks the host the CLI runs on"))
+}
+
 // checkStatus is the outcome of one doctor check.
 type checkStatus string
 

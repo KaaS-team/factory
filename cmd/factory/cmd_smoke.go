@@ -10,6 +10,10 @@ import (
 	"github.com/KaaS-team/factory/internal/smoke"
 )
 
+func init() {
+	register("smoke", smokeCmd, noTool("an end-to-end check against a sandbox repository"))
+}
+
 // smokeUsageError is the exit 2 of `factory smoke` when the sandbox repository is not set.
 type smokeUsageError struct{ msg string }
 

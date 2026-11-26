@@ -16,6 +16,13 @@ precedence = "override"
 SPDX-FileCopyrightText = "2026 Secret SaaS OÜ"
 SPDX-License-Identifier = "LicenseRef-KaaS-EE"
 
+# The enterprise contracts are Apache-2.0 so the core and other repositories can import them.
+[[annotations]]
+path = ["ee/contract/**", "docs/contracts/**"]
+precedence = "override"
+SPDX-FileCopyrightText = "2026 Secret SaaS OÜ"
+SPDX-License-Identifier = "Apache-2.0"
+
 [[annotations]]
 path = ["dashboard/public/icon.svg"]
 precedence = "override"

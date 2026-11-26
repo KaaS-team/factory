@@ -49,10 +49,6 @@ type Handlers struct {
 	ReadOnly bool
 }
 
-// writeTools change the factory or file work. Read-only mode removes them.
-var writeTools = []string{"plan", "approve_plan", "dispatch", "steer", "cancel", "retry",
-	"create_task", "hand_off_task", "queue_followup"}
-
 // Empty is the input of tools that take no arguments.
 type Empty struct{}
 
@@ -248,140 +244,13 @@ func required(tool string, fields ...[2]string) error {
 	return nil
 }
 
-// addTaskTools registers the tools ported from factory-mcp that act on tasks and runs.
-func addTaskTools(s *sdk.Server, ctl api.Control) {
-	sdk.AddTool(s, &sdk.Tool{Name: "create_task", Annotations: writeHint,
-		Description: "Create a new task. Each call creates another task, so repeating it makes duplicates. Never removes or changes existing tasks."},
-		func(ctx context.Context, _ *sdk.CallToolRequest, in CreateTaskInput) (*sdk.CallToolResult, CreatedOutput, error) {
-			if err := required("create_task", [2]string{"title", in.Title}); err != nil {
-				return nil, CreatedOutput{}, err
-			}
-			id, err := ctl.CreateTicket(ctx, in.Title, in.Body)
-			return nil, CreatedOutput{ID: string(id)}, safe("create_task", err)
-		})
-	sdk.AddTool(s, &sdk.Tool{Name: "hand_off_task", Annotations: handOffHint,
-		Description: "Hand a task to another assignee. This replaces the current assignee, so the previous owner loses it. Repeating the same hand-off leaves the same end state."},
-		func(ctx context.Context, _ *sdk.CallToolRequest, in HandOffInput) (*sdk.CallToolResult, OK, error) {
-			if err := required("hand_off_task", [2]string{"id", in.ID}, [2]string{"to", in.To}); err != nil {
-				return nil, OK{}, err
-			}
-			if err := ctl.HandOff(ctx, api.TicketID(in.ID), in.To, in.Note); err != nil {
-				return nil, OK{}, safe("hand_off_task", err)
-			}
-			return nil, OK{Ticket: in.ID, Done: "hand_off_task"}, nil
-		})
-	sdk.AddTool(s, &sdk.Tool{Name: "queue_followup", Annotations: writeHint,
-		Description: "Queue a follow-up message for a run. Each call queues another message. Does not remove or edit earlier ones."},
-		func(ctx context.Context, _ *sdk.CallToolRequest, in FollowupInput) (*sdk.CallToolResult, OK, error) {
-			if err := required("queue_followup", [2]string{"id", in.ID}, [2]string{"message", in.Message}); err != nil {
-				return nil, OK{}, err
-			}
-			if err := ctl.QueueFollowup(ctx, api.TicketID(in.ID), in.Message); err != nil {
-				return nil, OK{}, safe("queue_followup", err)
-			}
-			return nil, OK{Ticket: in.ID, Done: "queue_followup"}, nil
-		})
-	sdk.AddTool(s, &sdk.Tool{Name: "list_events", Annotations: readHint,
-		Description: "List the events of one run, as the factory returns them. Read-only."},
-		func(ctx context.Context, _ *sdk.CallToolRequest, in IDInput) (*sdk.CallToolResult, EventsOutput, error) {
-			out := EventsOutput{Events: []EventView{}}
-			if err := required("list_events", [2]string{"id", in.ID}); err != nil {
-				return nil, out, err
-			}
-			h, ok := ctl.(api.Historian)
-			if !ok {
-				return nil, out, errors.New("list_events: history is unavailable: this control plane does not keep past events")
-			}
-			evs, err := h.History(ctx, api.TicketID(in.ID))
-			for _, e := range evs {
-				out.Events = append(out.Events, EventView{Time: e.Time, Kind: e.Kind, Ticket: e.Ticket})
-			}
-			return nil, out, safe("list_events", err)
-		})
-	sdk.AddTool(s, &sdk.Tool{Name: "list_repos", Annotations: readHint,
-		Description: "List the repositories the factory knows about. Read-only."},
-		func(ctx context.Context, _ *sdk.CallToolRequest, _ Empty) (*sdk.CallToolResult, ReposOutput, error) {
-			repos, err := ctl.Repos(ctx)
-			return nil, ReposOutput{Repos: nonNil(repos)}, safe("list_repos", err)
-		})
-}
-
 // NewServer returns an MCP server exposing the seventeen factory tools and the
 // factory://board and factory://ticket/{id} resources.
 func NewServer(ctl api.Control, extra Handlers) *sdk.Server {
 	s := sdk.NewServer(&sdk.Implementation{Name: "factory", Version: "v9"}, nil)
-	addTextTools(s, extra)
-	addBoardTools(s, ctl)
-	addTicketActionTools(s, ctl)
-	addTaskTools(s, ctl)
+	addRegisteredTools(s, ctl, extra)
 	addResources(s, ctl)
-	if extra.ReadOnly {
-		s.RemoveTools(writeTools...)
-	}
 	return s
-}
-
-// addTextTools registers the tools whose work the caller supplies as Handlers.
-func addTextTools(s *sdk.Server, extra Handlers) {
-	sdk.AddTool(s, &sdk.Tool{Name: "plan", Description: "Plan a goal into tickets"}, textTool("plan", extra.Plan))
-	sdk.AddTool(s, &sdk.Tool{Name: "approve_plan", Description: "Plan a goal and approve it in one call, so its tickets are filed. The factory keeps no plan id between calls, so this takes the goal, not an id. Each call files tickets."}, textTool("approve_plan", extra.ApprovePlan))
-	sdk.AddTool(s, &sdk.Tool{Name: "explain_config", Description: "Explain which layer set a config key and which layers it overrode. Read-only."}, textTool("explain_config", extra.ExplainConfig))
-	sdk.AddTool(s, &sdk.Tool{Name: "first_run", Description: "Walk through a first run"}, textTool("first_run", noArg(extra.FirstRun)))
-	sdk.AddTool(s, &sdk.Tool{Name: "report", Description: "Report on finished work"}, textTool("report", noArg(extra.Report)))
-}
-
-// addBoardTools registers the read-only tools that show the board.
-func addBoardTools(s *sdk.Server, ctl api.Control) {
-	sdk.AddTool(s, &sdk.Tool{Name: "status", Description: "Show the board, or one ticket with its history"},
-		func(ctx context.Context, _ *sdk.CallToolRequest, in StatusInput) (*sdk.CallToolResult, StatusOutput, error) {
-			b, err := ctl.Board(ctx)
-			out := StatusOutput{BoardView: boardView(b)}
-			if err != nil || in.Ticket == "" {
-				return nil, out, safe("status", err)
-			}
-			v, ok, err := ticketView(ctx, ctl, b, in.Ticket)
-			if err != nil {
-				return nil, out, safe("status", err)
-			}
-			if !ok {
-				return nil, out, fmt.Errorf("status: ticket %s is not on the board", in.Ticket)
-			}
-			out.Detail = &v
-			return nil, out, nil
-		})
-	sdk.AddTool(s, &sdk.Tool{Name: "list_tickets", Description: "List running and ready tickets"},
-		func(ctx context.Context, _ *sdk.CallToolRequest, _ Empty) (*sdk.CallToolResult, TicketsOutput, error) {
-			b, err := ctl.Board(ctx)
-			out := TicketsOutput{Tickets: []api.Ticket{}}
-			for _, sl := range b.Slots {
-				out.Tickets = append(out.Tickets, sl.Ticket)
-			}
-			out.Tickets = append(out.Tickets, b.Ready...)
-			return nil, out, safe("list_tickets", err)
-		})
-	sdk.AddTool(s, &sdk.Tool{Name: "queue", Description: "Show the merge queue"},
-		func(ctx context.Context, _ *sdk.CallToolRequest, _ Empty) (*sdk.CallToolResult, QueueOutput, error) {
-			b, err := ctl.Board(ctx)
-			return nil, QueueOutput{MergeQueue: nonNil(b.MergeQueue)}, safe("queue", err)
-		})
-}
-
-// addTicketActionTools registers the tools that act on one ticket.
-func addTicketActionTools(s *sdk.Server, ctl api.Control) {
-	sdk.AddTool(s, &sdk.Tool{Name: "dispatch", Description: "Dispatch a ready ticket"},
-		act("dispatch", func(ctx context.Context, in TicketInput) error { return ctl.Dispatch(ctx, api.TicketID(in.Ticket)) }))
-	sdk.AddTool(s, &sdk.Tool{Name: "cancel", Description: "Cancel a ticket's session"},
-		act("cancel", func(ctx context.Context, in TicketInput) error { return ctl.Cancel(ctx, api.TicketID(in.Ticket)) }))
-	sdk.AddTool(s, &sdk.Tool{Name: "retry", Description: "Retry a ticket"},
-		act("retry", func(ctx context.Context, in TicketInput) error { return ctl.Retry(ctx, api.TicketID(in.Ticket)) }))
-	sdk.AddTool(s, &sdk.Tool{Name: "steer", Description: "Send a message to a running ticket's session"},
-		func(ctx context.Context, _ *sdk.CallToolRequest, in SteerInput) (*sdk.CallToolResult, OK, error) {
-			if err := ctl.Steer(ctx, api.TicketID(in.Ticket), in.Message); err != nil {
-				return nil, OK{}, safe("steer", err)
-			}
-			return nil, OK{Ticket: in.Ticket, Done: "steer"}, nil
-		})
-
 }
 
 // addResources registers the factory://board and factory://ticket/{id} resources.

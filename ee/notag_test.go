@@ -8,8 +8,13 @@ import (
 	"testing"
 )
 
-// TestNoEEFilesWithoutTag: a build without -tags ee compiles none of the enterprise packages, and
-// with the tag it compiles all three.
+// untagged are the ee packages that build without the tag, each with its reason.
+var untagged = map[string]string{
+	"/ee/contract": "the Apache-2.0 contracts the core and other repositories import; types and interfaces, no features",
+}
+
+// TestNoEEFilesWithoutTag: a build without -tags ee compiles none of the enterprise packages
+// except the untagged ones, and with the tag it compiles all three features.
 func TestNoEEFilesWithoutTag(t *testing.T) {
 	goBin, err := exec.LookPath("go")
 	if err != nil {
@@ -24,6 +29,9 @@ func TestNoEEFilesWithoutTag(t *testing.T) {
 		return string(out)
 	}
 	for _, line := range strings.Split(strings.TrimSpace(list()), "\n") {
+		if _, ok := untagged[strings.TrimPrefix(strings.Fields(line)[0], "github.com/KaaS-team/factory")]; ok {
+			continue
+		}
 		if strings.Contains(line, "/ee/") && !strings.HasSuffix(line, " 0") {
 			t.Errorf("compiled without the ee tag: %s", line)
 		}

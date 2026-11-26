@@ -19,8 +19,11 @@ func TestEEMountedOnlyWithTag(t *testing.T) {
 		}
 		return string(out)
 	}
-	if d := deps(""); strings.Contains(d, "/ee/") {
-		t.Errorf("default build imports ee:\n%s", d)
+	// ee/contract is the Apache-2.0 contract package the core may import; any other ee import is a leak.
+	for _, line := range strings.Fields(deps("")) {
+		if strings.Contains(line, "/ee/") && !strings.HasSuffix(line, "/ee/contract") {
+			t.Errorf("default build imports %s", line)
+		}
 	}
 	for _, p := range []string{"/ee/policy", "/ee/scim"} {
 		if !strings.Contains(deps("ee"), p) {
