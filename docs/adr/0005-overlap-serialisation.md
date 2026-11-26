@@ -11,25 +11,21 @@ second pull request then conflicts with the first and is built again.
 
 ## Decision
 
-`holdForOverlap` in `src/overlap.ts` compares an issue's planned files with those of every issue that
-is in flight. An issue is in flight when it carries one of `factory:building`, `factory:verifying`,
-`factory:in-review` or `factory:overlap`. The planned files come from the newest trusted plan's data
-marker.
+`internal/pick` holds the rule. `Refill` (`internal/pick/pick.go`) fills free slots from the ranked
+ready tickets. `overlap` compares a ticket's planned `Files` with those of every running ticket and
+every held lock (`Locks.Files`, `Locks.Unmerged`) using `Overlap`. A ticket that overlaps waits and
+the skip reason names the holder, for example `files overlap <ticket>`. When both branches exist,
+`Locks.Merge` runs a merge-tree check and the ticket waits only if the merge would conflict.
 
-The check runs where a plan becomes a build. `src/engine/runner.ts` calls it on the edge from `plan`
-to `build`. `src/watch.ts` calls it when a human approves a resume into a `build` step from
-`factory:awaiting-approval`. When an
-issue overlaps, it moves to `factory:overlap`, gets one comment that names the shared files and the
-issue they share with, and waits.
-
-Only a lower-numbered issue can block. Two overlapping issues therefore never wait on each other.
+`internal/plan/dag.go` applies the same file test at plan time: `Plan.Waves` puts tickets whose
+`Files` overlap in different waves.
 
 ## Consequences
 
 - A later issue waits until the earlier one leaves flight, which happens when its pull request merges
   or closes.
 - The check reads the planned files, so a plan that names too few files lets an overlap through.
-- Each held issue is counted once, with the first blocker named and a count of the rest.
+- The skip reason names the first blocker. A clean merge-tree result lets overlapping files run side by side.
 
 ## Alternatives considered
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-accepted
+superseded: superseded by the layered config in `internal/config`.
 
 ## Context
 
@@ -41,3 +41,13 @@ Teams are config, not code, so a change to a team is a change to a tracked file,
   that several repos share.
 - Store rules in the tracker or a database. Rejected: a rule change would not appear in the repo's
   history or in `factory config explain`.
+
+## Current code
+
+The Go line has no `src/team` schema. `internal/config` loads org, team and repo files as layers (`Layer`
+in `internal/config/keys.go`), then `FACTORY_*` variables and flags. The keys are the `key` tags on
+`Config` in `internal/config/config.go`. `factory config explain` (`internal/config/explain.go`) names
+the layer that set each key. The decision that rules live in tracked files, not in a database, still
+holds. The field list above is the TypeScript one and is not the Go key set.
+
+The text above is kept as history. Its `src/` and `scripts/` paths are in tag `ts-final`.
