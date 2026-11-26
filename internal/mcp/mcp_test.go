@@ -61,8 +61,7 @@ func connect(t *testing.T, ctl api.Control, h factorymcp.Handlers) *sdk.ClientSe
 }
 
 var toolNames = []string{"plan", "approve_plan", "list_tickets", "status", "dispatch", "steer", "cancel", "retry", "queue", "explain_config", "first_run", "report",
-	"create_task", "hand_off_task", "queue_followup", "list_events", "list_repos", "policy", "attention", "manage", "version", "doctor", "packs", "shadow", "repomap", "ask"}
-	"create_task", "hand_off_task", "queue_followup", "list_events", "list_repos", "policy", "attention", "manage", "version", "doctor", "packs", "shadow", "repomap", "onboard"}
+	"create_task", "hand_off_task", "queue_followup", "list_events", "list_repos", "policy", "attention", "manage", "version", "doctor", "packs", "shadow", "repomap", "ask", "onboard"}
 
 // callArgs gives each tool a valid input.
 var callArgs = map[string]map[string]any{

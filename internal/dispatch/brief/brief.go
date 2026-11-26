@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"github.com/KaaS-team/factory/internal/api"
+	"github.com/KaaS-team/factory/internal/plan"
+	"github.com/KaaS-team/factory/internal/tracker/sanitize"
 )
 
 var (
@@ -61,4 +63,15 @@ func Render(b api.Brief) (string, error) {
 // briefs branch, then follow it.
 func Prompt(name string) string {
 	return fmt.Sprintf("Run `git fetch origin cloud-briefs && git show origin/cloud-briefs:%s`, then follow that brief exactly.", name)
+}
+
+// Text is the build prompt for a ticket: the goal checklist and deviation checkpoints first, then
+// the title and body, all sanitised. It returns plan.ErrNoAcceptance for a body with no acceptance
+// lines. core and reconcile both build their briefs here.
+func Text(title, body string) (string, error) {
+	p, err := plan.BuildPrompt(title, body)
+	if err != nil {
+		return "", err
+	}
+	return sanitize.Prompt(p), nil
 }

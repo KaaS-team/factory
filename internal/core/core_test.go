@@ -13,6 +13,7 @@ import (
 	"github.com/KaaS-team/factory/internal/api/porttest"
 	"github.com/KaaS-team/factory/internal/mergeq"
 	"github.com/KaaS-team/factory/internal/meter"
+	"github.com/KaaS-team/factory/internal/plan"
 	"github.com/KaaS-team/factory/internal/reconcile"
 	"github.com/KaaS-team/factory/internal/reconcile/eventlog"
 	"github.com/KaaS-team/factory/internal/store"
@@ -142,7 +143,7 @@ type rig struct {
 }
 
 func tkt(id string, prio int, files ...string) api.Ticket {
-	return api.Ticket{ID: api.TicketID(id), Repo: "r", Title: "t " + id, Priority: prio, Files: files, CreatedAt: t0}
+	return api.Ticket{ID: api.TicketID(id), Repo: "r", Title: "t " + id, Priority: prio, Files: files, CreatedAt: t0, Body: "## Acceptance\n- AC-1: it works\n"}
 }
 
 func newRig(t *testing.T, slots int, budgets meter.Budgets, tickets ...api.Ticket) *rig {
@@ -699,5 +700,38 @@ func TestSteerUnsupportedDispatcherQueuesFollowup(t *testing.T) {
 	}
 	if got := r.tr.Comments["a"]; !eq(got, []string{"Follow-up: hurry"}) {
 		t.Fatalf("comments = %q", got)
+	}
+}
+
+// A ticket with no acceptance lines has no goal to verify: dispatch refuses it with the one line and
+// nothing reaches the dispatcher.
+func TestDispatchRefusesTicketWithoutAcceptance(t *testing.T) {
+	bare := tkt("a", 0)
+	bare.Body = "just do it"
+	r := newRig(t, 2, meter.Budgets{}, bare)
+	err := r.c.Dispatch(context.Background(), "a")
+	if !errors.Is(err, plan.ErrNoAcceptance) {
+		t.Fatalf("err = %v, want ErrNoAcceptance", err)
+	}
+	if n := len(r.disp.Sessions); n != 0 {
+		t.Fatalf("%d sessions started for a ticket with no goal", n)
+	}
+}
+
+// What the agent receives opens with the goal checklist built from the ticket.
+func TestDispatchedBriefOpensWithGoal(t *testing.T) {
+	r := newRig(t, 2, meter.Budgets{}, tkt("a", 0))
+	briefs := map[string]api.Brief{}
+	r.c.d.Dispatcher = briefDisp{r.disp, briefs}
+	if err := r.c.Dispatch(context.Background(), "a"); err != nil {
+		t.Fatal(err)
+	}
+	if len(briefs) != 1 {
+		t.Fatalf("briefs %v", briefs)
+	}
+	for _, b := range briefs {
+		if !strings.HasPrefix(b.Text, "## Goal\n") || !strings.Contains(b.Text, "- [ ] AC-1: it works | test:") || !strings.Contains(b.Text, "## Checkpoints") {
+			t.Fatalf("brief does not open with the goal: %.80q", b.Text)
+		}
 	}
 }

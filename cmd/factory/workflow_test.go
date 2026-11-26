@@ -168,7 +168,7 @@ const tierConfig = `{"repo":"a/b","models":{"small":"s","large":"l"}}`
 // TestRunWalksDefaultGraph: with no workflow file a ticket goes build, then verify in a fresh session, then
 // done; a verify fail follows the fail edge back to build (Symphony 7.1 claim states, 8.1 dispatch).
 func TestRunWalksDefaultGraph(t *testing.T) {
-	tk := api.Ticket{ID: "1", Title: "one", Body: "body", Repo: "a/b"}
+	tk := api.Ticket{ID: "1", Title: "one", Body: "## Acceptance\n- AC-1: it works\n", Repo: "a/b"}
 	cfg := map[string]string{".factory/config.json": tierConfig}
 	t.Run("pass", func(t *testing.T) {
 		got := steps(runStages(t, cfg, tk, 0, api.PhaseDone))
@@ -213,14 +213,14 @@ func TestRunWalksDefaultGraph(t *testing.T) {
 func TestRunHonorsRepoWorkflow(t *testing.T) {
 	wf := "name: issue-to-pr\nsteps:\n  build:\n    uses: build\n    next: verify\n    tier: large\n  verify:\n    uses: verify\n    tier: small\n    reject: build\n"
 	got := steps(runStages(t, map[string]string{".factory/config.json": tierConfig, ".factory/workflows/issue-to-pr.yml": wf},
-		api.Ticket{ID: "2", Title: "two", Repo: "a/b"}, 0, api.PhaseDone))
+		api.Ticket{ID: "2", Title: "two", Body: "## Acceptance\n- AC-1: it works\n", Repo: "a/b"}, 0, api.PhaseDone))
 	if len(got) != 2 || got[0] != (step{"build", 1, "large"}) || got[1] != (step{"verify", 2, "small"}) {
 		t.Fatalf("briefs %+v, want pinned tiers", got)
 	}
 	// A ticket may name its workflow; a repo file of that name is used.
 	three := "name: three\nsteps:\n  build:\n    uses: build\n    next: verify\n  verify:\n    uses: verify\n    next: report\n    reject: build\n  report:\n    uses: report\n"
 	got = steps(runStages(t, map[string]string{".factory/workflows/three.yml": three},
-		api.Ticket{ID: "3", Title: "t", Repo: "a/b", Workflow: "three"}, 0, api.PhaseDone))
+		api.Ticket{ID: "3", Title: "t", Body: "## Acceptance\n- AC-1: it works\n", Repo: "a/b", Workflow: "three"}, 0, api.PhaseDone))
 	if len(got) != 3 || got[2].Node != "report" {
 		t.Fatalf("briefs %+v, want build, verify, report", got)
 	}
@@ -245,7 +245,7 @@ func TestRunRefusesBadWorkflow(t *testing.T) {
 // TestRunSavesWorkflowCheckpoints: `factory run` keeps each ticket's place in its workflow in
 // .factory/cache/checkpoints.db, so a restart resumes there; without the store it leaves no file.
 func TestRunSavesWorkflowCheckpoints(t *testing.T) {
-	tk := api.Ticket{ID: "1", Title: "one", Body: "body", Repo: "a/b"}
+	tk := api.Ticket{ID: "1", Title: "one", Body: "## Acceptance\n- AC-1: it works\n", Repo: "a/b"}
 	runStages(t, map[string]string{".factory/config.json": tierConfig}, tk, 0, api.PhaseDone)
 	st, err := checkpoint.Open(checkpointPath)
 	if err != nil {
