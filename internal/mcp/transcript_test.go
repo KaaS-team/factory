@@ -25,6 +25,7 @@ func TestTranscriptIsCurrent(t *testing.T) {
 	}
 	handler, err := factorymcp.AuthHandler(factorymcp.NewServer(ctl, h), factorymcp.AuthConfig{
 		Identity: fakeIdentity{}, Resource: "https://factory.example/mcp", AuthorizationServers: []string{"https://idp.example"},
+		ReadOnly: factorymcp.NewServer(ctl, factorymcp.Handlers{Version: h.Version, Packs: h.Packs, ReadOnly: true}),
 	})
 	if err != nil {
 		t.Fatal(err)
