@@ -41,6 +41,7 @@ Available Commands:
   steer        Send a message to a ticket's running session
   upgrade      Replace this binary with the latest factory release
   version      Print the factory version
+  worker       Run a self-hosted worker, or the plane that leases to it
 
 Flags:
   -h, --help      help for factory
@@ -803,4 +804,56 @@ Usage:
 
 Flags:
   -h, --help   help for version
+
+=== factory worker
+Run a self-hosted worker, or the plane that leases to it
+
+Usage:
+  factory worker [command]
+
+Available Commands:
+  plane       Serve the worker API: registry, leases and re-leasing
+  run         Connect outbound to the control plane, lease jobs and run them here
+  token       Mint a pool token: the token goes to stdout, the line for --pools to stderr
+
+Flags:
+  -h, --help   help for worker
+
+Use "factory worker [command] --help" for more information about a command.
+
+=== factory worker plane
+Serve the worker API: registry, leases and re-leasing
+
+Usage:
+  factory worker plane [flags]
+
+Flags:
+  -h, --help                   help for plane
+      --listen string          address to listen on (default ":8080")
+      --pools pool sha256hex   file of pool sha256hex lines; hashes only, never tokens
+      --ttl duration           lease and worker lifetime without a heartbeat (default 30s)
+
+=== factory worker run
+Connect outbound to the control plane, lease jobs and run them here
+
+Usage:
+  factory worker run [flags]
+
+Flags:
+      --allow strings       program names a job may run (default [factory])
+      --cap strings         capability this worker offers, for example docker
+      --drain duration      how long SIGTERM lets the current job finish (default 5m0s)
+  -h, --help                help for run
+      --label strings       label key=value (os and arch are added)
+      --plane string        control plane URL (https)
+      --token-file string   file holding the pool token
+
+=== factory worker token
+Mint a pool token: the token goes to stdout, the line for --pools to stderr
+
+Usage:
+  factory worker token <pool> [flags]
+
+Flags:
+  -h, --help   help for token
 
