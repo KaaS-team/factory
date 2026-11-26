@@ -85,6 +85,7 @@ func (t *Tracker) ticket(is *gogithub.Issue) api.Ticket {
 		Title:     is.GetTitle(),
 		Body:      is.GetBody(),
 		Labels:    labels,
+		Priority:  priorityOf(labels),
 		CreatedAt: is.GetCreatedAt().Time,
 	}
 }

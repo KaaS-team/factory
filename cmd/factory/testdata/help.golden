@@ -696,12 +696,14 @@ Usage:
   factory plan [goal] [flags]
 
 Flags:
-      --approve           file the tickets; without it nothing is written
+      --approve           file the tickets (or write the ranks); without it nothing is written
       --epic n            read the spec and tickets from epic issue n
       --from-prd file     read a PRD from file and draft the epic and ordered tickets from it
   -h, --help              help for plan
       --json              print the DAG as JSON
+      --rank method       rank ready tickets by method (rice or wsjf) from their Score line; with --approve write the priorities
       --repo-dir string   the repository the agent reads when drafting from a goal (default: here)
+      --slice             cut straight dependency chains into units of about 30 minutes, one PR each
       --spec file         read the spec and tickets from file
 
 === factory program

@@ -68,3 +68,4 @@ graph TD
   T3 --> T4
   T3 --> T5
 ```
+Warning: the longest dependency chain is 3, above 2: only one unit of that chain can run until the one before it merges

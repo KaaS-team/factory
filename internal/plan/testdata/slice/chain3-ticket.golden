@@ -1,0 +1,30 @@
+<!-- factory:planned v1 -->
+Deps: none
+## Why
+
+T1: why T1
+T2: why T2
+T3: why T3
+
+## Tasks
+
+Run in this order, in one branch, as one PR.
+
+1. T1: Do T1
+2. T2: Do T2
+3. T3: Do T3
+
+## Acceptance
+
+- AC-1: T1 works
+- AC-2: T1 fails clean
+- AC-3: T2 works
+- AC-4: T2 fails clean
+- AC-5: T3 works
+- AC-6: T3 fails clean
+
+## Files
+
+- `a/f1.go`
+- `a/f2.go`
+- `a/f3.go`

@@ -1,0 +1,4 @@
+chain 3 -> 2
+T1 [T1 T2] "Do T1 and 1 more task" deps=[]
+T3 [T3] "Do T3" deps=[T1 T9]
+T9 [T9] "Do T9" deps=[]

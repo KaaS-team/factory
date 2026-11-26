@@ -1,0 +1,5 @@
+chain 3 -> 3
+T1 [T1] "Do T1" deps=[]
+T2 [T2] "Do T2" deps=[T1]
+T3 [T3] "Do T3" deps=[T1]
+T4 [T4] "Do T4" deps=[T2 T3]
