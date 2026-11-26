@@ -28,6 +28,7 @@ var testOnly = map[string]string{
 // pendingWiring packages are finished but no command calls them yet. Each needs a wiring ticket.
 // Wire one, then delete its line: the test fails if a listed package is reached.
 var pendingWiring = map[string]string{
+	"internal/api/analytics":    "analytics routes: mount in `factory serve` once an ee Identity and Authorizer are configured (F12 follow-up)",
 	"internal/dispatch/broker":  "per-action credential broker: wire into the sandbox session start",
 	"internal/dispatch/k8s":     "per-task Kubernetes sandbox runner (F4): the F3 worker selects it, wire it there",
 	"internal/egress":           "policy-driven CONNECT proxy (F4): the F3 worker starts it beside the runner",

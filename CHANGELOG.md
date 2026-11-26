@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Run ledger (`.factory/ledger/runs.jsonl`, `spend.json`), the analytics API (`/api/v1/analytics/runs` and `/spend`, JSON and CSV) and an OTLP export of run counts, durations and cost.
+
 ## v6.3.0
 
 A stricter verify and review loop, a safer runner, and the groundwork for building on cloud agents.
