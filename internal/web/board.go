@@ -65,8 +65,7 @@ type card struct {
 	Attempt  int
 	Since    string // last push, or empty
 	Sub      string // repo, attempt and last push on one line
-	Priority int
-	QueuePos int // 1-based place in the merge queue, 0 when not queued
+	QueuePos int    // 1-based place in the merge queue, 0 when not queued
 	Usage    api.Usage
 }
 
@@ -157,7 +156,7 @@ func buildBoard(b api.Board, operator bool) boardView {
 	for _, sl := range b.Slots {
 		c := card{
 			ID: sl.Ticket.ID, Title: sl.Ticket.Title, Repo: sl.Ticket.Repo, Wave: wave[sl.Ticket.ID],
-			Chip: ui.Chip{Label: phaseLabel[sl.Phase], Status: statusOf(sl.Phase)}, Priority: sl.Ticket.Priority,
+			Chip:     ui.Chip{Label: phaseLabel[sl.Phase], Status: statusOf(sl.Phase)},
 			QueuePos: qpos[sl.Ticket.ID],
 		}
 		if sl.Session != nil {
@@ -174,7 +173,7 @@ func buildBoard(b api.Board, operator bool) boardView {
 	}
 	for _, t := range b.Ready {
 		byPhase[api.PhaseReady] = append(byPhase[api.PhaseReady], card{
-			ID: t.ID, Title: t.Title, Repo: t.Repo, Wave: wave[t.ID], Priority: t.Priority,
+			ID: t.ID, Title: t.Title, Repo: t.Repo, Wave: wave[t.ID],
 			Chip: ui.Chip{Label: "P" + strconv.Itoa(t.Priority)}, Sub: t.Repo,
 		})
 	}
