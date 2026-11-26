@@ -79,6 +79,9 @@ Usage:
 
 Available Commands:
   export      Print audit records from the last --since, as jsonl or csv
+  forward     Send chained events to a SIEM: file:<path>, splunk:<url> or webhook:<url>
+  search      Print chained audit events that match the filters, as jsonl
+  verify      Check the hash chain of the audit log; fails on a changed or deleted event
 
 Flags:
   -h, --help   help for audit
@@ -95,6 +98,42 @@ Flags:
       --format string   jsonl or csv (default "jsonl")
   -h, --help            help for export
       --since string    how far back to read, such as 7d or 12h (default "7d")
+
+=== factory audit forward
+Send chained events to a SIEM. The token for splunk and webhook is read from FACTORY_AUDIT_TOKEN, never from a flag. Use --after to send only newer events.
+
+Usage:
+  factory audit forward [flags]
+
+Flags:
+      --after uint   send only events with a higher seq than this
+  -h, --help         help for forward
+      --to string    file:<path>, splunk:<url> or webhook:<url>
+
+=== factory audit search
+Print chained audit events that match the filters, as jsonl
+
+Usage:
+  factory audit search [flags]
+
+Flags:
+      --action string     only this action, such as run.start
+      --actor string      only events by this actor
+  -h, --help              help for search
+      --limit int         at most this many events; 0 is all
+      --outcome string    allow, deny or error
+      --resource string   only resources that start with this
+      --since string      from this RFC 3339 time, inclusive
+      --until string      before this RFC 3339 time
+
+=== factory audit verify
+Check the hash chain of the audit log; fails on a changed or deleted event
+
+Usage:
+  factory audit verify [flags]
+
+Flags:
+  -h, --help   help for verify
 
 === factory board
 Open the terminal board

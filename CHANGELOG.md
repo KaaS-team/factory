@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- E3 (ee build): a hash-chained audit log with `factory audit verify`, `search` and `forward` (file, Splunk HEC, webhook), and enforced budgets: a run whose team budget is spent is refused before it starts, and a running session is stopped at its cap.
+
 ## v6.3.0
 
 A stricter verify and review loop, a safer runner, and the groundwork for building on cloud agents.
