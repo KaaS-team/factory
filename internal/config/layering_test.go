@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"testing"
 
@@ -123,9 +124,17 @@ func TestLayering_EachLayerWinsOverTheOneBelow(t *testing.T) {
 				if row.clamped && i == 1 {
 					t.Skip("org clamps this key; see TestShadowTrust_LayerTable")
 				}
+				repoBarred := slices.Contains(notFromRepo, row.key)
+				if repoBarred && l == LayerRepo {
+					t.Skip("the repo layer may not set this key; see TestNotFromRepo_RepoLayerRejected")
+				}
 				var s Sources
 				if i > 0 {
-					set(t, &s, order[i-1], row.key, row.hi)
+					below := order[i-1]
+					if repoBarred && below == LayerRepo {
+						below = LayerTeam
+					}
+					set(t, &s, below, row.key, row.hi)
 				}
 				set(t, &s, l, row.key, row.lo)
 				got, err := Load(s)
@@ -156,6 +165,25 @@ func TestLayering_EachLayerWinsOverTheOneBelow(t *testing.T) {
 				t.Fatalf("value = %v, want %s", v, wantHi)
 			}
 		})
+	}
+}
+
+// TestNotFromRepo_RepoLayerRejected: a repo's factory.yaml cannot choose a command the factory
+// runs, while the org and team files still can.
+func TestNotFromRepo_RepoLayerRejected(t *testing.T) {
+	for _, key := range notFromRepo {
+		var s Sources
+		set(t, &s, LayerRepo, key, "evil")
+		if _, err := Load(s); err == nil || !strings.Contains(err.Error(), key) || !strings.Contains(err.Error(), "repo layer") {
+			t.Fatalf("repo layer %s: err = %v, want a repo layer error naming the key", key, err)
+		}
+		for _, l := range []Layer{LayerOrg, LayerTeam, LayerEnv, LayerFlags} {
+			var s Sources
+			set(t, &s, l, key, "ok-mcp")
+			if _, err := Load(s); err != nil {
+				t.Fatalf("%s layer %s: %v", l, key, err)
+			}
+		}
 	}
 }
 

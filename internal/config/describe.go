@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"slices"
 	"time"
 )
 
@@ -40,7 +41,15 @@ func Describe() []KeyInfo {
 		case string:
 			def = fmt.Sprintf("%q", v)
 		}
-		out[i] = KeyInfo{Key: sp.key, Type: kindNames[sp.kind], Default: def, Rule: ceilRules[sp.ceil]}
+		out[i] = KeyInfo{Key: sp.key, Type: kindNames[sp.kind], Default: def, Rule: rule(sp)}
 	}
 	return out
+}
+
+// rule is the plain sentence for who may set a key: its ceiling, or the repo-layer bar.
+func rule(sp spec) string {
+	if slices.Contains(notFromRepo, sp.key) {
+		return "org, team, env or flags only; a repo factory.yaml that sets it fails to load"
+	}
+	return ceilRules[sp.ceil]
 }

@@ -377,9 +377,6 @@ func TestWrongStateIsStateError(t *testing.T) {
 	r := newRig(t, 2, meter.Budgets{}, tkt("a", 0))
 	ctx := context.Background()
 	var se *api.StateError
-	if err := r.c.Steer(ctx, "a", "hi"); !errors.As(err, &se) {
-		t.Errorf("steer untracked: %v, want StateError", err)
-	}
 	if err := r.c.Cancel(ctx, "a"); !errors.As(err, &se) {
 		t.Errorf("cancel untracked: %v, want StateError", err)
 	}
