@@ -14,8 +14,8 @@ func TestVersionPrints(t *testing.T) {
 	if err := root.Execute(); err != nil {
 		t.Fatal(err)
 	}
-	if strings.TrimSpace(out.String()) != version {
-		t.Fatalf("got %q want %q", out.String(), version)
+	if want := version + "\nhttps://kaas.team"; strings.TrimSpace(out.String()) != want {
+		t.Fatalf("got %q want %q", out.String(), want)
 	}
 }
 
@@ -42,7 +42,7 @@ func TestVersionFlagPrintsVersionCommitAndDate(t *testing.T) {
 	if err := root.Execute(); err != nil {
 		t.Fatal(err)
 	}
-	want := "factory 9.0.0 (commit abc1234, built 2026-11-19T00:00:00Z)"
+	want := "factory 9.0.0 (commit abc1234, built 2026-11-19T00:00:00Z)\nhttps://kaas.team"
 	if strings.TrimSpace(out.String()) != want {
 		t.Fatalf("got %q want %q", out.String(), want)
 	}

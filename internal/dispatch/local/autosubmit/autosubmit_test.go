@@ -107,6 +107,9 @@ func TestSubmitPushesTheDiffAndOpensAPartialPR(t *testing.T) {
 	if sh(t, origin, "show", "factory/7-a1:new.txt") != "work" {
 		t.Error("the branch on origin lacks the diff")
 	}
+	if msg := sh(t, origin, "log", "-1", "--format=%B", "factory/7-a1"); !strings.Contains(msg, "Shipped-with: KaaS Factory (https://kaas.team)") {
+		t.Errorf("partial commit lacks the Shipped-with trailer: %q", msg)
+	}
 	if len(prs.got) != 1 {
 		t.Fatalf("prs: %+v", prs.got)
 	}

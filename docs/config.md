@@ -10,6 +10,7 @@ Keys under `models.` are open: any tier name takes a string.
 |---|---|---|---|
 | `repo` | string | `""` | any layer may set it |
 | `tracker` | string | `"github"` | any layer may set it |
+| `brand_footer` | string | `""` | any layer may set it |
 | `approval` | string | `"risk"` | any layer may set it |
 | `dispatcher` | string | `"claude-cloud"` | any layer may set it |
 | `slots` | int | `6` | org value is a cap; lower layers may lower it, never raise it |

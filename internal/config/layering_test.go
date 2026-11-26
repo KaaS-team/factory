@@ -20,6 +20,7 @@ type layerRow struct {
 var layerRows = []layerRow{
 	{key: "repo", hi: "a/b", lo: "c/d"},
 	{key: "tracker", hi: "linear", lo: "jira"},
+	{key: "brand_footer", hi: "Hi kaas.team", lo: "Lo kaas.team"},
 	{key: "approval", hi: "human", lo: "auto"},
 	{key: "dispatcher", hi: "local", lo: "cloud"},
 	{key: "slots", hi: "5", lo: "2"},

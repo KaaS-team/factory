@@ -30,6 +30,8 @@ type Config struct {
 	Now func() time.Time
 	// AllowedBots is a comma-separated list of bot logins whose comments count, or "*". Empty trusts humans only.
 	AllowedBots string
+	// Footer is the PR body footer (config brand_footer); empty uses the kaas.team default.
+	Footer string
 }
 
 // Tracker is the GitHub issue thread as an api.Tracker.
@@ -42,6 +44,7 @@ type Tracker struct {
 	login   string                  // the token's own login, read once by self
 	now     func() time.Time
 	bots    string
+	footer  string
 	trusted *Trust // built once the login is known
 }
 
@@ -68,7 +71,7 @@ func New(cfg Config) (*Tracker, error) {
 		}
 		c.BaseURL = u
 	}
-	return &Tracker{client: c, owner: cfg.Owner, repo: cfg.Repo, now: cfg.Now, bots: cfg.AllowedBots}, nil
+	return &Tracker{client: c, owner: cfg.Owner, repo: cfg.Repo, now: cfg.Now, bots: cfg.AllowedBots, footer: cfg.Footer}, nil
 }
 
 // Name returns "github".

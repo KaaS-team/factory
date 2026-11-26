@@ -346,6 +346,7 @@ func (t *Tracker) OpenPR(ctx context.Context, id api.TicketID, branch, base stri
 	parts := PRParts{
 		WhatChanged: RenderWhatChanged(cmpOr(plan.Goal, is.GetTitle()), files, verdict.Proof),
 		RunDetails:  IssueRef(n),
+		Footer:      t.footer,
 	}
 	if len(plan.Acceptance) > 0 {
 		parts.Acceptance = "## Acceptance\n\n- [x] " + strings.Join(plan.Acceptance, "\n- [x] ")
