@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"slices"
 	"strconv"
-	"time"
+	"strings"
 
 	ui "github.com/KaaS-team/ui"
 
@@ -64,6 +64,7 @@ type card struct {
 	Wave     int // 1-based
 	Attempt  int
 	Since    string // last push, or empty
+	Sub      string // repo, attempt and last push on one line
 	Priority int
 	QueuePos int // 1-based place in the merge queue, 0 when not queued
 	Usage    api.Usage
@@ -163,17 +164,18 @@ func buildBoard(b api.Board, operator bool) boardView {
 			c.Attempt = sl.Session.Attempt
 		}
 		if !sl.LastPush.IsZero() {
-			c.Since = sl.LastPush.UTC().Format(time.DateTime)
+			c.Since = sl.LastPush.UTC().Format("Jan 2 15:04") + " UTC"
 		}
 		if operator {
 			c.Usage = sl.Usage
 		}
+		c.Sub = subline(c)
 		byPhase[sl.Phase] = append(byPhase[sl.Phase], c)
 	}
 	for _, t := range b.Ready {
 		byPhase[api.PhaseReady] = append(byPhase[api.PhaseReady], card{
 			ID: t.ID, Title: t.Title, Repo: t.Repo, Wave: wave[t.ID], Priority: t.Priority,
-			Chip: ui.Chip{Label: "P" + strconv.Itoa(t.Priority)},
+			Chip: ui.Chip{Label: "P" + strconv.Itoa(t.Priority)}, Sub: t.Repo,
 		})
 	}
 	v := boardView{Total: len(b.Slots) + len(b.Ready)}
@@ -210,6 +212,24 @@ func buildBoard(b api.Board, operator bool) boardView {
 		{Label: "Starts left this hour", Value: strconv.Itoa(b.FiresLeft)},
 	}
 	return v
+}
+
+// subline joins a card's repo, attempt and last push.
+func subline(c card) string {
+	var parts []string
+	if c.Repo != "" {
+		parts = append(parts, c.Repo)
+	}
+	if c.Attempt > 0 {
+		parts = append(parts, "attempt "+strconv.Itoa(c.Attempt))
+	}
+	if c.Since != "" {
+		parts = append(parts, "pushed "+c.Since)
+	}
+	for i, p := range parts { // a part wraps whole, never "attempt" on one line and "1" on the next
+		parts[i] = strings.ReplaceAll(p, " ", "\u00a0")
+	}
+	return strings.Join(parts, " · ")
 }
 
 // queueRank puts queued cards in queue order, then the rest.

@@ -14,7 +14,7 @@
 {{if and (not $v.HasHistory) (not $v.HistoryErr)}}<p class="ui-muted">Past events are not kept here; new events appear as they happen.</p>{{end}}
 <div data-timeline>{{template "timeline" $v.Timeline}}</div>
 </div></section>
-<section class="ui-card fw-log" aria-label="Event log"><div class="ui-card-body" data-log>{{template "log" $v.Log}}</div></section>
+<div class="fw-log" data-log>{{template "log" $v.Log}}</div>
 </div>
 <aside class="ui-stack fw-run-side" aria-label="Actions">
 <section class="ui-card"><header class="ui-card-header"><h2>Steer</h2></header><div class="ui-card-body">
@@ -24,7 +24,7 @@
 {{if or $v.CanRetry $v.CanCancel}}<div class="ui-row">
 {{if $v.CanRetry}}<form method="post" action="/runs/{{$id}}/retry"><input type="hidden" name="csrf" value="{{$.CSRF}}">{{template "button" (button "Retry" "submit" "")}}</form>{{end}}
 {{if $v.CanCancel}}<form method="post" action="/runs/{{$id}}/cancel"><input type="hidden" name="csrf" value="{{$.CSRF}}">{{template "button" (button "Cancel run" "submit" "danger")}}</form>{{end}}
-</div><p class="ui-muted fw-hint">Retry starts a new attempt. Cancel stops the session; the branch stays.</p>
+</div><p class="ui-muted fw-hint">{{if $v.CanRetry}}Retry starts a new attempt.{{end}}{{if $v.CanCancel}} Cancel stops the session; the branch stays.{{end}}</p>
 {{else}}<p class="ui-muted">{{if $v.Finished}}No actions apply to a finished run.{{else}}{{or $v.ActionsNote "No actions apply right now."}}{{end}}</p>{{end}}
 </div></section>
 </aside>
