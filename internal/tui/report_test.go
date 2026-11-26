@@ -176,3 +176,19 @@ func TestReportQuit(t *testing.T) {
 		t.Fatal("q did not quit")
 	}
 }
+
+// A long path keeps its end and the counts move to their own line, so neither is cut off.
+func TestReportLongDir(t *testing.T) {
+	r := mixedReadiness()
+	r.Dir = "/tmp/" + strings.Repeat("deep/", 30) + "acme-api"
+	m := reportAt(readyFuncs(r), 100, 30)
+	got := strip(m.View().Content)
+	checkSize(t, got, 100, 30)
+	lines := strings.Split(got, "\n")
+	if !strings.Contains(lines[1], "…") || !strings.Contains(lines[1], "deep/acme-api") || !strings.Contains(lines[1], "not ready") {
+		t.Fatalf("header line = %q", lines[1])
+	}
+	if !strings.Contains(lines[2], "2 of 6 pass") {
+		t.Fatalf("counts line = %q", lines[2])
+	}
+}

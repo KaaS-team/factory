@@ -1,0 +1,30 @@
+factory  plan review
+Saved searches                             ready to approve
+4 tickets  4 waves  9 criteria
+
+  W1 T1  Store saved searches                           2 AC
+  W2 T2  Run a saved search                             2 AC
+> W3 T3  Saved search CLI (part 1 of 2)                 4 AC
+  W4 T4  Saved search CLI (part 2 of 2)                 1 AC
+────────────────────────────────────────────────────────────
+T3  Saved search CLI (part 1 of 2)
+Wave 3  depends on T2
+
+Problem
+Saved search CLI: part of the epic "Saved searches".
+
+Acceptance criteria
+AC-1  `factory search save <name> <filter>` stores a search.
+AC-2  `factory search run <name>` prints the rows.
+AC-3  `factory search list` prints the names.
+AC-4  `factory search rm <name>` removes one.
+
+Files
+  cmd/factory/cmd_search.go
+
+
+
+
+
+
+j/k ticket  pgup/pgdn scroll  a approve  r revise  q quit

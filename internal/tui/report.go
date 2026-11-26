@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 
 	"github.com/KaaS-team/ui"
 )
@@ -204,7 +205,17 @@ func (m *ReportModel) reportHeader(w int) []string {
 	if dir == "" {
 		dir = "this repo"
 	}
-	return []string{title, spread(m.th.title.Render(dir)+"  "+m.th.muted.Render(m.counts()), state, w), ""}
+	counts := m.th.muted.Render(m.counts())
+	// A long path keeps its end, the part that names the repo.
+	room := w - lipgloss.Width(state) - 1
+	if n := len([]rune(dir)); n > room {
+		dir = "…" + string([]rune(dir)[n-room+1:])
+	}
+	left := m.th.title.Render(dir)
+	if m.counts() == "" || lipgloss.Width(left+"  "+counts+" "+state) <= w {
+		return []string{title, spread(left+"  "+counts, state, w), ""}
+	}
+	return []string{title, spread(left, state, w), clip(counts, w), ""}
 }
 
 func (m *ReportModel) counts() string {

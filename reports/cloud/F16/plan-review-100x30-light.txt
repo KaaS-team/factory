@@ -1,0 +1,30 @@
+factory  plan review
+Saved searches  4 tickets  4 waves  9 criteria                                     ready to approve
+
+Wave 1                                   ╭─────────────────────────────────────────────────────────╮
+> T1  Store saved searches          2 AC │ T1  Store saved searches                                │
+                                         │ Wave 1  depends on none                                 │
+Wave 2                                   │                                                         │
+  T2  Run a saved search            2 AC │ Problem                                                 │
+                                         │ Store saved searches: part of the epic "Saved           │
+Wave 3                                   │ searches".                                              │
+  T3  Saved search CLI (part 1 of…  4 AC │                                                         │
+                                         │ Acceptance criteria                                     │
+Wave 4                                   │ AC-1  A saved search persists its name and filter.      │
+  T4  Saved search CLI (part 2 of…  1 AC │ AC-2  Saving a name that exists replaces it.            │
+                                         │                                                         │
+                                         │ Files                                                   │
+                                         │   internal/search/store.go                              │
+                                         │   internal/search/store_test.go                         │
+                                         ╰─────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+j/k ticket  pgup/pgdn scroll  a approve  r revise  q quit

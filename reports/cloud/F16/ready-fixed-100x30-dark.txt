@@ -1,0 +1,30 @@
+factory  first-run report
+acme-fix-dark  4 of 6 pass  1 failing  1 not checked                                      not ready
+
+╭──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ Readiness                                                                                        │
+│  PASS     builds              ok                                                                 │
+│                                                                                                  │
+│  FAIL     tests run           `go test ./...` failed: FAIL                                       │
+│                               no automatic fix; fix it by hand                                   │
+│                                                                                                  │
+│  PASS     AGENTS.md           ok                                                                 │
+│                                                                                                  │
+│  PASS     gate script         ok                                                                 │
+│                                                                                                  │
+│  PASS     CI exists           ok                                                                 │
+│                                                                                                  │
+│  UNKNOWN  branch protection   needs the GitHub repo and a token in the config to check it        │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+Fixed
+  AGENTS.md: write an AGENTS.md skeleton
+  CI exists: add .github/workflows/ci.yml that runs gate.sh
+
+
+
+
+
+
+
+j/k scroll  R recheck  q quit
