@@ -1,0 +1,12 @@
+{{define "audit"}}{{$d := .Data}}<div class="ui-stack" data-gap="lg">
+{{template "header" (dict "Title" .Title "Sub" "The hash-chained record of every change and every refused one. Exports carry each hash so the chain can be checked outside." "Notice" .Notice)}}
+<section class="ui-card" aria-labelledby="filter-h">
+<div class="ui-card-header"><h2 id="filter-h">Filters</h2>{{template "chip" $d.Chain}}</div>
+<div class="ui-card-body admin-filters">{{template "form" $d.Filter}}</div>
+</section>
+<section class="ui-section" aria-labelledby="results-h">
+<div class="ui-row" data-justify="between"><h2 id="results-h">Showing {{$d.Shown}} of {{$d.Total}} matching events</h2>
+{{if $d.CanExport}}<div class="ui-row"><a class="ui-button" data-size="sm" href="{{$d.ExportCSV}}">Export CSV</a><a class="ui-button" data-size="sm" href="{{$d.ExportJSON}}">Export JSON lines</a></div>{{end}}</div>
+<div class="ui-card">{{template "table" $d.Table}}</div>
+</section>
+</div>{{end}}
