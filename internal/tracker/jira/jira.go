@@ -32,6 +32,7 @@ type Config struct {
 	ReadyStatus string               // status name that marks a ticket ready
 	ReadyLabel  string               // label that marks a ticket ready
 	Phases      map[api.Phase]string // phase to status name; only these statuses are written
+	DataCenter  bool                 // Jira Data Center or Server: REST v2, plain-text bodies, startAt paging
 	Getenv      func(string) string  // default os.Getenv
 	Client      *vendorkit.Client    // timeout and retry policy, default zero value
 }
@@ -199,7 +200,48 @@ func (t *Tracker) Active(ctx context.Context) ([]api.Ticket, error) {
 		jqlString(t.cfg.Project), strings.Join(quoted, ", ")))
 }
 
+// apiPath is the REST root: v3 on Cloud, v2 on Data Center, which has no v3.
+func (t *Tracker) apiPath() string {
+	if t.cfg.DataCenter {
+		return "/rest/api/2"
+	}
+	return "/rest/api/3"
+}
+
+// body is a comment body in the dialect of the deployment: ADF on Cloud, text on Data Center.
+func (t *Tracker) body(text string) any {
+	if t.cfg.DataCenter {
+		return text
+	}
+	return toADF(text)
+}
+
+// searchDC pages the v2 search with startAt, which Data Center uses in place of a page token.
+func (t *Tracker) searchDC(ctx context.Context, jql string) ([]api.Ticket, error) {
+	var out []api.Ticket
+	for start := 0; ; {
+		req := map[string]any{"jql": jql, "fields": strings.Split(fields, ","), "maxResults": 100, "startAt": start}
+		var page struct {
+			Issues []rawIssue `json:"issues"`
+			Total  int        `json:"total"`
+		}
+		if err := t.call(ctx, http.MethodPost, "/rest/api/2/search", nil, req, &page); err != nil {
+			return nil, err
+		}
+		for _, i := range page.Issues {
+			out = append(out, t.ticket(i))
+		}
+		start += len(page.Issues)
+		if len(page.Issues) == 0 || start >= page.Total {
+			return out, nil
+		}
+	}
+}
+
 func (t *Tracker) search(ctx context.Context, jql string) ([]api.Ticket, error) {
+	if t.cfg.DataCenter {
+		return t.searchDC(ctx, jql)
+	}
 	var out []api.Ticket
 	token := ""
 	for {
@@ -228,7 +270,7 @@ func (t *Tracker) issuePath(id api.TicketID) (string, error) {
 	if !keyRe.MatchString(string(id)) || !strings.HasPrefix(string(id), t.cfg.Project+"-") {
 		return "", fmt.Errorf("jira: %q is not an issue key of project %s", id, t.cfg.Project)
 	}
-	return "/rest/api/3/issue/" + string(id), nil
+	return t.apiPath() + "/issue/" + string(id), nil
 }
 
 func (t *Tracker) raw(ctx context.Context, id api.TicketID, f string) (rawIssue, error) {
@@ -266,7 +308,7 @@ func (t *Tracker) Comment(ctx context.Context, id api.TicketID, body string) (er
 		body = sanitize.Publication(body, sanitize.DefaultOptions())
 	}
 	text := vendorkit.EncodeBody(body, vendorkit.HMACSeal(tok), "comment")
-	return t.call(ctx, http.MethodPost, p+"/comment", nil, map[string]any{"body": toADF(text)}, nil)
+	return t.call(ctx, http.MethodPost, p+"/comment", nil, map[string]any{"body": t.body(text)}, nil)
 }
 
 func (t *Tracker) owned(name string) bool {
@@ -364,5 +406,5 @@ func (t *Tracker) PutSpendComment(ctx context.Context, id api.TicketID, body str
 	}
 	tok, _ := t.token()
 	text := vendorkit.EncodeBody(body, vendorkit.HMACSeal(tok), "comment")
-	return t.call(ctx, http.MethodPut, path+"/comment/"+c, nil, map[string]any{"body": toADF(text)}, nil)
+	return t.call(ctx, http.MethodPut, path+"/comment/"+c, nil, map[string]any{"body": t.body(text)}, nil)
 }

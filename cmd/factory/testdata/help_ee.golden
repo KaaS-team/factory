@@ -22,6 +22,7 @@ Available Commands:
   first-run    Audit this repo and show what the factory would fix, at no cost
   help         Help about any command
   init         Write .factory/factory.yaml from a tier preset
+  intake       Take work from Slack and Sentry
   logs         Print what a ticket's session is doing
   mcp          Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
   packs        Inspect the packs pinned in factory.lock
@@ -488,6 +489,34 @@ Flags:
       --tier string         tier preset: solo, startup, scaleup, enterprise, regulated, oss
       --tracker string      tracker: github, linear, jira
       --yes                 run without prompts; needs --tier and --tracker
+
+=== factory intake
+Take work from Slack and Sentry
+
+Usage:
+  factory intake [command]
+
+Available Commands:
+  serve       Serve the Slack events and Sentry webhook endpoints
+
+Flags:
+  -h, --help   help for intake
+
+Use "factory intake [command] --help" for more information about a command.
+
+=== factory intake serve
+Secrets are read from the named environment variables, never from flags. A source whose secret variable is unset is not served. The HTTP API needs an identity provider and is mounted by the enterprise build.
+
+Usage:
+  factory intake serve [flags]
+
+Flags:
+      --addr string                listen address (default "127.0.0.1:8787")
+  -h, --help                       help for serve
+      --sentry-secret-env string   env var holding the Sentry client secret (default "FACTORY_SENTRY_CLIENT_SECRET")
+      --slack-secret-env string    env var holding the Slack signing secret (default "FACTORY_SLACK_SIGNING_SECRET")
+      --slack-token-env string     env var holding the Slack bot token (default "FACTORY_SLACK_BOT_TOKEN")
+      --store string               ticket file (default ".factory/intake/tickets.jsonl")
 
 === factory logs
 Print what a ticket's session is doing

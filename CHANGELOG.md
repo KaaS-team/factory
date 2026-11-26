@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Intake: Slack mentions, Sentry issue alerts and `POST /api/v1/tickets` create tickets, each recorded as `ticket.source`; Jira Data Center is supported.
+
 ## v6.3.0
 
 A stricter verify and review loop, a safer runner, and the groundwork for building on cloud agents.

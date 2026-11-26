@@ -303,6 +303,26 @@ Write .factory/factory.yaml from a tier preset
 | `--tracker` | string | `` | tracker: github, linear, jira |
 | `--yes` | bool | `false` | run without prompts; needs --tier and --tracker |
 
+## factory intake
+
+`factory intake`
+
+Take work from Slack and Sentry
+
+## factory intake serve
+
+`factory intake serve [flags]`
+
+Serve the Slack events and Sentry webhook endpoints
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--addr` | string | `127.0.0.1:8787` | listen address |
+| `--sentry-secret-env` | string | `FACTORY_SENTRY_CLIENT_SECRET` | env var holding the Sentry client secret |
+| `--slack-secret-env` | string | `FACTORY_SLACK_SIGNING_SECRET` | env var holding the Slack signing secret |
+| `--slack-token-env` | string | `FACTORY_SLACK_BOT_TOKEN` | env var holding the Slack bot token |
+| `--store` | string | `.factory/intake/tickets.jsonl` | ticket file |
+
 ## factory logs
 
 `factory logs <ticket> [flags]`
