@@ -36,7 +36,7 @@ func TestBuildPromptOpensWithGoalAndCheckpoints(t *testing.T) {
 			t.Errorf("checkpoint %s missing from the prompt", c.ID)
 		}
 	}
-	if g, c, b := strings.Index(p, "## Goal"), strings.Index(p, "## Checkpoints"), strings.Index(p, "Title here"); !(g < c && c < b) {
+	if g, c, b := strings.Index(p, "## Goal"), strings.Index(p, "## Checkpoints"), strings.Index(p, "Title here"); g >= c || c >= b {
 		t.Fatalf("order wrong: goal %d, checkpoints %d, body %d", g, c, b)
 	}
 }
