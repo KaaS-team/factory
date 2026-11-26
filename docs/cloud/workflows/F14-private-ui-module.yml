@@ -1,0 +1,22 @@
+# F14: the fleet web app imports github.com/KaaS-team/ui, a private module. CI fetches it anonymously
+# and fails ("could not read Username for 'https://github.com'"). Cloud sessions cannot push
+# .github/workflows/**, so the orchestrator installs this step.
+#
+# Install: add the step below to every job that builds or tests Go, right after actions/setup-go:
+#   .github/workflows/ci.yml      job push
+#   .github/workflows/flakes.yml  the go test job
+#   .github/workflows/release.yml before goreleaser
+#
+# It needs one repository secret, KAAS_UI_READ_TOKEN: a fine-grained token (or GitHub App token)
+# with read access to the contents of KaaS-team/ui only. The token goes into ~/.netrc through
+# printf, a shell builtin, so it never appears on a process command line or in the log.
+# GOPRIVATE stops Go from asking proxy.golang.org and sum.golang.org about the module; go.sum
+# still pins its hash.
+
+      - name: Read the private KaaS-team/ui module
+        env:
+          UI_TOKEN: ${{ secrets.KAAS_UI_READ_TOKEN }}
+        run: |
+          umask 077
+          printf 'machine github.com\nlogin x-access-token\npassword %s\n' "$UI_TOKEN" > "$HOME/.netrc"
+          echo "GOPRIVATE=github.com/KaaS-team/*" >> "$GITHUB_ENV"

@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/KaaS-team/factory/internal/ciclass"
+	"github.com/KaaS-team/factory/internal/plan"
+	"github.com/KaaS-team/factory/internal/proof"
 )
 
 // Run is one active run the manager watches.
@@ -41,6 +43,15 @@ type Source interface {
 	NewComments(ctx context.Context, pr int) ([]Comment, error)
 	// MarkDelivered records that the comments reached the task.
 	MarkDelivered(ctx context.Context, pr int, ids []string) error
+}
+
+// ReportSource is an optional Source that can read a PR's build report. The manager checks the
+// report with proof.CheckReport, the same check that blocks a merge, and steers the agent while it
+// is incomplete.
+type ReportSource interface {
+	// Report returns the goal the build prompt carried and the report in the PR. ok is false when the
+	// ticket had no goal checklist or the report is not there yet.
+	Report(ctx context.Context, pr int) (g plan.Goal, report string, ok bool, err error)
 }
 
 // Actor changes things.
@@ -136,6 +147,7 @@ func (m *Manager) one(ctx context.Context, r Run) error {
 		}
 	}
 	if r.PR > 0 {
+		keep(m.report(ctx, r))
 		keep(m.comments(ctx, r))
 		keep(m.ci(ctx, r))
 	}
@@ -158,6 +170,27 @@ func (m *Manager) stall(ctx context.Context, r Run) error {
 		return err
 	}
 	return nil
+}
+
+// report steers the agent once per distinct list of gaps in its build report.
+func (m *Manager) report(ctx context.Context, r Run) error {
+	rs, ok := m.src.(ReportSource)
+	if !ok {
+		return nil
+	}
+	g, rep, ok, err := rs.Report(ctx, r.PR)
+	if err != nil || !ok {
+		return err
+	}
+	res := proof.CheckReport(g, rep)
+	key := fmt.Sprintf("report|%s|%d|%s", r.Ticket, r.PR, res.Reason)
+	if res.OK || m.sent[key] {
+		return nil
+	}
+	m.sent[key] = true
+	err = m.act.Steer(ctx, r.Ticket, "Verify will fail this PR: "+res.Reason+". Tick each goal row with the test that proves it, answer each checkpoint, update the report and push.")
+	m.audit.Record(ctx, "manager.report_gap", r.Ticket, fmt.Sprintf("pr %d", r.PR), err)
+	return err
 }
 
 func (m *Manager) comments(ctx context.Context, r Run) error {

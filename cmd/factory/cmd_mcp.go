@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/KaaS-team/factory/internal/serve"
 	"strconv"
 	"strings"
 
@@ -32,6 +33,10 @@ func mcpHandlers() mcp.Handlers {
 		Doctor:   func(ctx context.Context) (string, error) { return runSub(ctx, "doctor") },
 		Packs:    func(ctx context.Context) (string, error) { return runSub(ctx, "packs", "list") },
 		Shadow:   func(ctx context.Context) (string, error) { return runSub(ctx, "shadow") },
+		Ask: func(ctx context.Context, in mcp.AskInput) (string, error) {
+			return runSub(ctx, "ask", in.Ticket, in.Question)
+		},
+		Onboard: func(ctx context.Context) (string, error) { return runSub(ctx, "onboard", "--dry-run") },
 		Repomap: func(ctx context.Context, in mcp.RepomapInput) (string, error) {
 			args := []string{"repomap"}
 			if in.Budget > 0 {
@@ -58,7 +63,7 @@ func mcpHandlers() mcp.Handlers {
 // refused, so a client can never turn it into a flag.
 func dataSub(ctx context.Context, tool, value, cmd, want string, args ...string) (string, error) {
 	if v := strings.TrimSpace(value); v == "" || strings.HasPrefix(v, "-") {
-		return "", fmt.Errorf("%s: %s, not empty or a flag", tool, want)
+		return "", fmt.Errorf("%s: %s, not empty or a flag: %w", tool, want, serve.ErrBadInput)
 	}
 	return runSub(ctx, append(append([]string{cmd}, args...), "--", value)...)
 }

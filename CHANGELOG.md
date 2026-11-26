@@ -2,12 +2,16 @@
 
 ## Unreleased
 
+- Admin console (ee build, `internal/admin`): users and roles with SCIM users read-only, a policy editor that runs the `policy check` validation before it saves, budgets with usage bars, audit search and export, and worker pools with health. Admins only; every change is an audit event.
+- `factory worker`: self-hosted workers that connect outbound only, lease runs from a control plane with expiry and re-leasing, and drain on SIGTERM. A Dockerfile and a Helm chart in `deploy/helm/factory` run the plane and the worker pools.
 - E3 (ee build): a hash-chained audit log with `factory audit verify`, `search` and `forward` (file, Splunk HEC, webhook), and enforced budgets: a run whose team budget is spent is refused before it starts, and a running session is stopped at its cap.
 - `factory worker`: self-hosted workers that connect outbound only, lease runs from a control plane with expiry and re-leasing, and drain on SIGTERM. A Dockerfile and a Helm chart in `deploy/helm/factory` run the plane and the worker pools.
 - Intake: Slack mentions, Sentry issue alerts and `POST /api/v1/tickets` create tickets, each recorded as `ticket.source`; Jira Data Center is supported.
 - Stacked PRs and program mode: `factory stack <epic>` opens an epic as a stack of PRs that retargets and rebases as lower ones change or merge, `factory program <epic>` runs a tech-lead session over worker tickets, and `factory resume <run>` continues either after a crash from `.factory/runs`.
 - Review drops findings that do not cite a diff line and quote it, learns rules from dismissed findings (`factory review-dismiss`, `.factory/review-rules.yml`), dedupes across rounds, cuts low-confidence findings and merges an optional second reviewer by citation.
+- `factory dashboard` serves the fleet app: a board of runs by state and wave, the attention inbox, and a run page with a live timeline and log that can retry, cancel and steer (with `--allow-actions`). Built on the KaaS ui partials; every route checks the ee Authorizer.
 - Run ledger (`.factory/ledger/runs.jsonl`, `spend.json`), the analytics API (`/api/v1/analytics/runs` and `/spend`, JSON and CSV) and an OTLP export of run counts, durations and cost.
+- Build prompts open with a goal checklist built from the issue's acceptance lines and six deviation checkpoints. Verify fails a build report that leaves a row unchecked, names no test or leaves a checkpoint unanswered, the manager loop steers the agent on the same check, and an issue with no acceptance lines is refused.
 
 ## v6.3.0
 

@@ -1,0 +1,30 @@
+factory  plan review
+Saved searches  4 tickets  4 waves  9 criteria                                     ready to approve
+
+Wave 1                                   ╭─────────────────────────────────────────────────────────╮
+  T1  Store saved searches          2 AC │ T3  Saved search CLI (part 1 of 2)                      │
+                                         │ Wave 3  depends on T2                                   │
+Wave 2                                   │                                                         │
+  T2  Run a saved search            2 AC │ Problem                                                 │
+                                         │ Saved search CLI: part of the epic "Saved searches".    │
+Wave 3                                   │                                                         │
+> T3  Saved search CLI (part 1 of…  4 AC │ Acceptance criteria                                     │
+                                         │ AC-1  `factory search save <name> <filter>` stores a    │
+Wave 4                                   │       search.                                           │
+  T4  Saved search CLI (part 2 of…  1 AC │ AC-2  `factory search run <name>` prints the rows.      │
+                                         │ AC-3  `factory search list` prints the names.           │
+                                         │ AC-4  `factory search rm <name>` removes one.           │
+                                         │                                                         │
+                                         │ Files                                                   │
+                                         │   cmd/factory/cmd_search.go                             │
+                                         ╰─────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+Enter sends the note, esc goes back
+revise> Merge T3 and T4

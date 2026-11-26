@@ -309,3 +309,25 @@ func TestDispatchFailuresStopAtMaxAttempts(t *testing.T) {
 		t.Fatalf("want 3 dispatch calls, got %d", disp.calls)
 	}
 }
+
+// A ticket with no acceptance lines cannot be fixed by a retry: it goes to a human on the first
+// attempt, with the one-line refusal, and the dispatcher is never called.
+func TestDispatchEscalatesTicketWithoutAcceptance(t *testing.T) {
+	c := &clock{t0}
+	bare := tkt("a")
+	bare.Body = "just do it"
+	tr := activeTracker{porttest.NewTracker(bare)}
+	disp := &failingDispatcher{Dispatcher: porttest.NewDispatcher(1)}
+	deps := newDeps(tr, porttest.NewObserver(), disp, c)
+	var state *State
+	Tick(context.Background(), deps, &state, cfg())
+	if tr.Phases["a"] != api.PhaseNeedsHuman {
+		t.Fatalf("phase %v, want needs-human", tr.Phases["a"])
+	}
+	if disp.calls != 0 {
+		t.Fatalf("%d dispatch calls for a ticket with no goal", disp.calls)
+	}
+	if got := strings.Join(tr.Comments["a"], "\n"); !strings.Contains(got, "has no acceptance lines") {
+		t.Fatalf("comments %q do not say why", tr.Comments["a"])
+	}
+}

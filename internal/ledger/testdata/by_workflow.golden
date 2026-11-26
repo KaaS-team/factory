@@ -1,0 +1,5 @@
+group                     runs accepted rejected pending  cost_usd per_accepted
+(none)                       1        0        0       1      3.00            -
+fix-bug                      6        4        1       1      9.00         2.25
+review                       2        1        1       0      0.50         0.50
+triage                       2        1        1       0      1.00         1.00

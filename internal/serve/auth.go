@@ -44,31 +44,37 @@ type Access struct {
 	Credential contract.CredentialKind
 }
 
-// guard wraps next so only a caller who may take action reaches it. A missing or bad credential
-// is a 401; a deprovisioned user or a denied action is a 403. Bodies carry a fixed message and the
-// contract's stable reason code, never the credential or the reason text of the identity provider.
-func (a *Access) guard(action contract.Action, next http.Handler) http.Handler {
+// authorize authenticates the caller and asks the authorizer for action on res. A missing or bad
+// credential is a 401; a deprovisioned user or a denied action is a 403. On a refusal it returns the
+// status and the contract's stable reason code, never the credential or the identity provider's text.
+// The principal is returned whenever it was known, so a caller can audit a denial.
+func (a *Access) authorize(r *http.Request, action contract.Action, res func(contract.Principal) contract.Resource) (contract.Principal, int, contract.ReasonCode) {
 	kind := a.Credential
 	if kind == "" {
 		kind = contract.CredOIDCIDToken
 	}
+	raw, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
+	if !ok || raw == "" {
+		return contract.Principal{}, http.StatusUnauthorized, contract.ReasonIdentityUnauthenticated
+	}
+	p, err := a.Identity.Authenticate(r.Context(), contract.Credential{Kind: kind, Value: raw})
+	switch {
+	case errors.Is(err, contract.ErrDeprovisioned):
+		return contract.Principal{}, http.StatusForbidden, contract.ReasonIdentityDeprovisioned
+	case err != nil:
+		return contract.Principal{}, http.StatusUnauthorized, contract.ReasonIdentityUnauthenticated
+	}
+	if d := a.Authorizer.Can(r.Context(), p, action, res(p)); !d.Allow {
+		return p, http.StatusForbidden, d.Reason
+	}
+	return p, 0, contract.ReasonGranted
+}
+
+// guard wraps next so only a caller who may take action on the caller's org reaches it.
+func (a *Access) guard(action contract.Action, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		raw, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
-		if !ok || raw == "" {
-			refuse(w, http.StatusUnauthorized, contract.ReasonIdentityUnauthenticated)
-			return
-		}
-		p, err := a.Identity.Authenticate(r.Context(), contract.Credential{Kind: kind, Value: raw})
-		switch {
-		case errors.Is(err, contract.ErrDeprovisioned):
-			refuse(w, http.StatusForbidden, contract.ReasonIdentityDeprovisioned)
-			return
-		case err != nil:
-			refuse(w, http.StatusUnauthorized, contract.ReasonIdentityUnauthenticated)
-			return
-		}
-		if d := a.Authorizer.Can(r.Context(), p, action, contract.Resource{Org: p.Org}); !d.Allow {
-			refuse(w, http.StatusForbidden, d.Reason)
+		if _, status, why := a.authorize(r, action, func(p contract.Principal) contract.Resource { return contract.Resource{Org: p.Org} }); status != 0 {
+			refuse(w, status, why)
 			return
 		}
 		next.ServeHTTP(w, r)

@@ -5,7 +5,7 @@ merge queue. Go v9. The TypeScript line is deleted; tag `ts-final` holds it.
 
 ## Gate
 
-`just check` is the gate: gofmt, vet, golangci-lint, `go test -race`, static build, ratchet. CI and the
+`just check` is the gate: gofmt, vet, golangci-lint, `go test -race`, static build, ratchet, cidrift (reports drift between staged `ci/` workflows and `.github/workflows`; `factory doctor` shows it too). CI and the
 pre-push hook run it. `./gate.sh` does the same without `just`. `just fast` skips race and lint; run it
 before every push. It must end with zero errors and zero warnings.
 
@@ -36,7 +36,8 @@ before every push. It must end with zero errors and zero warnings.
 | `pkg/agentrun`, `pkg/sandbox`, `pkg/retry` | public packages |
 | `ee` | enterprise code, its own licence |
 | `ee/contract` | the Apache-2.0 enterprise contracts; see `docs/cloud/README.md` |
-| `tools/ratchet`, `tools/gate`, `tools/prcheck`, `tools/doccheck` | repo checks |
+| `internal/cidrift` | the staged `ci/` vs `.github/workflows` comparison |
+| `tools/ratchet`, `tools/cidrift`, `tools/gate`, `tools/prcheck`, `tools/doccheck` | repo checks |
 | `packs`, `template`, `evals` | pack, skill and eval data |
 | `docs` | guides; `docs/demo` holds demo output |
 

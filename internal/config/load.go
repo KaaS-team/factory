@@ -81,6 +81,11 @@ func Load(s Sources) (*Loaded, error) {
 		if err != nil {
 			return nil, fmt.Errorf("%s layer %s: %w", f.layer, f.src.Name, err)
 		}
+		if f.layer == LayerRepo {
+			if err := rejectRepoOnly(vals); err != nil {
+				return nil, fmt.Errorf("%s layer %s: %w", f.layer, f.src.Name, err)
+			}
+		}
 		l.layers[f.layer], l.names[f.layer] = vals, f.src.Name
 	}
 	if len(s.Env) > 0 {
@@ -189,6 +194,20 @@ func collect(raw map[string]any, allowFactoryConfig bool, label func(string) str
 		errs = append(errs, errors.New(m))
 	}
 	return out, errors.Join(errs...)
+}
+
+// notFromRepo lists keys a repo's own factory.yaml may not set, because their value is a command
+// the factory runs with its credentials: anyone who can push to the repo would choose it.
+var notFromRepo = []string{"learn.sink_command"}
+
+// rejectRepoOnly fails when the repo layer sets a key that only org, team, env or flags may set.
+func rejectRepoOnly(vals layerValues) error {
+	for _, key := range notFromRepo {
+		if _, ok := vals[key]; ok {
+			return fmt.Errorf("%s may only be set by the org or team config, env or flags", key)
+		}
+	}
+	return nil
 }
 
 // factoryConfigKey classifies a key of a factory-config org or team file: ignored metadata, or an

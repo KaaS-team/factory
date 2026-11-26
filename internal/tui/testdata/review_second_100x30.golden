@@ -1,0 +1,30 @@
+factory  plan review
+Import a PRD as an epic  4 tickets  3 waves  6 criteria                            ready to approve 
+
+Wave 1                                   ╭─────────────────────────────────────────────────────────╮
+  T1  Parse the PRD slices          2 AC │ T2  Split oversized slices                              │
+                                         │ Wave 2  depends on T1                                   │
+Wave 2                                   │                                                         │
+> T2  Split oversized slices        1 AC │ Problem                                                 │
+  T3  Wire --from-prd into factor…  2 AC │ A slice with more than four criteria is more than 30    │
+                                         │ minutes of agent work.                                  │
+Wave 3                                   │                                                         │
+  T4  Document the PRD format       1 AC │ Acceptance criteria                                     │
+                                         │ AC-1  a slice with six criteria becomes two tickets     │
+                                         │       that run in order                                 │
+                                         │                                                         │
+                                         │ Files                                                   │
+                                         │   internal/plan/prd.go                                  │
+                                         ╰─────────────────────────────────────────────────────────╯
+
+
+
+
+
+
+
+
+
+
+
+j/k ticket  pgup/pgdn scroll  a approve  r revise  q quit

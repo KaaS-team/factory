@@ -202,6 +202,42 @@
           "type": "string"
         }
       }
+    },
+    "workflow": {
+      "type": "string",
+      "description": "the named workflow the run belongs to, for cost per accepted outcome"
+    },
+    "variant": {
+      "type": "string",
+      "description": "the prompt variant of the workflow that ran, empty for the default"
+    },
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "state"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "pr",
+            "issue",
+            "comment"
+          ]
+        },
+        "state": {
+          "enum": [
+            "merged",
+            "closed",
+            "kept",
+            "dismissed",
+            "acted",
+            "ignored"
+          ],
+          "description": "read from repo state: pr merged or closed unmerged, issue kept or dismissed, comment acted on or ignored"
+        }
+      }
     }
   }
 }

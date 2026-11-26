@@ -1,0 +1,13 @@
+{{/* header: the page title, its one-line description and the notice of a change that just went through. */}}
+{{define "header"}}<header class="ui-page-header">
+<div><h1>{{.Title}}</h1><p>{{.Sub}}</p></div>
+</header>
+{{with .Notice}}<div class="ui-attention" role="status" data-status="pass"><p class="ui-attention-title">{{.}}</p></div>{{end}}{{end}}
+
+{{define "error"}}<div class="ui-stack">
+<header class="ui-page-header"><div><h1>{{.Title}}</h1></div></header>
+<div class="ui-attention" role="alert" data-status="fail">
+<p class="ui-attention-title">{{.Data.Body}}</p>
+</div>
+<p><a class="ui-button" href="/">Back to the factory</a></p>
+</div>{{end}}

@@ -31,6 +31,16 @@ Pin a file from a GitHub repository (MIT or Apache-2.0 only) in factory.lock
 | `--kind` | string | `` | skill, agent, workflow or check (default: from the path) |
 | `--root` | string | `.` | repository root holding factory.lock and .factory/cache |
 
+## factory ask
+
+`factory ask <ticket> <question...> [flags]`
+
+Ask a read-only question about a running or finished ticket, answered from its ledger and transcript
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--json` | bool | `false` | print the answer as JSON |
+
 ## factory attention
 
 `factory attention [flags]`
@@ -153,11 +163,12 @@ Print the resolved value of a key
 
 `factory dashboard [flags]`
 
-Serve the read-only web view
+Serve the fleet web app: board, attention inbox and run timelines
 
 | Flag | Type | Default | Description |
 |---|---|---|---|
 | `--addr` | string | `127.0.0.1:8787` | listen address (loopback by default) |
+| `--allow-actions` | bool | `false` | let the local user retry, cancel, steer and resolve attention items |
 | `--operator` | bool | `false` | show usage and budget numbers |
 
 ## factory design
@@ -341,6 +352,17 @@ Serve the Slack events and Sentry webhook endpoints
 | `--slack-token-env` | string | `FACTORY_SLACK_BOT_TOKEN` | env var holding the Slack bot token |
 | `--store` | string | `.factory/intake/tickets.jsonl` | ticket file |
 
+## factory learn
+
+`factory learn [flags]`
+
+Open the lessons PR, or with --export print lessons as JSONL (--all: every registered repo)
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--all` | bool | `false` | cover every registered repo |
+| `--export` | bool | `false` | print lessons as JSONL instead of opening a PR; writes no database |
+
 ## factory logs
 
 `factory logs <ticket> [flags]`
@@ -377,6 +399,35 @@ Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
 | `--http` | string | `` | serve streamable HTTP at /mcp on this address (default host 127.0.0.1); with FACTORY_OIDC_ISSUER and FACTORY_OIDC_AUDIENCE it requires OIDC bearer tokens; otherwise the static token is read from FACTORY_MCP_TOKEN |
 | `--read-only` | bool | `false` | serve only the read tools; write tools are refused |
 | `--resource-url` | string | `` | public URL of the /mcp endpoint, published in the protected resource metadata (default: FACTORY_OIDC_AUDIENCE when it is a URL) |
+
+## factory metrics
+
+`factory metrics [flags]`
+
+Cost per accepted outcome per workflow or team, or per prompt variant of one workflow
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--by` | string | `workflow` | group by workflow or team |
+| `--json` | bool | `false` | print JSON |
+| `--since` | string | `` | window start, RFC 3339 or YYYY-MM-DD (inclusive) |
+| `--team` | string | `` | only this team |
+| `--until` | string | `` | window end, RFC 3339 or YYYY-MM-DD (exclusive) |
+| `--workflow` | string | `` | compare the prompt variants of this workflow |
+
+## factory onboard
+
+`factory onboard [flags]`
+
+Detect this repo, write a starter shadow config and list what is missing
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--dir` | string | `.` | the repository to onboard |
+| `--dry-run` | bool | `false` | show the config and the gaps; write nothing |
+| `--force` | bool | `false` | overwrite an existing .factory/factory.yaml |
+| `--tier` | string | `solo` | starter tier preset, as in `factory init` |
+| `--tracker` | string | `github` | issue tracker, as in `factory init` |
 
 ## factory packs
 
@@ -473,12 +524,24 @@ Turn a goal, epic or spec into a ticket DAG; --approve files it
 
 | Flag | Type | Default | Description |
 |---|---|---|---|
-| `--approve` | bool | `false` | file the tickets; without it nothing is written |
+| `--approve` | bool | `false` | file the tickets (or write the ranks); without it nothing is written |
 | `--epic` | int | `0` | read the spec and tickets from epic issue `n` |
 | `--from-prd` | string | `` | read a PRD from `file` and draft the epic and ordered tickets from it |
 | `--json` | bool | `false` | print the DAG as JSON |
+| `--rank` | string | `` | rank ready tickets by `method` (rice or wsjf) from their Score line; with --approve write the priorities |
 | `--repo-dir` | string | `` | the repository the agent reads when drafting from a goal (default: here) |
+| `--slice` | bool | `false` | cut straight dependency chains into units of about 30 minutes, one PR each |
 | `--spec` | string | `` | read the spec and tickets from `file` |
+
+## factory plan-review
+
+`factory plan-review [flags]`
+
+Review a plan in the terminal: its epic, tickets and acceptance criteria; approve or revise
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--from-prd` | string | `` | review the epic and tickets drafted from the PRD in `file` |
 
 ## factory program
 
@@ -495,6 +558,16 @@ Run an epic as a program: a tech lead dispatches worker tickets and adjusts the 
 `factory queue`
 
 Show tickets ready to run and the merge queue
+
+## factory ready
+
+`factory ready [flags]`
+
+Open the first-run readiness report: checks, fixes, and a key to apply them
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--dir` | string | `.` | the repository to check |
 
 ## factory repomap
 

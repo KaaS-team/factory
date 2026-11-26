@@ -11,21 +11,32 @@ const RunLedgerSchema = "kaas.run/v1"
 // is the source; this type round-trips it, and a test checks the two have the same fields.
 // Optional numbers and booleans are pointers so that 0 and false survive a round trip.
 type RunLedgerEntry struct {
-	Schema       string        `json:"schema"` // RunLedgerSchema
-	RunID        string        `json:"run_id"`
-	Repo         string        `json:"repo"` // owner/name
-	Team         string        `json:"team,omitempty"`
-	Ticket       LedgerTicket  `json:"ticket"`
-	Agent        LedgerAgent   `json:"agent"`
-	StartedAt    time.Time     `json:"started_at"`
-	EndedAt      *time.Time    `json:"ended_at,omitempty"`
-	Status       string        `json:"status"`                  // open, merged, failed, cancelled, abandoned
-	FailureClass string        `json:"failure_class,omitempty"` // retryable, repo_setup, external, agent, policy, budget
-	PR           *LedgerPR     `json:"pr,omitempty"`
-	Review       *LedgerReview `json:"review,omitempty"`
-	Tokens       *LedgerTokens `json:"tokens,omitempty"`
-	CostUSD      *float64      `json:"cost_usd,omitempty"`
-	QA           *LedgerQA     `json:"qa,omitempty"`
+	Schema       string         `json:"schema"` // RunLedgerSchema
+	RunID        string         `json:"run_id"`
+	Repo         string         `json:"repo"` // owner/name
+	Team         string         `json:"team,omitempty"`
+	Workflow     string         `json:"workflow,omitempty"` // the named workflow, for cost per accepted outcome
+	Variant      string         `json:"variant,omitempty"`  // the workflow's prompt variant, empty for the default
+	Ticket       LedgerTicket   `json:"ticket"`
+	Agent        LedgerAgent    `json:"agent"`
+	StartedAt    time.Time      `json:"started_at"`
+	EndedAt      *time.Time     `json:"ended_at,omitempty"`
+	Status       string         `json:"status"`                  // open, merged, failed, cancelled, abandoned
+	FailureClass string         `json:"failure_class,omitempty"` // retryable, repo_setup, external, agent, policy, budget
+	PR           *LedgerPR      `json:"pr,omitempty"`
+	Review       *LedgerReview  `json:"review,omitempty"`
+	Tokens       *LedgerTokens  `json:"tokens,omitempty"`
+	CostUSD      *float64       `json:"cost_usd,omitempty"`
+	QA           *LedgerQA      `json:"qa,omitempty"`
+	Outcome      *LedgerOutcome `json:"outcome,omitempty"`
+}
+
+// LedgerOutcome is what repo state says happened to the run's work. Kind pr has states merged and
+// closed (unmerged), issue has kept and dismissed, comment has acted (on) and ignored. A run with no
+// outcome is still pending.
+type LedgerOutcome struct {
+	Kind  string `json:"kind"`
+	State string `json:"state"`
 }
 
 // LedgerTicket is where the run's work came from.

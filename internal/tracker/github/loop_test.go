@@ -190,7 +190,7 @@ func (h *hub) issue(n int) map[string]any {
 	for _, l := range h.labels[n] {
 		ls = append(ls, map[string]any{"name": l})
 	}
-	return map[string]any{"number": n, "title": h.titles[n], "body": "body", "state": "open", "labels": ls, "created_at": loopT0}
+	return map[string]any{"number": n, "title": h.titles[n], "body": "## Acceptance\n- AC-1: it works\n", "state": "open", "labels": ls, "created_at": loopT0}
 }
 
 func (h *hub) open(n int, title string, labels ...string) {

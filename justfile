@@ -9,7 +9,7 @@ lint_go := "go1.26.7"
 default: check
 
 # Full gate: format, vet, lint, race tests (includes the provenance test), static build, ratchet.
-check: fmt vet lint test build ratchet
+check: fmt vet lint test build ratchet cidrift
 
 # Inner loop: format, vet and tests without -race or lint.
 fast: fmt vet
@@ -34,3 +34,7 @@ test:
 
 build:
     CGO_ENABLED=0 go build -o dist/factory ./cmd/factory
+
+# Reports drift between the staged ci/ workflows and the live ones; fails only when it cannot compare (use -strict to fail on drift).
+cidrift:
+    go run ./tools/cidrift

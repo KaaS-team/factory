@@ -28,6 +28,7 @@ func init() {
 				return github.Epic(tr)(ctx, n)
 			}),
 			plancmd.WithFiler(lazyFiler{}),
+			plancmd.WithRanker(lazyFiler{}),
 		))
 	})
 }
@@ -87,4 +88,28 @@ func withFromPRD(c *cobra.Command) *cobra.Command {
 		return inner(cmd, args)
 	}
 	return c
+}
+
+func (lazyFiler) LinkSub(ctx context.Context, parent, child api.TicketID) error {
+	tr, err := planTracker()
+	if err != nil {
+		return err
+	}
+	return tr.LinkSub(ctx, parent, child)
+}
+
+func (lazyFiler) Ready(ctx context.Context) ([]api.Ticket, error) {
+	tr, err := planTracker()
+	if err != nil {
+		return nil, err
+	}
+	return tr.Ready(ctx)
+}
+
+func (lazyFiler) SetPriority(ctx context.Context, id api.TicketID, priority int) error {
+	tr, err := planTracker()
+	if err != nil {
+		return err
+	}
+	return tr.SetPriority(ctx, id, priority)
 }

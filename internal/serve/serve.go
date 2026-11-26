@@ -13,6 +13,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/KaaS-team/factory/ee/contract"
 	"github.com/KaaS-team/factory/internal/api"
 	"github.com/KaaS-team/factory/internal/serve/hostguard"
 )
@@ -35,25 +36,37 @@ type Options struct {
 	Interval time.Duration // the loop's tick interval; /healthz allows 3 of them since the last tick
 	Clock    Clock         // defaults to the wall clock
 	Schedule *Scheduler    // optional cron schedules, ticked once per Interval
+	// Learn, when set, runs once per Interval beside the loop, never inside it. It owns its errors, so
+	// a failing attempt is retried on the next tick and never stops intake.
+	Learn func(ctx context.Context, now time.Time)
 	// Wrap, when set, wraps the HTTP routes inside the host guard, for example to require a credential.
 	Wrap func(http.Handler) http.Handler
 	// Access, when set, authenticates every guarded route and checks the route's action.
 	Access *Access
+	// Audit, when set, records every write route's attempt: allowed, denied or failed.
+	Audit contract.Audit
+	// ApprovePlan plans the goal and approves it, as `factory plan --approve` does. Without it the
+	// approve route answers 501.
+	ApprovePlan func(ctx context.Context, goal string) error
 }
 
 // Server hosts a Core and serves /healthz, /readyz and /events.
 type Server struct {
-	core     Core
-	interval time.Duration
-	clock    Clock
-	sched    *Scheduler
-	mu       sync.Mutex
-	lastTick time.Time
-	ticked   bool
-	ready    atomic.Bool
-	wrap     func(http.Handler) http.Handler
-	access   *Access
-	onListen func(addr string) // test hook: called with the bound address
+	core      Core
+	interval  time.Duration
+	clock     Clock
+	sched     *Scheduler
+	learn     func(ctx context.Context, now time.Time)
+	mu        sync.Mutex
+	lastTick  time.Time
+	ticked    bool
+	ready     atomic.Bool
+	wrap      func(http.Handler) http.Handler
+	access    *Access
+	audit     contract.Audit
+	approveFn func(ctx context.Context, goal string) error
+	authed    bool              // a credential guard stands in front of the routes
+	onListen  func(addr string) // test hook: called with the bound address
 }
 
 // New returns a Server for core. A zero Interval means 30 seconds, the core's default.
@@ -64,7 +77,7 @@ func New(core Core, o Options) *Server {
 	if o.Clock == nil {
 		o.Clock = realClock{}
 	}
-	return &Server{core: core, interval: o.Interval, clock: o.Clock, wrap: o.Wrap, access: o.Access, sched: o.Schedule}
+	return &Server{core: core, interval: o.Interval, clock: o.Clock, wrap: o.Wrap, access: o.Access, audit: o.Audit, approveFn: o.ApprovePlan, authed: o.Wrap != nil || o.Access != nil, sched: o.Schedule, learn: o.Learn}
 }
 
 func (s *Server) markTick() {
@@ -174,6 +187,9 @@ func (s *Server) Serve(ctx context.Context, addr string, drain time.Duration) er
 	if s.sched != nil {
 		go s.runSchedules(ctx)
 	}
+	if s.learn != nil {
+		go s.runLearn(ctx)
+	}
 	go func() { runDone <- s.core.Run(ctx) }()
 
 	// One stop path: the loop ending, the HTTP server failing and ctx ending all go through it.
@@ -213,6 +229,21 @@ func (s *Server) runSchedules(ctx context.Context) {
 	defer t.Stop()
 	for {
 		_ = s.sched.Tick(ctx, s.clock.Now())
+		select {
+		case <-ctx.Done():
+			return
+		case <-t.C:
+		}
+	}
+}
+
+// runLearn calls the learn hook every interval until ctx ends, on its own goroutine so a slow or
+// failing attempt never delays the loop's tick.
+func (s *Server) runLearn(ctx context.Context) {
+	t := time.NewTicker(s.interval)
+	defer t.Stop()
+	for {
+		s.learn(ctx, s.clock.Now())
 		select {
 		case <-ctx.Done():
 			return

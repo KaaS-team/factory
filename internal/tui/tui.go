@@ -49,13 +49,6 @@ const (
 	warnMarker = "!"
 )
 
-var (
-	styleWarn     = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("1"))
-	styleStalled  = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("3"))
-	styleSelected = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("6"))
-	styleDim      = lipgloss.NewStyle().Faint(true)
-)
-
 // Model is the board's Bubble Tea model. It reads state from api.Control and its event stream.
 type Model struct {
 	ctl    api.Control
@@ -80,6 +73,7 @@ type Model struct {
 	pending api.TicketID
 	status  string
 
+	th       theme
 	operator bool // show tokens against budget
 	merged   int  // merged events seen
 	help     bool
@@ -123,6 +117,7 @@ func New(ctl api.Control, opts ...Option) tea.Model {
 		loaded:    map[api.TicketID]bool{},
 		reasons:   map[api.TicketID]string{},
 		input:     in,
+		th:        newTheme(true),
 	}
 	for _, o := range opts {
 		o(m)
@@ -132,7 +127,7 @@ func New(ctl api.Control, opts ...Option) tea.Model {
 
 // Init loads the board once and opens the event stream.
 func (m *Model) Init() tea.Cmd {
-	return tea.Batch(m.loadBoard(), m.subscribe())
+	return tea.Batch(m.loadBoard(), m.subscribe(), tea.RequestBackgroundColor)
 }
 
 func (m *Model) loadBoard() tea.Cmd {
@@ -182,6 +177,8 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
+	case tea.BackgroundColorMsg:
+		m.th = newTheme(msg.IsDark())
 	case boardMsg:
 		m.board = api.Board(msg)
 		for _, s := range m.board.Slots {
@@ -483,9 +480,9 @@ func (m *Model) header(w int) string {
 	var parts []string
 	for s := screenBoard; s <= m.screen || s < screenTimeline; s++ {
 		if s == m.screen {
-			parts = append(parts, styleSelected.Render("["+s.String()+"]"))
+			parts = append(parts, m.th.selected.Render("["+s.String()+"]"))
 		} else {
-			parts = append(parts, styleDim.Render(" "+s.String()+" "))
+			parts = append(parts, m.th.muted.Render(" "+s.String()+" "))
 		}
 	}
 	return clip("factory  "+strings.Join(parts, " "), w)
@@ -512,7 +509,7 @@ func (m *Model) footer(w int) []string {
 	if m.status != "" {
 		line += "  " + m.status
 	}
-	return []string{clip(line, w), clip(styleDim.Render(help), w)}
+	return []string{clip(line, w), clip(m.th.muted.Render(help), w)}
 }
 
 func (m *Model) body(w, h int) string {
@@ -534,7 +531,7 @@ func (m *Model) boardView(w, h int) string {
 	h--
 	slots := m.board.Slots
 	if len(slots) == 0 {
-		return strip + "\n" + styleDim.Render("no active slots")
+		return strip + "\n" + m.th.muted.Render("no active slots")
 	}
 	per := max(h/cardHeight, 1)
 	start := 0
@@ -559,13 +556,13 @@ func (m *Model) queueStrip(w int) string {
 		}
 		q = strings.Join(ids, " ")
 	}
-	return clip(styleSelected.Render("merge queue")+": "+q+fmt.Sprintf("   merged %d", m.merged), w)
+	return clip(m.th.selected.Render("merge queue")+": "+q+fmt.Sprintf("   merged %d", m.merged), w)
 }
 
 func (m *Model) card(s api.Slot, sel bool, w int) string {
 	flag := ""
 	if m.stalled[s.Ticket.ID] || s.Phase == api.PhaseStalled {
-		flag = "  " + styleStalled.Render("STALLED")
+		flag = "  " + m.th.stalled.Render("STALLED")
 	}
 	elapsed := "-"
 	if s.Session != nil {
@@ -577,16 +574,16 @@ func (m *Model) card(s api.Slot, sel bool, w int) string {
 	}
 	mark := "  "
 	border := lipgloss.NormalBorder()
-	style := lipgloss.NewStyle().Border(border).Width(w - 2)
+	style := lipgloss.NewStyle().Border(border).BorderForeground(m.th.border).Width(w - 2)
 	if sel {
 		mark = "> "
-		style = style.BorderForeground(lipgloss.Color("6"))
+		style = style.BorderForeground(m.th.focus)
 	}
 	title := fmt.Sprintf("%s#%s %s", mark, s.Ticket.ID, s.Ticket.Title)
 	l1 := fmt.Sprintf("%s  [%s]%s", title, s.Phase, flag)
 	l2 := fmt.Sprintf("  elapsed %s   last push %s", elapsed, push)
 	if m.operator {
-		bar, _ := usageBar(s.Usage, s.Budget, 20)
+		bar, _ := usageBar(m.th, s.Usage, s.Budget, 20)
 		l2 += fmt.Sprintf("   tokens %d/%d %s", s.Usage.InputTokens+s.Usage.OutputTokens, s.Budget.Tokens, bar)
 	}
 	inner := w - 4
@@ -607,14 +604,14 @@ func (m *Model) queueView(w, h int) string {
 		sb.WriteString(clip(fmt.Sprintf("%s#%s %s", mark, id, label), w) + "\n")
 		row++
 	}
-	sb.WriteString(styleDim.Render("merge queue") + "\n")
+	sb.WriteString(m.th.muted.Render("merge queue") + "\n")
 	if len(m.board.MergeQueue) == 0 {
 		sb.WriteString("  (empty)\n")
 	}
 	for _, id := range m.board.MergeQueue {
 		line(id, "queued")
 	}
-	sb.WriteString(styleDim.Render("ready") + "\n")
+	sb.WriteString(m.th.muted.Render("ready") + "\n")
 	if len(m.board.Ready) == 0 {
 		sb.WriteString("  (none)\n")
 	}
@@ -628,9 +625,9 @@ func (m *Model) queueView(w, h int) string {
 // gateView shows the newest gate event: how many runs, then the tail of its log when it carries one.
 func (m *Model) gateView(w, h int) string {
 	if m.gate.Kind == "" {
-		return styleDim.Render("gate") + "\n  (no runs yet)\n"
+		return m.th.muted.Render("gate") + "\n  (no runs yet)\n"
 	}
-	out := styleDim.Render(fmt.Sprintf("gate  %s  runs=%v", m.gate.Time.Format("15:04:05"), m.gate.Data["runs"])) + "\n"
+	out := m.th.muted.Render(fmt.Sprintf("gate  %s  runs=%v", m.gate.Time.Format("15:04:05"), m.gate.Data["runs"])) + "\n"
 	log, _ := m.gate.Data["log"].(string)
 	lines := strings.Split(strings.TrimRight(log, "\n"), "\n")
 	if keep := max(h-12, 3); len(lines) > keep {
@@ -695,7 +692,7 @@ func waves(b api.Board) [][]api.TicketID {
 func (m *Model) wavesView(w int) string {
 	ws := waves(m.board)
 	if len(ws) == 0 {
-		return styleDim.Render("no tickets")
+		return m.th.muted.Render("no tickets")
 	}
 	title := map[api.TicketID]string{}
 	phase := map[api.TicketID]api.Phase{}
@@ -707,7 +704,7 @@ func (m *Model) wavesView(w int) string {
 	}
 	var out []string
 	for i, wave := range ws {
-		out = append(out, styleDim.Render(fmt.Sprintf("wave %d", i+1)))
+		out = append(out, m.th.muted.Render(fmt.Sprintf("wave %d", i+1)))
 		for _, id := range wave {
 			out = append(out, clip(fmt.Sprintf("  #%s %s [%s]", id, title[id], phase[id]), w))
 		}
@@ -717,12 +714,12 @@ func (m *Model) wavesView(w int) string {
 
 func (m *Model) timelineView(w, h int) string {
 	if m.tlID == "" {
-		return styleDim.Render("no ticket selected")
+		return m.th.muted.Render("no ticket selected")
 	}
 	evs := m.timelines[m.tlID]
 	out := []string{fmt.Sprintf("timeline #%s", m.tlID)}
 	if len(evs) == 0 {
-		out = append(out, styleDim.Render("  no events yet"))
+		out = append(out, m.th.muted.Render("  no events yet"))
 	}
 	if keep := h - 1; len(evs) > keep && keep > 0 {
 		evs = evs[len(evs)-keep:]
@@ -748,7 +745,7 @@ func dataString(d map[string]any) string {
 
 // usageBar draws used-over-budget as a bar of width cells and reports whether it is in the warning style.
 // Only a percentage is shown, never raw token or cost figures.
-func usageBar(u api.Usage, b api.Budget, width int) (string, bool) {
+func usageBar(th theme, u api.Usage, b api.Budget, width int) (string, bool) {
 	var frac float64
 	switch {
 	case b.Tokens > 0:
@@ -756,13 +753,13 @@ func usageBar(u api.Usage, b api.Budget, width int) (string, bool) {
 	case b.USD > 0 && u.CostUSD > 0:
 		frac = u.CostUSD / b.USD
 	default:
-		return styleDim.Render(strings.Repeat("-", width) + " no cap"), false
+		return th.muted.Render(strings.Repeat("-", width) + " no cap"), false
 	}
 	filled := min(int(frac*float64(width)+0.5), width)
 	bar := strings.Repeat("█", filled) + strings.Repeat("░", width-filled)
 	text := fmt.Sprintf("%s %d%%", bar, int(frac*100+0.5))
 	if frac > warnAbove {
-		return styleWarn.Render(text + " " + warnMarker), true
+		return th.warn.Render(text + " " + warnMarker), true
 	}
 	return text, false
 }

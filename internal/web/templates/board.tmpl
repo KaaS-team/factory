@@ -1,0 +1,24 @@
+{{/* board: the fleet board, columns by state with each run's wave. Data: page with boardView. */}}
+{{define "board"}}{{$v := .Data}}<header class="ui-page-header">
+<div><h1>Board</h1>
+<p>{{if $v.Error}}Live view of every run.{{else}}{{$v.Total}} tickets{{if $v.Waves}} in {{$v.Waves}} {{if eq $v.Waves 1}}wave{{else}}waves{{end}}{{end}}. Updates live.{{end}}</p></div>
+<p class="fw-live ui-muted" data-live="/events" aria-live="polite">Connecting…</p>
+</header>
+<div id="board" class="ui-stack" data-refresh>
+{{if $v.Error}}<div class="ui-attention" role="alert" data-status="fail"><p class="ui-attention-title">Board unavailable</p><p class="ui-attention-body">{{$v.Error}}</p></div>
+{{else if eq $v.Total 0}}{{template "empty" (empty "No runs yet" "Label an issue factory:ready, or run factory plan, and its runs appear here." )}}
+{{else}}<section class="ui-grid fw-stats" aria-label="Summary">{{range $v.Stats}}{{template "stat" .}}{{end}}</section>
+<div class="fw-board">
+{{range $v.Columns}}<section class="fw-col" data-col="{{.Key}}" aria-labelledby="col-{{.Key}}">
+<h2 id="col-{{.Key}}" class="fw-col-head">{{.Title}} <span class="ui-muted ui-num">{{len .Cards}}</span></h2>
+{{if .Cards}}<ul class="fw-cards">
+{{range .Cards}}<li class="ui-card fw-card">
+<a class="fw-card-link" href="/runs/{{.ID}}"><span class="ui-mono ui-muted">{{.ID}}</span> <span class="fw-card-title">{{.Title}}</span></a>
+<div class="ui-row fw-card-meta">{{template "chip" .Chip}}{{with .Wave}}<span class="ui-muted">Wave {{.}}</span>{{end}}{{with .QueuePos}}<span class="ui-muted">#{{.}} in queue</span>{{end}}</div>
+{{with .Sub}}<p class="ui-muted fw-card-sub">{{.}}</p>{{end}}
+{{if $.Operator}}<p class="ui-muted ui-num fw-card-sub">{{.Usage.InputTokens}} in / {{.Usage.OutputTokens}} out tokens · ${{printf "%.2f" .Usage.CostUSD}}</p>{{end}}
+</li>
+{{end}}</ul>{{else}}<p class="ui-muted fw-col-empty">{{.Empty}}</p>{{end}}
+</section>
+{{end}}</div>{{end}}
+</div>{{end}}

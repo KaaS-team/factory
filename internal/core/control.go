@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sort"
 
@@ -11,7 +12,6 @@ import (
 	"github.com/KaaS-team/factory/internal/meter"
 	spendcap "github.com/KaaS-team/factory/internal/meter/cap"
 	"github.com/KaaS-team/factory/internal/reconcile"
-	"github.com/KaaS-team/factory/internal/tracker/sanitize"
 )
 
 // Board returns the whole orchestrator state: claimed tickets, ready ones and the merge queue.
@@ -80,9 +80,13 @@ func (c *Core) start(ctx context.Context, t api.Ticket, attempt int) (api.Sessio
 	if err != nil {
 		return api.Session{}, err
 	}
+	text, err := brief.Text(t.Title, t.Body)
+	if err != nil {
+		return api.Session{}, err
+	}
 	s, err := c.d.Dispatcher.Dispatch(ctx, api.Brief{
 		Ticket: t.ID, Attempt: attempt, Name: name,
-		Text: sanitize.Prompt(t.Title + "\n\n" + t.Body), Repo: t.Repo, Base: c.cfg.Reconcile.Base,
+		Text: text, Repo: t.Repo, Base: c.cfg.Reconcile.Base,
 		Branch: fmt.Sprintf("factory/%s-a%d", t.ID, attempt), Workflow: t.Workflow, Budget: c.cfg.Budget,
 	})
 	if err != nil {
@@ -119,19 +123,35 @@ func (c *Core) Dispatch(ctx context.Context, id api.TicketID) (err error) {
 	return nil
 }
 
-// Steer sends a message to a running ticket's session.
+// Steer sends a message to a running ticket's session. When no session is running, or its
+// dispatcher cannot take a message mid-run, the message is queued as a follow-up that the next
+// attempt or stage reads, so a message is never dropped.
 func (c *Core) Steer(ctx context.Context, id api.TicketID, message string) error {
 	c.mu.Lock()
-	defer c.mu.Unlock()
 	c.recover(ctx)
 	e, ok := c.state.Entries[id]
 	if !ok || !holdsSlot(e.Phase) {
-		return fmt.Errorf("ticket %s has no running session", id)
+		c.mu.Unlock()
+		return c.queueSteer(ctx, id, message)
 	}
-	if err := c.d.Dispatcher.Steer(ctx, c.sessionOf(e), message); err != nil {
-		return err
+	err := c.d.Dispatcher.Steer(ctx, c.sessionOf(e), message)
+	c.mu.Unlock()
+	if err != nil {
+		if qerr := c.queueSteer(ctx, id, message); qerr != nil {
+			return errors.Join(err, qerr)
+		}
+		return nil
 	}
 	c.hub.emit(KindSteered, id, map[string]any{"message": message})
+	return nil
+}
+
+// queueSteer records a steer message the running agent could not take as a follow-up.
+func (c *Core) queueSteer(ctx context.Context, id api.TicketID, message string) error {
+	if err := c.QueueFollowup(ctx, id, message); err != nil {
+		return err
+	}
+	c.hub.emit(KindSteered, id, map[string]any{"message": message, "queued": true})
 	return nil
 }
 
@@ -147,7 +167,7 @@ func (c *Core) Cancel(ctx context.Context, id api.TicketID) error {
 func (c *Core) cancel(ctx context.Context, id api.TicketID) error {
 	e, ok := c.state.Entries[id]
 	if !ok {
-		return fmt.Errorf("ticket %s is not tracked", id)
+		return &api.StateError{Msg: fmt.Sprintf("ticket %s is not tracked", id)}
 	}
 	if holdsSlot(e.Phase) {
 		if err := c.d.Dispatcher.Cancel(ctx, c.sessionOf(e)); err != nil {
@@ -178,6 +198,9 @@ func (c *Core) retry(ctx context.Context, id api.TicketID) error {
 	t := e.Ticket
 	last := c.attempts[id]
 	if tracked {
+		if e.Phase == api.PhaseQueued || e.Phase == api.PhaseMerged {
+			return &api.StateError{Msg: fmt.Sprintf("ticket %s is %s and cannot be retried", id, e.Phase)}
+		}
 		last = max(last, e.Attempt)
 		if holdsSlot(e.Phase) {
 			if err := c.d.Dispatcher.Cancel(ctx, c.sessionOf(e)); err != nil {
