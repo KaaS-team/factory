@@ -315,6 +315,19 @@ Print what a ticket's session is doing
 | `--interval` | duration | `5s` | poll interval for --follow |
 | `--json` | bool | `false` | print one JSON event per line |
 
+## factory manage
+
+`factory manage [flags]`
+
+Watch active runs: nudge or restart stalled ones, handle failing CI, feed review comments back
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--every` | duration | `5m0s` | time between passes |
+| `--once` | bool | `false` | run one pass and exit |
+| `--restart-after` | duration | `2h0m0s` | no progress for this long: queue a new attempt (0 = never) |
+| `--stall-after` | duration | `30m0s` | no progress for this long: send a nudge |
+
 ## factory mcp
 
 `factory mcp [flags]`
