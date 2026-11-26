@@ -5,40 +5,41 @@ Usage:
   factory [command]
 
 Available Commands:
-  a2a          Serve the factory as an A2A agent
-  add          Pin a file from a GitHub repository (MIT or Apache-2.0 only) in factory.lock
-  audit        Read the audit log of what the factory did
-  board        Open the terminal board
-  browsercheck Run browser steps in headless Chrome and print one FACTORY_GATES line
-  cancel       Cancel a ticket's running session
-  checkpoint   Snapshot and restore the worktree around an agent session
-  completion   Generate the autocompletion script for the specified shell
-  config       Read resolved configuration
-  dashboard    Serve the read-only web view
-  design       Make design edits to a JSX tree without a coding agent
-  dispatch     Start a session for a ticket now
-  doctor       Check the tools and settings the factory needs
-  eval         Run the fixtures matrix and write a scorecard
-  first-run    Audit this repo and show what the factory would fix, at no cost
-  help         Help about any command
-  init         Write .factory/factory.yaml from a tier preset
-  logs         Print what a ticket's session is doing
-  mcp          Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
-  packs        Inspect the packs pinned in factory.lock
-  plan         Turn a goal, epic or spec into a ticket DAG; --approve files it
-  queue        Show tickets ready to run and the merge queue
-  repomap      Print a ranked, token-budgeted symbol map of the repository for a context pack
-  report       Show tokens per merged PR, rework, human touches and cycle time (operator only)
-  retry        Queue a new attempt for a ticket
-  review       Run the check packs in .factory/checks against the uncommitted changes, edits returned as patches
-  run          Run the factory; --headless streams one JSON event per line
-  serve        Run the factory loop as a service with /healthz, /readyz and /events
-  shadow       Summarize what shadow mode would have dispatched
-  smoke        Run the loop once against a sandbox GitHub repository with a fake agent
-  status       Show the board, one row per slot
-  steer        Send a message to a ticket's running session
-  upgrade      Replace this binary with the latest factory release
-  version      Print the factory version
+  a2a            Serve the factory as an A2A agent
+  add            Pin a file from a GitHub repository (MIT or Apache-2.0 only) in factory.lock
+  audit          Read the audit log of what the factory did
+  board          Open the terminal board
+  browsercheck   Run browser steps in headless Chrome and print one FACTORY_GATES line
+  cancel         Cancel a ticket's running session
+  checkpoint     Snapshot and restore the worktree around an agent session
+  completion     Generate the autocompletion script for the specified shell
+  config         Read resolved configuration
+  dashboard      Serve the read-only web view
+  design         Make design edits to a JSX tree without a coding agent
+  dispatch       Start a session for a ticket now
+  doctor         Check the tools and settings the factory needs
+  eval           Run the fixtures matrix and write a scorecard
+  first-run      Audit this repo and show what the factory would fix, at no cost
+  help           Help about any command
+  init           Write .factory/factory.yaml from a tier preset
+  logs           Print what a ticket's session is doing
+  mcp            Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
+  packs          Inspect the packs pinned in factory.lock
+  plan           Turn a goal, epic or spec into a ticket DAG; --approve files it
+  queue          Show tickets ready to run and the merge queue
+  repomap        Print a ranked, token-budgeted symbol map of the repository for a context pack
+  report         Show tokens per merged PR, rework, human touches and cycle time (operator only)
+  retry          Queue a new attempt for a ticket
+  review         Run the check packs in .factory/checks against the uncommitted changes, edits returned as patches
+  review-dismiss Record a review finding as wrong so the review stops repeating it
+  run            Run the factory; --headless streams one JSON event per line
+  serve          Run the factory loop as a service with /healthz, /readyz and /events
+  shadow         Summarize what shadow mode would have dispatched
+  smoke          Run the loop once against a sandbox GitHub repository with a fake agent
+  status         Show the board, one row per slot
+  steer          Send a message to a ticket's running session
+  upgrade        Replace this binary with the latest factory release
+  version        Print the factory version
 
 Flags:
   -h, --help      help for factory
@@ -681,6 +682,18 @@ Flags:
       --base string        ref the prompt's diff starts from (empty: only the uncommitted changes)
   -h, --help               help for review
       --timeout duration   limit per check (default 10m0s)
+
+=== factory review-dismiss
+Record a review finding as wrong so the review stops repeating it
+
+Usage:
+  factory review-dismiss <kind> [flags]
+
+Flags:
+      --file string     file the finding was on
+  -h, --help            help for review-dismiss
+      --reason string   why the finding was wrong
+      --reword string   the wording you wanted instead
 
 === factory run
 Run the factory; --headless streams one JSON event per line

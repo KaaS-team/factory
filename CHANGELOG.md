@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Review drops findings that do not cite a diff line and quote it, learns rules from dismissed findings (`factory review-dismiss`, `.factory/review-rules.yml`), dedupes across rounds, cuts low-confidence findings and merges an optional second reviewer by citation.
+
 ## v6.3.0
 
 A stricter verify and review loop, a safer runner, and the groundwork for building on cloud agents.

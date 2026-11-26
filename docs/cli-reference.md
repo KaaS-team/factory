@@ -478,6 +478,18 @@ Run the check packs in .factory/checks against the uncommitted changes, edits re
 | `--base` | string | `` | ref the prompt's diff starts from (empty: only the uncommitted changes) |
 | `--timeout` | duration | `10m0s` | limit per check |
 
+## factory review-dismiss
+
+`factory review-dismiss <kind> [flags]`
+
+Record a review finding as wrong so the review stops repeating it
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--file` | string | `` | file the finding was on |
+| `--reason` | string | `` | why the finding was wrong |
+| `--reword` | string | `` | the wording you wanted instead |
+
 ## factory run
 
 `factory run [flags]`
