@@ -33,6 +33,13 @@ func New(tr *github.Tracker, dir string, cfg mergeq.Config, client *gogithub.Cli
 		Applier: Git{G: g},
 		Gate:    Gate{G: g},
 		Heads:   Heads{Client: client, Owner: owner, Repo: repo},
-		Cfg:     cfg,
+		Cfg:     withSpeculation(cfg),
 	}), nil
+}
+
+// withSpeculation turns on the speculative prefix probe: every gate run gets its own worktree, so
+// two can run at once.
+func withSpeculation(c mergeq.Config) mergeq.Config {
+	c.Speculate = true
+	return c
 }

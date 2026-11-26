@@ -1,7 +1,8 @@
 // Package mergeq is a batched, speculative merge queue. It tests a batch of ready PRs together on a
 // temporary ref, fast-forwards the base when the gate passes, and bisects a red batch until the
 // culprit PR is alone. Plan is the pure decision function; Run applies its actions through the
-// narrow Git, Gate and Store interfaces. Ideas follow bors, Mergify and GitHub merge queue; no code
+// narrow Git, Gate and Store interfaces. Ideas follow bors, Mergify, GitHub merge queue and
+// uber/submitqueue (Apache-2.0, speculative stacked builds); no code
 // is copied from them.
 package mergeq
 
@@ -12,9 +13,10 @@ const DefaultBatchSize = 4
 
 // Entry is one queued PR and the head it had when it was queued.
 type Entry struct {
-	ID     string
-	Head   string
-	Single bool // tested alone, never in a batch with other PRs
+	ID       string
+	Head     string
+	Single   bool   // tested alone, never in a batch with other PRs
+	Approved string // the head SHA that was approved, for display; Plan reads it from PRState
 }
 
 // PRState is what the outside world says about a PR now. A PR missing from State.PRs counts as closed.
@@ -22,6 +24,8 @@ type PRState struct {
 	Head   string
 	Open   bool
 	Merged bool
+	// Approved is the head SHA a human approved. With State.Pin, the PR may land only while Head equals it.
+	Approved string
 }
 
 // Result is the outcome of running the gate on one tested set of PRs.
@@ -30,6 +34,7 @@ type Result struct {
 	Heads []string
 	Base  string // the base the set was merged onto
 	Ref   string // the temp ref that was gated
+	Tip   string // the commit the temp ref points at; recorded as merged_sha when the set lands
 	Pass  bool
 	Log   string // gate log tail when the gate failed
 	// Inferred marks a red result deduced from a bisect, never observed on its own.
@@ -40,8 +45,10 @@ type Result struct {
 type State struct {
 	Base      string
 	BatchSize int
-	PRs       map[string]PRState
-	Results   map[string]Result // keyed by Key
+	// Pin holds a PR whose head is not its approved SHA: it is refused, never requeued.
+	Pin     bool
+	PRs     map[string]PRState
+	Results map[string]Result // keyed by Key
 }
 
 // Kind names what an Action asks for.
@@ -54,12 +61,15 @@ const (
 	KindEject   Kind = "eject"   // remove ID from the queue with the failing log tail
 	KindDrop    Kind = "drop"    // remove ID because it closed or merged
 	KindRequeue Kind = "requeue" // record ID's new head so it is tested again
+	KindRefuse  Kind = "refuse"  // remove ID because its head moved after approval; a human approves the new head
 )
 
 // Drop reasons.
 const (
 	ReasonClosed = "closed"
 	ReasonMerged = "merged"
+	// ReasonUnapproved is the refuse reason: the head is not the approved SHA.
+	ReasonUnapproved = "approval-stale"
 )
 
 // Action is one step Plan asks Run to take.
@@ -68,8 +78,9 @@ type Action struct {
 	IDs    []string // test and land: the PRs, in queue order
 	Heads  []string // test and land: their heads
 	Ref    string   // land: the gated ref
+	Tip    string   // land: the commit Ref points at
 	ID     string   // eject, drop, requeue
-	Head   string   // requeue: the new head
+	Head   string   // requeue and refuse: the new head
 	Reason string   // drop
 	Log    string   // eject
 }
@@ -104,6 +115,8 @@ func Plan(queue []Entry, st State) []Action {
 			housekeeping = append(housekeeping, Action{Kind: KindDrop, ID: e.ID, Reason: ReasonMerged})
 		case !p.Open:
 			housekeeping = append(housekeeping, Action{Kind: KindDrop, ID: e.ID, Reason: ReasonClosed})
+		case st.Pin && p.Head != p.Approved:
+			housekeeping = append(housekeeping, Action{Kind: KindRefuse, ID: e.ID, Head: p.Head, Reason: ReasonUnapproved})
 		case p.Head != e.Head:
 			housekeeping = append(housekeeping, Action{Kind: KindRequeue, ID: e.ID, Head: p.Head})
 		default:
@@ -173,7 +186,7 @@ func test(es []Entry) Action {
 
 func land(es []Entry, r Result) Action {
 	ids, heads := split(es)
-	return Action{Kind: KindLand, IDs: ids, Heads: heads, Ref: r.Ref}
+	return Action{Kind: KindLand, IDs: ids, Heads: heads, Ref: r.Ref, Tip: r.Tip}
 }
 
 // AfterLand returns the results with a red result for the PRs left over from every red set that
@@ -183,6 +196,7 @@ func AfterLand(results map[string]Result, landedIDs, landedHeads []string) map[s
 	for k, r := range results {
 		out[k] = r
 	}
+	landed, landedOK := results[Key(landedIDs, landedHeads)]
 	for _, r := range results {
 		if r.Pass || len(r.IDs) <= len(landedIDs) || !hasPrefix(r.IDs, landedIDs) || !hasPrefix(r.Heads, landedHeads) {
 			continue
@@ -190,7 +204,10 @@ func AfterLand(results map[string]Result, landedIDs, landedHeads []string) map[s
 		ids, heads := r.IDs[len(landedIDs):], r.Heads[len(landedIDs):]
 		k := Key(ids, heads)
 		if _, ok := out[k]; !ok {
-			out[k] = Result{IDs: ids, Heads: heads, Log: r.Log, Inferred: true}
+			// One PR left, and the landed prefix passed on the same base: the stacked set failed because of
+			// this PR alone, so its failure was observed and needs no run of its own.
+			proven := len(ids) == 1 && landedOK && landed.Pass && landed.Base == r.Base
+			out[k] = Result{IDs: ids, Heads: heads, Log: r.Log, Inferred: !proven}
 		}
 	}
 	return out

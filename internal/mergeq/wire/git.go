@@ -119,7 +119,7 @@ func (g Git) Merge(ctx context.Context, heads []string) (mergeq.Merged, error) {
 	if err := g.G.UpdateRef(ctx, ref, cur, ""); err != nil && !errors.Is(err, gitx.ErrCASLost) {
 		return mergeq.Merged{}, err
 	}
-	return mergeq.Merged{Ref: ref, Base: base}, nil
+	return mergeq.Merged{Ref: ref, Base: base, Tip: cur}, nil
 }
 
 // FastForward pushes ref to the base branch. If the remote base moved so ref no longer descends
