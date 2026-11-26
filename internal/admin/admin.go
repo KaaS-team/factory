@@ -160,7 +160,7 @@ func (c *Console) guard(rt Route) http.HandlerFunc {
 		for _, a := range []contract.Action{ConsoleAction, rt.Action} {
 			if d := c.cfg.Authorizer.Can(r.Context(), p, a, res); !d.Allow {
 				if r.Method == http.MethodPost {
-					c.record(r.Context(), p, rt.Action, contract.OutcomeDeny, d.Reason, map[string]string{"route": rt.Pattern})
+					_ = c.record(r.Context(), p, rt.Action, contract.OutcomeDeny, d.Reason, map[string]string{"route": rt.Pattern})
 				}
 				c.refuse(w, r, http.StatusForbidden, d.Reason)
 				return

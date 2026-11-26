@@ -24,6 +24,9 @@
 .admin-divider {
   border-top: 1px solid var(--ui-border);
 }
+.admin-h2 {
+  font-size: var(--ui-type-md);
+}
 .admin-h3 {
   margin-bottom: var(--ui-space-3);
   font-size: var(--ui-type-sm);
@@ -128,4 +131,17 @@
 }
 .admin-bar[data-status='fail']::-moz-progress-bar {
   background: var(--ui-fail);
+}
+
+/* A .ui-visually-hidden label inside a scrolling table is absolutely placed; without a positioned
+   wrapper it lands at its column's x on the page and widens the document on a phone. Candidate fix
+   for the ui repo's table.css. */
+.ui-table-wrap {
+  position: relative;
+}
+
+/* the console-user rows hold a form; keep them as short as the read-only rows */
+.ui-table .admin-inline {
+  flex-wrap: nowrap;
+  align-items: center;
 }

@@ -42,9 +42,11 @@ var funcs = template.FuncMap{
 		}
 		return m
 	},
-	"chip":      func(label, status string) ui.Chip { return ui.Chip{Label: label, Status: ui.Status(status)} },
-	"empty":     func(title, body string) ui.Empty { return ui.Empty{Title: title, Body: body} },
-	"attention": func(status, title, body string) ui.Attention { return ui.Attention{Status: ui.Status(status), Title: title, Body: body} },
+	"chip":  func(label, status string) ui.Chip { return ui.Chip{Label: label, Status: ui.Status(status)} },
+	"empty": func(title, body string) ui.Empty { return ui.Empty{Title: title, Body: body} },
+	"attention": func(status, title, body string) ui.Attention {
+		return ui.Attention{Status: ui.Status(status), Title: title, Body: body}
+	},
 	"title": func(s string) string {
 		if s == "" {
 			return s
