@@ -124,6 +124,13 @@ type Caps struct {
 // (the process restarted, or the ticket's label outlived its run). The core releases the ticket.
 var ErrUnknownSession = errors.New("unknown session")
 
+// StateError is what a Control returns when the action does not fit the ticket's state, such as
+// steering a ticket with no running session. It is returned before anything changes, so a client
+// can tell it apart (errors.As) from a failure and show the text as is.
+type StateError struct{ Msg string }
+
+func (e *StateError) Error() string { return e.Msg }
+
 // Dispatcher starts and controls sessions: RemoteTrigger routines, the
 // documented routine fire endpoint, or a local agent CLI.
 type Dispatcher interface {

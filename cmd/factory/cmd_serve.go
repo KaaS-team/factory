@@ -13,6 +13,7 @@ import (
 	"github.com/KaaS-team/factory/internal/config"
 	"github.com/KaaS-team/factory/internal/dispatch/local"
 	"github.com/KaaS-team/factory/internal/graph"
+	"github.com/KaaS-team/factory/internal/mcp"
 	"github.com/KaaS-team/factory/internal/serve"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -109,7 +110,7 @@ func newServe() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return serve.New(core, serve.Options{Interval: l.Config.PollInterval, Wrap: wrap, Schedule: sched}).Serve(ctx, listen, drain)
+			return serve.New(core, serve.Options{Interval: l.Config.PollInterval, Wrap: wrap, Schedule: sched, ApprovePlan: approvePlan}).Serve(ctx, listen, drain)
 		},
 	}
 	cmd.Flags().StringVar(&addr, "addr", "127.0.0.1:8787", "address for /healthz, /readyz and /events")
@@ -136,4 +137,10 @@ func scheduler(w io.Writer) (*serve.Scheduler, error) {
 			return err
 		}}
 	return sc, sc.Validate()
+}
+
+// approvePlan is the approve route's resolver: the approve_plan MCP tool, which runs `factory plan --approve`.
+func approvePlan(ctx context.Context, goal string) error {
+	_, err := mcpHandlers().ApprovePlan(ctx, mcp.ApprovePlanInput{Goal: goal})
+	return err
 }

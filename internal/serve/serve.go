@@ -13,6 +13,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/KaaS-team/factory/ee/contract"
 	"github.com/KaaS-team/factory/internal/api"
 	"github.com/KaaS-team/factory/internal/serve/hostguard"
 )
@@ -39,21 +40,29 @@ type Options struct {
 	Wrap func(http.Handler) http.Handler
 	// Access, when set, authenticates every guarded route and checks the route's action.
 	Access *Access
+	// Audit, when set, records every write route's attempt: allowed, denied or failed.
+	Audit contract.Audit
+	// ApprovePlan plans the goal and approves it, as `factory plan --approve` does. Without it the
+	// approve route answers 501.
+	ApprovePlan func(ctx context.Context, goal string) error
 }
 
 // Server hosts a Core and serves /healthz, /readyz and /events.
 type Server struct {
-	core     Core
-	interval time.Duration
-	clock    Clock
-	sched    *Scheduler
-	mu       sync.Mutex
-	lastTick time.Time
-	ticked   bool
-	ready    atomic.Bool
-	wrap     func(http.Handler) http.Handler
-	access   *Access
-	onListen func(addr string) // test hook: called with the bound address
+	core      Core
+	interval  time.Duration
+	clock     Clock
+	sched     *Scheduler
+	mu        sync.Mutex
+	lastTick  time.Time
+	ticked    bool
+	ready     atomic.Bool
+	wrap      func(http.Handler) http.Handler
+	access    *Access
+	audit     contract.Audit
+	approveFn func(ctx context.Context, goal string) error
+	authed    bool              // a credential guard stands in front of the routes
+	onListen  func(addr string) // test hook: called with the bound address
 }
 
 // New returns a Server for core. A zero Interval means 30 seconds, the core's default.
@@ -64,7 +73,7 @@ func New(core Core, o Options) *Server {
 	if o.Clock == nil {
 		o.Clock = realClock{}
 	}
-	return &Server{core: core, interval: o.Interval, clock: o.Clock, wrap: o.Wrap, access: o.Access, sched: o.Schedule}
+	return &Server{core: core, interval: o.Interval, clock: o.Clock, wrap: o.Wrap, access: o.Access, audit: o.Audit, approveFn: o.ApprovePlan, authed: o.Wrap != nil || o.Access != nil, sched: o.Schedule}
 }
 
 func (s *Server) markTick() {

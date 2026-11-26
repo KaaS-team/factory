@@ -126,7 +126,7 @@ func (c *Core) Steer(ctx context.Context, id api.TicketID, message string) error
 	c.recover(ctx)
 	e, ok := c.state.Entries[id]
 	if !ok || !holdsSlot(e.Phase) {
-		return fmt.Errorf("ticket %s has no running session", id)
+		return &api.StateError{Msg: fmt.Sprintf("ticket %s has no running session", id)}
 	}
 	if err := c.d.Dispatcher.Steer(ctx, c.sessionOf(e), message); err != nil {
 		return err
@@ -147,7 +147,7 @@ func (c *Core) Cancel(ctx context.Context, id api.TicketID) error {
 func (c *Core) cancel(ctx context.Context, id api.TicketID) error {
 	e, ok := c.state.Entries[id]
 	if !ok {
-		return fmt.Errorf("ticket %s is not tracked", id)
+		return &api.StateError{Msg: fmt.Sprintf("ticket %s is not tracked", id)}
 	}
 	if holdsSlot(e.Phase) {
 		if err := c.d.Dispatcher.Cancel(ctx, c.sessionOf(e)); err != nil {
@@ -178,6 +178,9 @@ func (c *Core) retry(ctx context.Context, id api.TicketID) error {
 	t := e.Ticket
 	last := c.attempts[id]
 	if tracked {
+		if e.Phase == api.PhaseQueued || e.Phase == api.PhaseMerged {
+			return &api.StateError{Msg: fmt.Sprintf("ticket %s is %s and cannot be retried", id, e.Phase)}
+		}
 		last = max(last, e.Attempt)
 		if holdsSlot(e.Phase) {
 			if err := c.d.Dispatcher.Cancel(ctx, c.sessionOf(e)); err != nil {
