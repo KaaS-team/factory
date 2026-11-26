@@ -29,6 +29,8 @@ var testOnly = map[string]string{
 // Wire one, then delete its line: the test fails if a listed package is reached.
 var pendingWiring = map[string]string{
 	"internal/dispatch/broker":  "per-action credential broker: wire into the sandbox session start",
+	"internal/dispatch/k8s":     "per-task Kubernetes sandbox runner (F4): the F3 worker selects it, wire it there",
+	"internal/egress":           "policy-driven CONNECT proxy (F4): the F3 worker starts it beside the runner",
 	"internal/eval/judgecache":  "judge verdict cache: wire into `factory eval`",
 	"internal/eval/replay":      "recorded eval replay: wire into `factory eval`",
 	"internal/gate/lintdelta":   "lint-delta edit gate: wire into the build gate",
@@ -36,6 +38,7 @@ var pendingWiring = map[string]string{
 	"internal/observe/sampling": "trace sampling and OTLP usage mapping: wire into the observer",
 	"internal/packs/astgrep":    "ast-grep pack: wire into `factory pack`",
 	"internal/packs/depup":      "dependency-update tickets: wire into the cron scheduler",
+	"internal/sandbox":          "environment.toml schema, snapshot cache and log redactor (F4): used by internal/dispatch/k8s",
 	"internal/store/crypt":      "encrypted checkpoint store: wire into the store open path",
 	"internal/tracker/safeout":  "agent write path: wire into the tracker apply stage",
 	"pkg/agentrun":              "public dispatcher surface for other KaaS modules: re-export, keep",
