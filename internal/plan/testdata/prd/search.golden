@@ -1,0 +1,73 @@
+Users re-type the same filters every day. Let them save a search and rerun it from the board.
+
+AC-1: A saved search persists its name and filter.
+AC-2: Saving a name that exists replaces it.
+AC-3: Running a saved search returns the same rows as typing the filter.
+AC-4: A missing name returns a clear error.
+AC-5: `factory search save <name> <filter>` stores a search.
+AC-6: `factory search run <name>` prints the rows.
+AC-7: `factory search list` prints the names.
+AC-8: `factory search rm <name>` removes one.
+AC-9: Every command prints a one-line error for a missing name.
+--- ticket T1: Store saved searches
+<!-- factory:planned v1 -->
+Deps: none
+## Why
+
+Store saved searches: part of the epic "Saved searches".
+
+## Acceptance
+
+- AC-1: A saved search persists its name and filter.
+- AC-2: Saving a name that exists replaces it.
+
+## Files
+
+- `internal/search/store.go`
+- `internal/search/store_test.go`
+--- ticket T2: Run a saved search
+<!-- factory:planned v1 -->
+Deps: T1
+## Why
+
+Run a saved search: part of the epic "Saved searches".
+
+## Acceptance
+
+- AC-1: Running a saved search returns the same rows as typing the filter.
+- AC-2: A missing name returns a clear error.
+
+## Files
+
+- `internal/search/run.go`
+--- ticket T3: Saved search CLI (part 1 of 2)
+<!-- factory:planned v1 -->
+Deps: T2
+## Why
+
+Saved search CLI: part of the epic "Saved searches".
+
+## Acceptance
+
+- AC-1: `factory search save <name> <filter>` stores a search.
+- AC-2: `factory search run <name>` prints the rows.
+- AC-3: `factory search list` prints the names.
+- AC-4: `factory search rm <name>` removes one.
+
+## Files
+
+- `cmd/factory/cmd_search.go`
+--- ticket T4: Saved search CLI (part 2 of 2)
+<!-- factory:planned v1 -->
+Deps: T3
+## Why
+
+Saved search CLI: part of the epic "Saved searches".
+
+## Acceptance
+
+- AC-1: Every command prints a one-line error for a missing name.
+
+## Files
+
+- `cmd/factory/cmd_search.go`

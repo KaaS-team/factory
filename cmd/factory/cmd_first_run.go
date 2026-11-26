@@ -7,5 +7,7 @@ import (
 )
 
 func init() {
-	register("first-run", func() *cobra.Command { return firstrun.NewCommand(firstrun.WithExec(firstRunExec)) })
+	register("first-run", func() *cobra.Command {
+		return firstrun.NewCommand(firstrun.WithExec(firstRunExec), firstrun.WithProtection(firstRunProtection))
+	})
 }

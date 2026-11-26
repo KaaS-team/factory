@@ -39,6 +39,7 @@ Available Commands:
   smoke        Run the loop once against a sandbox GitHub repository with a fake agent
   status       Show the board, one row per slot
   steer        Send a message to a ticket's running session
+  triage       Classify a ticket and decide: proceed, needs-info, duplicate or refused
   upgrade      Replace this binary with the latest factory release
   version      Print the factory version
 
@@ -466,10 +467,12 @@ Usage:
 
 Flags:
       --annotations string   reason-tagged suppressions file; the default is optional (default ".factory/annotations.yml")
+      --dir string           the repository --ready checks (default ".")
       --dry-run              stop after the report; say what would be dispatched
-      --fix                  dispatch one build for the first covered finding and open a draft pull request
+      --fix                  dispatch one build for the first covered finding and open a draft pull request; with --ready, repair failed checks in place instead
       --gh string            also audit this GitHub repo (owner/repo)
   -h, --help                 help for first-run
+      --ready                check the repo is ready for agents: builds, tests, AGENTS.md, gate script, CI, branch protection; with --fix, repair what can be repaired in place
       --sarif string         also write the findings to this file as SARIF 2.1.0
 
 === factory init
@@ -622,6 +625,7 @@ Usage:
 Flags:
       --approve           file the tickets; without it nothing is written
       --epic n            read the spec and tickets from epic issue n
+      --from-prd file     read a PRD from file and draft the epic and ordered tickets from it
   -h, --help              help for plan
       --json              print the DAG as JSON
       --repo-dir string   the repository the agent reads when drafting from a goal (default: here)
@@ -784,6 +788,18 @@ Usage:
 
 Flags:
   -h, --help   help for steer
+
+=== factory triage
+Classify a ticket and decide: proceed, needs-info, duplicate or refused
+
+Usage:
+  factory triage <ticket> [flags]
+
+Flags:
+      --apply                write the decision back to the ticket as a comment; without it nothing is written
+  -h, --help                 help for triage
+      --json                 print the decision as JSON
+      --protected prefixes   path prefixes agents may not edit; a ticket naming one is refused
 
 === factory upgrade
 Replace this binary with the latest factory release

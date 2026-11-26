@@ -2,6 +2,7 @@ package firstrun
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 
@@ -15,11 +16,18 @@ type Option func(*cmdOpts)
 
 type cmdOpts struct {
 	exec func(context.Context) (Exec, error)
+	prot func(context.Context) (Protection, error)
 }
 
 // WithExec lets `--fix` dispatch the first fix and open its draft pull request. f builds the Exec
 // only when --fix runs, so a plain report needs no token. Without it the command only reports.
 func WithExec(f func(context.Context) (Exec, error)) Option { return func(o *cmdOpts) { o.exec = f } }
+
+// WithProtection supplies the branch protection check of `--ready`. f builds it only when --ready
+// runs, so a plain report needs no token. Without it the check reads "unknown".
+func WithProtection(f func(context.Context) (Protection, error)) Option {
+	return func(o *cmdOpts) { o.prot = f }
+}
 
 // NewCommand returns `factory first-run [--dry-run] [--gh owner/repo]`.
 func NewCommand(opts ...Option) *cobra.Command {
@@ -45,13 +53,19 @@ type runFlags struct {
 	opts               Options
 	annPath, sarifPath string
 	fix                bool
+	ready              bool
+	dir                string
 }
 
 func (f *runFlags) register(c *cobra.Command, canFix bool) {
 	c.Flags().BoolVar(&f.opts.DryRun, "dry-run", false, "stop after the report; say what would be dispatched")
+	usage := "with --ready, repair failed checks in place"
 	if canFix {
-		c.Flags().BoolVar(&f.fix, "fix", false, "dispatch one build for the first covered finding and open a draft pull request")
+		usage = "dispatch one build for the first covered finding and open a draft pull request; with --ready, repair failed checks in place instead"
 	}
+	c.Flags().BoolVar(&f.fix, "fix", false, usage)
+	c.Flags().BoolVar(&f.ready, "ready", false, "check the repo is ready for agents: builds, tests, AGENTS.md, gate script, CI, branch protection; with --fix, repair what can be repaired in place")
+	c.Flags().StringVar(&f.dir, "dir", ".", "the repository --ready checks")
 	c.Flags().StringVar(&f.opts.GH, "gh", "", "also audit this GitHub repo (owner/repo)")
 	c.Flags().StringVar(&f.annPath, "annotations", defaultAnnotations, "reason-tagged suppressions file; the default is optional")
 	c.Flags().StringVar(&f.sarifPath, "sarif", "", "also write the findings to this file as SARIF 2.1.0")
@@ -59,6 +73,9 @@ func (f *runFlags) register(c *cobra.Command, canFix bool) {
 
 // runFirstRun audits, prints the report, writes SARIF if asked, and with --fix opens the draft PR.
 func runFirstRun(cmd *cobra.Command, f *runFlags, co cmdOpts) error {
+	if f.ready {
+		return runReady(cmd, f, co)
+	}
 	ann, err := loadAnnotations(f.annPath, cmd.Flags().Changed("annotations"))
 	if err != nil {
 		return err
@@ -77,6 +94,9 @@ func runFirstRun(cmd *cobra.Command, f *runFlags, co cmdOpts) error {
 	}
 	if _, err = fmt.Fprint(cmd.OutOrStdout(), md); err != nil || !f.fix {
 		return err
+	}
+	if co.exec == nil {
+		return errors.New("--fix without --ready needs a dispatcher, which is not wired here")
 	}
 	return runFix(cmd, r, co)
 }
@@ -128,4 +148,32 @@ func loadAnnotations(path string, explicit bool) (sarif.Config, error) {
 	}
 	defer func() { _ = f.Close() }()
 	return sarif.ParseAnnotations(f)
+}
+
+// runReady prints the readiness report. With --fix it repairs in place first, prints what it did, and
+// fails when a check is still red, so a script can tell.
+func runReady(cmd *cobra.Command, f *runFlags, co cmdOpts) error {
+	o := ReadyOptions{Dir: f.dir}
+	if co.prot != nil {
+		if p, err := co.prot(cmd.Context()); err == nil {
+			o.Protected = p
+		}
+	}
+	var fixed []Fixed
+	var r Ready
+	if f.fix {
+		var err error
+		if fixed, r, err = FixReady(cmd.Context(), o); err != nil {
+			return err
+		}
+	} else {
+		r = CheckReady(cmd.Context(), o)
+	}
+	if _, err := fmt.Fprint(cmd.OutOrStdout(), r.Markdown(fixed)); err != nil {
+		return err
+	}
+	if !r.OK() {
+		return errors.New("the repo is not ready for agents")
+	}
+	return nil
 }
