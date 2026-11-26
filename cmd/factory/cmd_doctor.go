@@ -10,6 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/KaaS-team/factory/internal/cidrift"
 	"github.com/KaaS-team/factory/internal/graph"
 )
 
@@ -55,6 +56,7 @@ func runChecks() []checkRow {
 	if r, ok := workflowsCheck("."); ok {
 		rows = append(rows, r)
 	}
+	rows = append(rows, ciDriftCheck("."))
 	return append(rows, envCheck(os.Environ()))
 }
 
@@ -70,6 +72,24 @@ func workflowsCheck(root string) (checkRow, bool) {
 		return checkRow{"workflows", statusFail, err.Error(), "fix the named file under .factory/workflows"}, true
 	}
 	return checkRow{Name: "workflows", Status: statusPass, Detail: fmt.Sprintf("%d load", len(gs))}, true
+}
+
+// ciDriftCheck warns when a workflow staged in ci/ differs from its live copy in .github/workflows, the
+// state a cloud session leaves because it cannot push there. The fix is the copy a person makes.
+func ciDriftCheck(root string) checkRow {
+	ds, err := cidrift.Check(root)
+	if err != nil {
+		return checkRow{"ci-drift", statusFail, err.Error(), "make ci/ a readable directory of workflow files"}
+	}
+	if len(ds) == 0 {
+		return checkRow{Name: "ci-drift", Status: statusPass, Detail: "staged ci/ files match the live ones"}
+	}
+	var names, cp []string
+	for _, d := range ds {
+		names = append(names, d.Name+" ("+string(d.Kind)+")")
+		cp = append(cp, "ci/"+d.Name)
+	}
+	return checkRow{"ci-drift", statusWarn, strings.Join(names, ", "), "copy " + strings.Join(cp, " ") + " into .github/workflows and commit it locally"}
 }
 
 // dispatcherCheck fails when the configured dispatcher's prerequisite is missing: `claude` on PATH
