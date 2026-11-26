@@ -37,8 +37,21 @@ func commit(t *testing.T, dir, file string) {
 	sh(t, dir, "commit", "-q", "-m", file)
 }
 
+// TestGitHubHostRebaseOnRealGit runs with no git identity at all, like a clean CI runner, so
+// Rebase has to supply its own. The helper sh sets an identity only for the test's own commits.
 func TestGitHubHostRebaseOnRealGit(t *testing.T) {
 	root := t.TempDir()
+	t.Setenv("HOME", root)
+	t.Setenv("GIT_CONFIG_GLOBAL", "/dev/null")
+	t.Setenv("GIT_CONFIG_SYSTEM", "/dev/null")
+	// useConfigOnly stops git guessing an identity from the host, as a clean runner would.
+	t.Setenv("GIT_CONFIG_COUNT", "1")
+	t.Setenv("GIT_CONFIG_KEY_0", "user.useConfigOnly")
+	t.Setenv("GIT_CONFIG_VALUE_0", "true")
+	for _, k := range []string{"EMAIL", "GIT_AUTHOR_NAME", "GIT_AUTHOR_EMAIL", "GIT_COMMITTER_NAME", "GIT_COMMITTER_EMAIL"} {
+		t.Setenv(k, "")
+		_ = os.Unsetenv(k)
+	}
 	remote := filepath.Join(root, "remote.git")
 	sh(t, root, "init", "-q", "--bare", "-b", "main", remote)
 	work := filepath.Join(root, "work")

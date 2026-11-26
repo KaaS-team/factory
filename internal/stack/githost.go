@@ -49,6 +49,15 @@ func (h GitHubHost) Merged(ctx context.Context, pr int) (bool, error) {
 	return p.GetMerged(), nil
 }
 
+// withIdentity prepends a committer identity to args when git has none, because a rebase writes
+// commits and a clean runner has no user.name. A configured identity is never overridden.
+func (h GitHubHost) withIdentity(ctx context.Context, args []string) []string {
+	if _, err := h.git(ctx, "var", "GIT_COMMITTER_IDENT"); err == nil {
+		return args
+	}
+	return append([]string{"-c", "user.name=factory", "-c", "user.email=noreply@factory.invalid"}, args...)
+}
+
 func (h GitHubHost) git(ctx context.Context, args ...string) (string, error) {
 	cmd := exec.CommandContext(ctx, "git", args...)
 	cmd.Dir = h.Dir
@@ -83,7 +92,7 @@ func (h GitHubHost) Rebase(ctx context.Context, branch, onto, oldBase string) (s
 	if _, err := h.git(ctx, "checkout", "--quiet", "--detach", tmp); err != nil {
 		return "", err
 	}
-	if _, err := h.git(ctx, "rebase", "--onto", r+"/"+onto, oldBase); err != nil {
+	if _, err := h.git(ctx, h.withIdentity(ctx, []string{"rebase", "--onto", r + "/" + onto, oldBase})...); err != nil {
 		_, _ = h.git(ctx, "rebase", "--abort")
 		return "", err
 	}
