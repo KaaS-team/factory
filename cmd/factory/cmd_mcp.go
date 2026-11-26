@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/KaaS-team/factory/internal/serve"
 	"strconv"
 	"strings"
 
@@ -62,7 +63,7 @@ func mcpHandlers() mcp.Handlers {
 // refused, so a client can never turn it into a flag.
 func dataSub(ctx context.Context, tool, value, cmd, want string, args ...string) (string, error) {
 	if v := strings.TrimSpace(value); v == "" || strings.HasPrefix(v, "-") {
-		return "", fmt.Errorf("%s: %s, not empty or a flag", tool, want)
+		return "", fmt.Errorf("%s: %s, not empty or a flag: %w", tool, want, serve.ErrBadInput)
 	}
 	return runSub(ctx, append(append([]string{cmd}, args...), "--", value)...)
 }

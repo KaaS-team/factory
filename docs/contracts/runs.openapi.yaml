@@ -1,0 +1,83 @@
+openapi: 3.0.3
+info:
+  title: Factory run writes
+  version: "1"
+  description: >
+    Act on a run from outside the runner. Each route does what the same command does and is
+    authorized for the repo in the path (repo is owner/name, with the slash escaped as %2F). A
+    request that does not fit the run's state is 409 and changes nothing. Every attempt is audited.
+paths:
+  /api/runs/{repo}/{issue}/approve:
+    post:
+      summary: Plan a goal and approve it (factory plan --approve, the approve_plan tool)
+      description: Needs the approve action, which only a user may take.
+      security: [{bearer: []}]
+      parameters: [{$ref: "#/components/parameters/repo"}, {$ref: "#/components/parameters/issue"}]
+      requestBody: {$ref: "#/components/requestBodies/goal"}
+      responses:
+        "200": {description: Done}
+        "400": {description: The body is not usable}
+        "401": {description: No credential or a bad one}
+        "403": {description: "Denied; the body carries the reason code"}
+        "404": {description: No such repo}
+        "409": {description: "The action does not fit the run's state; nothing changed"}
+        "501": {description: Not configured}
+  /api/runs/{repo}/{issue}/steer:
+    post:
+      summary: Send a message to the running session (factory steer, the steer tool)
+      description: Needs run.steer. 409 when the ticket has no running session.
+      security: [{bearer: []}]
+      parameters: [{$ref: "#/components/parameters/repo"}, {$ref: "#/components/parameters/issue"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, required: [message], properties: {message: {type: string, minLength: 1}}}
+      responses:
+        "200": {description: Done}
+        "400": {description: The body is not usable}
+        "401": {description: No credential or a bad one}
+        "403": {description: "Denied; the body carries the reason code"}
+        "404": {description: No such repo}
+        "409": {description: "The action does not fit the run's state; nothing changed"}
+        "501": {description: Not configured}
+  /api/runs/{repo}/{issue}/retry:
+    post:
+      summary: Start the next attempt (factory retry, the retry tool)
+      description: Needs run.retry. 409 when the ticket is in the merge queue or merged.
+      security: [{bearer: []}]
+      parameters: [{$ref: "#/components/parameters/repo"}, {$ref: "#/components/parameters/issue"}]
+      responses:
+        "200": {description: Done}
+        "400": {description: The body is not usable}
+        "401": {description: No credential or a bad one}
+        "403": {description: "Denied; the body carries the reason code"}
+        "404": {description: No such repo}
+        "409": {description: "The action does not fit the run's state; nothing changed"}
+        "501": {description: Not configured}
+  /api/runs/{repo}/{issue}/cancel:
+    post:
+      summary: Cancel the run (factory cancel, the cancel tool)
+      description: Needs run.cancel. 409 when the ticket is not tracked.
+      security: [{bearer: []}]
+      parameters: [{$ref: "#/components/parameters/repo"}, {$ref: "#/components/parameters/issue"}]
+      responses:
+        "200": {description: Done}
+        "400": {description: The body is not usable}
+        "401": {description: No credential or a bad one}
+        "403": {description: "Denied; the body carries the reason code"}
+        "404": {description: No such repo}
+        "409": {description: "The action does not fit the run's state; nothing changed"}
+        "501": {description: Not configured}
+components:
+  securitySchemes:
+    bearer: {type: http, scheme: bearer}
+  parameters:
+    repo: {name: repo, in: path, required: true, schema: {type: string}, description: "owner/name, slash escaped as %2F"}
+    issue: {name: issue, in: path, required: true, schema: {type: string}}
+  requestBodies:
+    goal:
+      required: true
+      content:
+        application/json:
+          schema: {type: object, required: [goal], properties: {goal: {type: string, minLength: 1}}}
