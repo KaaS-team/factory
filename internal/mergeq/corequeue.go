@@ -36,6 +36,7 @@ type Deps struct {
 	Applier Applier // optional; when set, a PR that no longer applies to the base goes back to its agent
 	Syntax  Syntax  // optional; needs Paths too
 	Paths   func(ctx context.Context, id, head string) ([]string, error)
+	Guard   *Guard // optional; when set, a PR lands only with proof and an allowed risk class, or a human approval
 }
 
 // CoreQueue is the merge queue the core loop feeds: a Runner over tracker-held queue state.
@@ -133,7 +134,11 @@ func (q *CoreQueue) Queued(ctx context.Context) ([]Entry, error) {
 func (q *CoreQueue) Run(ctx context.Context) (Report, error) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
-	r := &Runner{Git: q.d.Git, Gate: q.d.Gate, Store: coreStore{q}, Cfg: q.d.Cfg}
+	var st Store = coreStore{q}
+	if q.d.Guard != nil {
+		st = guardStore{Store: st, q: q}
+	}
+	r := &Runner{Git: q.d.Git, Gate: q.d.Gate, Store: st, Cfg: q.d.Cfg}
 	if q.d.Applier != nil {
 		r.Pre = &Precheck{Applier: q.d.Applier, Syntax: q.d.Syntax, Paths: q.d.Paths, Return: q.returnToAgent}
 	}
@@ -175,6 +180,15 @@ func (s coreStore) Landed(ctx context.Context, ids []string) error {
 func (s coreStore) Eject(ctx context.Context, id, logTail string) error {
 	tid := api.TicketID(id)
 	if err := s.q.d.Tracker.Comment(ctx, tid, "Needs a human: the merge queue ejected this PR because the gate fails with it.\n\n```\n"+logTail+"\n```"); err != nil {
+		return err
+	}
+	return s.q.d.Tracker.SetPhase(ctx, tid, api.PhaseNeedsHuman)
+}
+
+// hold comments the reason on the ticket and moves it to needs-human.
+func (s coreStore) hold(ctx context.Context, id, reason string) error {
+	tid := api.TicketID(id)
+	if err := s.q.d.Tracker.Comment(ctx, tid, "Needs a human: "+reason); err != nil {
 		return err
 	}
 	return s.q.d.Tracker.SetPhase(ctx, tid, api.PhaseNeedsHuman)

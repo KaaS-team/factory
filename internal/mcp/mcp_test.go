@@ -61,7 +61,7 @@ func connect(t *testing.T, ctl api.Control, h factorymcp.Handlers) *sdk.ClientSe
 }
 
 var toolNames = []string{"plan", "approve_plan", "list_tickets", "status", "dispatch", "steer", "cancel", "retry", "queue", "explain_config", "first_run", "report",
-	"create_task", "hand_off_task", "queue_followup", "list_events", "list_repos"}
+	"create_task", "hand_off_task", "queue_followup", "list_events", "list_repos", "attention"}
 
 // callArgs gives each tool a valid input.
 var callArgs = map[string]map[string]any{
@@ -82,6 +82,7 @@ var callArgs = map[string]map[string]any{
 	"queue_followup": {"id": "7", "message": "m"},
 	"list_events":    {"id": "7"},
 	"list_repos":     {},
+	"attention":      {},
 }
 
 func text(t *testing.T, r *sdk.CallToolResult) string {
@@ -477,6 +478,9 @@ func TestErrorsAreToolErrorsWithoutOperatorDetail(t *testing.T) {
 	}
 	cs := connect(t, &spy{Control: newFake(), failWith: boom}, h)
 	for _, n := range toolNames {
+		if n == "attention" {
+			continue // reads the optional attention list, not the Control; see tool_attention_test.go
+		}
 		r, err := cs.CallTool(t.Context(), &sdk.CallToolParams{Name: n, Arguments: callArgs[n]})
 		if err != nil {
 			t.Fatalf("%s: protocol error %v", n, err)

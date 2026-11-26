@@ -71,7 +71,7 @@ factory retry <ticket>
 |---|---|
 | Set up | `doctor`, `smoke`, `init`, `first-run`, `config`, `packs`, `add`, `upgrade`, `version` |
 | Plan and run | `plan`, `run`, `dispatch`, `serve`, `eval`, `design`, `review`, `repomap`, `checkpoint`, `browsercheck` |
-| Watch and steer | `status`, `queue`, `logs`, `steer`, `cancel`, `retry`, `board`, `dashboard`, `report`, `shadow`, `audit` |
+| Watch and steer | `status`, `queue`, `logs`, `steer`, `cancel`, `retry`, `board`, `dashboard`, `report`, `shadow`, `audit`, `attention` |
 | Connect | `mcp`, `a2a` |
 
 The full flag list for every command is in [docs/cli-reference.md](docs/cli-reference.md). A test keeps
