@@ -37,8 +37,27 @@ planeURL: ""
 
 networkPolicy:
   enabled: true
-  # CIDRs and ports workers may reach besides the control plane and DNS,
-  # for example your git host and model endpoint.
-  workerEgress:
-    - to: [{ipBlock: {cidr: 0.0.0.0/0}}]
-      ports: [{port: 443, protocol: TCP}]
+  # Public HTTPS egress for workers (git host, model endpoint). It allows every address except the
+  # ranges below, so a worker cannot reach internal services, node metadata or the cluster.
+  publicEgress:
+    enabled: true
+    ports: [{port: 443, protocol: TCP}]
+    # Never reachable through publicEgress: RFC 1918 and link-local (cloud metadata at 169.254.169.254).
+    except:
+      - 10.0.0.0/8
+      - 172.16.0.0/12
+      - 192.168.0.0/16
+      - 169.254.0.0/16
+    # Set both to your cluster's CIDRs (for example from `kubectl cluster-info dump`). They are added
+    # to except. Leave empty only when they already sit inside the RFC 1918 ranges above.
+    podCIDR: ""
+    serviceCIDR: ""
+  # Extra egress rules, in NetworkPolicy egress syntax, added after publicEgress.
+  # To narrow to named hosts: set publicEgress.enabled to false and list the hosts' addresses here,
+  # for example
+  #   workerEgress:
+  #     - to: [{ipBlock: {cidr: 140.82.112.0/20}}]   # github.com, from https://api.github.com/meta
+  #       ports: [{port: 443, protocol: TCP}]
+  # A NetworkPolicy matches addresses, not names: use your CNI's FQDN policy (Cilium
+  # toFQDNs, Calico DNS policy) if you need host names.
+  workerEgress: []

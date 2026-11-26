@@ -70,6 +70,26 @@ func (l Learner) path() string {
 	return filepath.Join(l.Root, DefaultPath)
 }
 
+// ParseRules reads rules from the content of a review-rules.yml and returns the ones confident
+// enough to apply.
+func ParseRules(b []byte) (Rules, error) {
+	var f File
+	if err := yaml.Unmarshal(b, &f); err != nil {
+		return nil, fmt.Errorf("review rules: %w", err)
+	}
+	return f.rules(), nil
+}
+
+func (f File) rules() Rules {
+	r := Rules{}
+	for _, x := range f.Rules {
+		if x.Confidence >= MinConfidence {
+			r[normKind(x.Kind)] = x
+		}
+	}
+	return r
+}
+
 // Load reads the file. A missing file is empty, not an error.
 func (l Learner) Load() (File, error) {
 	var f File
@@ -114,13 +134,7 @@ func (l Learner) Rules() (Rules, error) {
 	if err != nil {
 		return nil, err
 	}
-	r := Rules{}
-	for _, x := range f.Rules {
-		if x.Confidence >= MinConfidence {
-			r[normKind(x.Kind)] = x
-		}
-	}
-	return r, nil
+	return f.rules(), nil
 }
 
 // Rules maps a finding kind to its rule.
