@@ -62,7 +62,7 @@ func Validate(e Entry) error {
 	case e.CostUSD != nil && *e.CostUSD < 0:
 		return errors.New("ledger: cost_usd must not be negative")
 	}
-	return nil
+	return validateOutcome(&e)
 }
 
 var appendMu sync.Mutex

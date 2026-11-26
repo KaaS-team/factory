@@ -29,6 +29,11 @@ type RunEnd struct {
 	Usage   api.Usage
 	PR      int
 	EndedAt time.Time
+	// Workflow and Variant name the workflow and prompt variant that ran, for cost per accepted
+	// outcome. Outcome is what repo state says happened to the work; nil while pending.
+	Workflow string
+	Variant  string
+	Outcome  *contract.LedgerOutcome
 }
 
 // Entry builds the ledger line for r. A zero Usage.CostUSD is unknown, so cost_usd is left out
@@ -44,6 +49,9 @@ func (r RunEnd) Entry() ledger.Entry {
 		StartedAt:    r.Session.StartedAt,
 		Status:       r.Status,
 		FailureClass: r.Class,
+		Workflow:     r.Workflow,
+		Variant:      r.Variant,
+		Outcome:      r.Outcome,
 	}
 	if e.Team == "" {
 		e.Team, _, _ = strings.Cut(r.Brief.Repo, "/")

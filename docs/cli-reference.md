@@ -378,6 +378,21 @@ Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
 | `--read-only` | bool | `false` | serve only the read tools; write tools are refused |
 | `--resource-url` | string | `` | public URL of the /mcp endpoint, published in the protected resource metadata (default: FACTORY_OIDC_AUDIENCE when it is a URL) |
 
+## factory metrics
+
+`factory metrics [flags]`
+
+Cost per accepted outcome per workflow or team, or per prompt variant of one workflow
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--by` | string | `workflow` | group by workflow or team |
+| `--json` | bool | `false` | print JSON |
+| `--since` | string | `` | window start, RFC 3339 or YYYY-MM-DD (inclusive) |
+| `--team` | string | `` | only this team |
+| `--until` | string | `` | window end, RFC 3339 or YYYY-MM-DD (exclusive) |
+| `--workflow` | string | `` | compare the prompt variants of this workflow |
+
 ## factory packs
 
 `factory packs`
