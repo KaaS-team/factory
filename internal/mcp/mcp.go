@@ -19,6 +19,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/KaaS-team/factory/internal/api"
+	"github.com/KaaS-team/factory/internal/oidc"
 	"github.com/KaaS-team/factory/internal/serve/hostguard"
 )
 
@@ -45,8 +46,19 @@ type Handlers struct {
 	ExplainConfig func(ctx context.Context, in ExplainConfigInput) (string, error)
 	FirstRun      func(ctx context.Context) (string, error)
 	Report        func(ctx context.Context) (string, error)
+	Version       func(ctx context.Context) (string, error)
+	Doctor        func(ctx context.Context) (string, error)
+	Packs         func(ctx context.Context) (string, error)
+	Shadow        func(ctx context.Context) (string, error)
+	Repomap       func(ctx context.Context, in RepomapInput) (string, error)
 	// ReadOnly hides every write tool, so a call to one is refused (the --read-only flag).
 	ReadOnly bool
+}
+
+// RepomapInput bounds the repository map.
+type RepomapInput struct {
+	Ticket string `json:"ticket,omitempty" jsonschema:"ticket text whose files and identifiers seed the ranking"`
+	Budget int    `json:"budget,omitempty" jsonschema:"token budget of the map; default 1024"`
 }
 
 // Empty is the input of tools that take no arguments.
@@ -404,6 +416,7 @@ func NewCommand(opts ...Option) *cobra.Command {
 	}
 	var httpAddr string
 	var readOnly bool
+	var resource string
 	cmd := &cobra.Command{
 		Use:   "mcp",
 		Short: "Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)",
@@ -413,8 +426,9 @@ func NewCommand(opts ...Option) *cobra.Command {
 				return errors.New("mcp: no control plane wired in this build")
 			}
 			token := os.Getenv(TokenEnv)
-			if httpAddr != "" && token == "" {
-				return fmt.Errorf("mcp: --http needs %s set to a bearer token", TokenEnv)
+			issuer, audience := os.Getenv("FACTORY_OIDC_ISSUER"), os.Getenv("FACTORY_OIDC_AUDIENCE")
+			if httpAddr != "" && token == "" && (issuer == "" || audience == "") {
+				return errors.New("mcp: --http needs FACTORY_OIDC_ISSUER and FACTORY_OIDC_AUDIENCE (OAuth), or " + TokenEnv + " as a static bearer token")
 			}
 			c, h, err := cfg.open()
 			if err != nil {
@@ -425,19 +439,43 @@ func NewCommand(opts ...Option) *cobra.Command {
 			if httpAddr == "" {
 				return srv.Run(cmd.Context(), &sdk.StdioTransport{})
 			}
-			handler, err := Handler(srv, token)
-			if err != nil {
-				return err
-			}
 			ln, err := net.Listen("tcp", BindAddr(httpAddr))
 			if err != nil {
 				return fmt.Errorf("mcp: listen: %w", err)
+			}
+			var handler http.Handler
+			if issuer != "" && audience != "" {
+				v, err := oidc.New(cmd.Context(), oidc.Config{Issuer: issuer, Audience: audience})
+				if err != nil {
+					return fmt.Errorf("mcp: oidc: %w", err)
+				}
+				if resource == "" {
+					resource = audience
+					if !strings.HasPrefix(resource, "http") {
+						resource = "http://" + ln.Addr().String() + "/mcp"
+					}
+				}
+				hro := h
+				hro.ReadOnly = true
+				ro := NewServer(c, hro)
+				h, err := AuthHandler(srv, AuthConfig{Identity: OIDCIdentity(v, "default"), Resource: resource, AuthorizationServers: []string{issuer}, ReadOnly: ro})
+				if err != nil {
+					return err
+				}
+				handler = h
+			} else {
+				h, err := Handler(srv, token)
+				if err != nil {
+					return err
+				}
+				handler = h
 			}
 			_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "mcp: serving http://%s/mcp\n", ln.Addr())
 			return Serve(cmd.Context(), ln, handler)
 		},
 	}
+	cmd.Flags().StringVar(&resource, "resource-url", "", "public URL of the /mcp endpoint, published in the protected resource metadata (default: FACTORY_OIDC_AUDIENCE when it is a URL)")
 	cmd.Flags().BoolVar(&readOnly, "read-only", false, "serve only the read tools; write tools are refused")
-	cmd.Flags().StringVar(&httpAddr, "http", "", "serve streamable HTTP at /mcp on this address (default host 127.0.0.1); the bearer token is read from "+TokenEnv)
+	cmd.Flags().StringVar(&httpAddr, "http", "", "serve streamable HTTP at /mcp on this address (default host 127.0.0.1); with FACTORY_OIDC_ISSUER and FACTORY_OIDC_AUDIENCE it requires OIDC bearer tokens; otherwise the static token is read from "+TokenEnv)
 	return cmd
 }

@@ -2,7 +2,7 @@
 
 ## Status
 
-accepted
+superseded: superseded by the batched merge queue in `internal/mergeq`.
 
 ## Context
 
@@ -39,3 +39,13 @@ The lease is released in a `finally`, so a failed step does not leave the repo l
 - Merge in arrival order without a lease. Rejected: two rebases on the same base can race.
 - Merge without rebasing. Rejected: the gates would then have passed on a base that no longer
   matches the one the merge lands on.
+
+## Current code
+
+`internal/mergeq` replaces the per-repo directory lease. `Plan` (`internal/mergeq/plan.go`) decides
+and `Runner.Run` (`internal/mergeq/run.go`) tests a batch of ready pull requests together on a temp
+ref, fast-forwards the base only to a ref whose gate passed on exactly those heads, and bisects a red
+batch to the culprit. A batch size of one gives the old one-at-a-time behaviour. The core drives the
+queue through the `Queue` port in `internal/core/ports.go`.
+
+The text above is kept as history. Its `src/` and `scripts/` paths are in tag `ts-final`.

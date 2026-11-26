@@ -9,6 +9,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"time"
 )
 
@@ -118,6 +119,10 @@ type Caps struct {
 	CanPushWorkflows bool `json:"can_push_workflows"`       // cloud tokens cannot push .github/workflows
 	Remote           bool `json:"remote"`
 }
+
+// ErrUnknownSession is what a Dispatcher returns, wrapped, when it holds no run for a session
+// (the process restarted, or the ticket's label outlived its run). The core releases the ticket.
+var ErrUnknownSession = errors.New("unknown session")
 
 // Dispatcher starts and controls sessions: RemoteTrigger routines, the
 // documented routine fire endpoint, or a local agent CLI.

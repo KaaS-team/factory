@@ -338,7 +338,7 @@ func TestCoreQueueEnqueueTwiceIsNoOp(t *testing.T) {
 }
 
 func TestQueuedMarkerWireFormat(t *testing.T) {
-	if got, want := queuedMarker(7, "abc"), `<!-- factory:queued {"pr":7,"head":"abc"} -->`; got != want {
+	if got, want := queuedMarker(7, "abc", ""), `<!-- factory:queued {"pr":7,"head":"abc"} -->`; got != want {
 		t.Fatalf("queue marker = %q, want %q", got, want)
 	}
 }
@@ -349,8 +349,8 @@ func TestMarkerRoundTrip(t *testing.T) {
 		ok         bool
 		pr         int
 	}{
-		{"plain", queuedMarker(7, "abc"), true, 7},
-		{"embedded", "hello\n" + queuedMarker(9, "d") + "\nbye", true, 9},
+		{"plain", queuedMarker(7, "abc", ""), true, 7},
+		{"embedded", "hello\n" + queuedMarker(9, "d", "") + "\nbye", true, 9},
 		{"none", "no marker", false, 0},
 		{"bad json", "<!-- factory:queued {nope} -->", false, 0},
 		{"zero pr", `<!-- factory:queued {"pr":0,"head":"x"} -->`, false, 0},
@@ -402,5 +402,33 @@ func TestQueueMarkersAllowedGateOutputNot(t *testing.T) {
 	}
 	if !slices.Equal(g.k.allowed, []bool{true, true, false}) {
 		t.Fatalf("allowed per comment = %v, want [true true false]", g.k.allowed)
+	}
+}
+
+// An approval is the head at enqueue. A push after it is refused, not requeued, and the ticket
+// goes to needs-human with both SHAs in the comment.
+func TestCoreQueueRefusesPushAfterApproval(t *testing.T) {
+	g := newRig(t, 1)
+	q := g.queue()
+	g.enqueue(t, q, 1)
+	ctx := context.Background()
+	es, _ := q.Queued(ctx)
+	approved := es[0].Head
+	if err := (coreStore{q}).Requeue(ctx, "T1", "pushed-later"); err != nil {
+		t.Fatal(err)
+	}
+	m, err := q.latestMarker(ctx, "T1")
+	if err != nil || m.Approved != approved || m.Head != "pushed-later" {
+		t.Fatalf("marker %+v err %v, want approved %q kept", m, err, approved)
+	}
+	st, err := (coreStore{q}).PR(ctx, "T1")
+	if err != nil || st.Approved != approved {
+		t.Fatalf("pr state %+v err %v", st, err)
+	}
+	if err := (coreStore{q}).Refuse(ctx, "T1", approved, "pushed-later"); err != nil {
+		t.Fatal(err)
+	}
+	if p := g.k.Phases["T1"]; p != api.PhaseNeedsHuman {
+		t.Fatalf("phase %s, want needs-human", p)
 	}
 }

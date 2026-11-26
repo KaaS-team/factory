@@ -6,6 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"time"
+
+	"github.com/KaaS-team/factory/ee/contract"
+	"github.com/KaaS-team/factory/internal/policygate"
 )
 
 // ErrConflict is returned by Git.Merge when the heads do not merge cleanly onto the base.
@@ -18,6 +21,7 @@ var ErrBaseMoved = errors.New("mergeq: base moved")
 type Merged struct {
 	Ref  string
 	Base string
+	Tip  string // the commit Ref points at; empty when the Git cannot say
 }
 
 // Git is the repository access Run needs.
@@ -68,6 +72,7 @@ type Report struct {
 	Landed   []string
 	Ejected  []Ejection
 	Dropped  []string
+	Refused  []string // PRs whose head moved after approval; they wait for a new approval
 	Returned []string // PRs the precheck sent back to their agent
 	GateRuns int
 }
@@ -78,20 +83,35 @@ type Config struct {
 	BatchTimeout   time.Duration // a gate run longer than this counts as a red result; no limit when zero
 	PushBackoff    time.Duration // first wait after a push that was not a fast-forward; no wait when zero
 	PushBackoffMax time.Duration // cap on that wait
+	Pin            bool          // a PR lands only at the head a human approved; a push after approval refuses it
+	Speculate      bool          // test a stacked prefix beside each batch, in parallel, so a red batch splits sooner
 	PushAttempts   int           // pushes of one batch that may be rejected as not a fast-forward before it is parked as failed; DefaultPushAttempts when not positive
 }
 
 // DefaultPushAttempts is Config.PushAttempts when it is not positive.
 const DefaultPushAttempts = 5
 
+// Refuser takes a PR out of the queue because its head moved after approval. A Store that does not
+// implement it gets Eject with the reason as the log tail.
+type Refuser interface {
+	Refuse(ctx context.Context, id, approved, head string) error
+}
+
+// Ledger records what landed. approvedSHA is the head a human approved; mergedSHA is the commit the
+// base was moved to.
+type Ledger interface {
+	Landed(ctx context.Context, id, approvedSHA, mergedSHA string) error
+}
+
 // Runner applies Plan through its interfaces.
 type Runner struct {
-	Git   Git
-	Gate  Gate
-	Store Store
-	Cfg   Config
-	Sleep func(ctx context.Context, d time.Duration) error // waits between push retries; real time when nil
-	Pre   *Precheck                                        // optional; nil skips the stale-diff and syntax precheck
+	Git    Git
+	Gate   Gate
+	Store  Store
+	Cfg    Config
+	Sleep  func(ctx context.Context, d time.Duration) error // waits between push retries; real time when nil
+	Ledger Ledger                                           // optional; records approved_sha and merged_sha for each landed PR
+	Pre    *Precheck                                        // optional; nil skips the stale-diff and syntax precheck
 }
 
 // Run plans and applies actions until the queue has nothing left to do or ctx ends. The base only
@@ -108,7 +128,7 @@ func (r *Runner) Run(ctx context.Context) (Report, error) {
 		if err != nil {
 			return rep, fmt.Errorf("queued: %w", err)
 		}
-		st := State{BatchSize: r.Cfg.BatchSize, PRs: map[string]PRState{}, Results: results}
+		st := State{BatchSize: r.Cfg.BatchSize, Pin: r.Cfg.Pin, PRs: map[string]PRState{}, Results: results}
 		if st.Base, err = r.Git.Base(ctx); err != nil {
 			return rep, fmt.Errorf("base: %w", err)
 		}
@@ -117,12 +137,18 @@ func (r *Runner) Run(ctx context.Context) (Report, error) {
 				return rep, fmt.Errorf("pr %s: %w", e.ID, err)
 			}
 		}
+		if queue, err = r.policy(ctx, queue, &rep); err != nil {
+			return rep, err
+		}
 		if queue, err = r.precheck(ctx, queue, st, &rep); err != nil {
 			return rep, err
 		}
 		actions := Plan(queue, st)
 		if len(actions) == 0 {
 			return rep, nil
+		}
+		if actions, err = r.speculate(ctx, actions, results, &rep); err != nil {
+			return rep, err
 		}
 		for _, a := range actions {
 			if results, err = r.apply(ctx, a, st, results, &rep, &pushRetries); err != nil {
@@ -179,6 +205,12 @@ func (r *Runner) apply(ctx context.Context, a Action, st State, results map[stri
 		return results, r.Store.Drop(ctx, a.ID, a.Reason)
 	case KindRequeue:
 		return results, r.Store.Requeue(ctx, a.ID, a.Head)
+	case KindRefuse:
+		rep.Refused = append(rep.Refused, a.ID)
+		if rf, ok := r.Store.(Refuser); ok {
+			return results, rf.Refuse(ctx, a.ID, st.PRs[a.ID].Approved, a.Head)
+		}
+		return results, r.Store.Eject(ctx, a.ID, "head moved after approval; approve the new head")
 	case KindEject:
 		rep.Ejected = append(rep.Ejected, Ejection{ID: a.ID, LogTail: a.Log})
 		return results, r.Store.Eject(ctx, a.ID, a.Log)
@@ -200,38 +232,56 @@ func (r *Runner) apply(ctx context.Context, a Action, st State, results map[stri
 }
 
 func (r *Runner) test(ctx context.Context, a Action, rep *Report) (Result, error) {
-	res := Result{IDs: a.IDs, Heads: a.Heads}
+	res, done, err := r.merge(ctx, a)
+	if done || err != nil {
+		return res, err
+	}
+	res, err = r.gate(ctx, res)
+	if err == nil {
+		rep.GateRuns++
+	}
+	return res, err
+}
+
+// merge stacks the action's heads onto the base. done is true when the merge conflicted: the result is red.
+func (r *Runner) merge(ctx context.Context, a Action) (res Result, done bool, err error) {
+	res = Result{IDs: a.IDs, Heads: a.Heads}
 	m, err := r.Git.Merge(ctx, a.Heads)
 	if errors.Is(err, ErrConflict) {
 		res.Log = err.Error()
-		return res, nil
+		return res, true, nil
 	}
 	if err != nil {
-		return res, fmt.Errorf("merge: %w", err)
+		return res, false, fmt.Errorf("merge: %w", err)
 	}
-	res.Base, res.Ref = m.Base, m.Ref
+	res.Base, res.Ref, res.Tip = m.Base, m.Ref, m.Tip
+	return res, false, nil
+}
+
+// gate runs the gate on res.Ref. It is safe to call from several goroutines.
+func (r *Runner) gate(ctx context.Context, res Result) (Result, error) {
 	gctx := ctx
 	if r.Cfg.BatchTimeout > 0 {
 		var cancel context.CancelFunc
 		gctx, cancel = context.WithTimeout(ctx, r.Cfg.BatchTimeout)
 		defer cancel()
 	}
-	v, err := r.Gate.Run(gctx, m.Ref)
+	v, err := r.Gate.Run(gctx, res.Ref)
 	if errors.Is(err, context.DeadlineExceeded) && ctx.Err() == nil && gctx.Err() != nil {
-		rep.GateRuns++
 		res.Log = TimeoutLog // a timeout is a red result, split like a CI failure
 		return res, nil
 	}
 	if err != nil {
 		return res, fmt.Errorf("gate: %w", err)
 	}
-	rep.GateRuns++
 	res.Pass, res.Log = v.Pass, v.LogTail
 	return res, nil
 }
 
 func (r *Runner) land(ctx context.Context, a Action, st State, results map[string]Result, rep *Report, pushRetries *int) (map[string]Result, error) {
-	// A head that moved since the plan was made invalidates the green result: plan again.
+	// A head that moved since the plan was made invalidates the green result: plan again. With Pin, the next plan refuses a
+	// head that is not the approved SHA, and a head that moved cannot land on the old result.
+	approved := make([]string, len(a.IDs))
 	for i, id := range a.IDs {
 		p, err := r.Store.PR(ctx, id)
 		if err != nil {
@@ -240,6 +290,7 @@ func (r *Runner) land(ctx context.Context, a Action, st State, results map[strin
 		if !p.Open || p.Merged || p.Head != a.Heads[i] {
 			return results, nil
 		}
+		approved[i] = p.Approved
 	}
 	if err := r.Git.FastForward(ctx, a.Ref); err != nil {
 		if PushOutcome(err) == OutcomeRetryBatch {
@@ -276,5 +327,34 @@ func (r *Runner) land(ctx context.Context, a Action, st State, results map[strin
 	if err := r.Store.Landed(ctx, a.IDs); err != nil {
 		return results, fmt.Errorf("landed: %w", err)
 	}
-	return AfterLand(results, a.IDs, a.Heads), nil
+	if r.Ledger != nil {
+		tip := a.Tip
+		if tip == "" {
+			tip = a.Ref
+		}
+		for i, id := range a.IDs {
+			if err := r.Ledger.Landed(ctx, id, approved[i], tip); err != nil {
+				return results, fmt.Errorf("ledger %s: %w", id, err)
+			}
+		}
+	}
+	return AfterLand(results, a.IDs, a.Heads, r.Cfg.Speculate), nil
+}
+
+// policy ejects the PRs whose risk class the policy does not allow to merge without a human. A PR
+// with no risk class counts as outside the policy. With no policy configured nothing is ejected.
+func (r *Runner) policy(ctx context.Context, queue []Entry, rep *Report) ([]Entry, error) {
+	var keep []Entry
+	for _, e := range queue {
+		err := policygate.Check(ctx, contract.CheckAutoMerge, e.Risk)
+		if err == nil {
+			keep = append(keep, e)
+			continue
+		}
+		if err := r.Store.Eject(ctx, e.ID, err.Error()+"; a human review is needed"); err != nil {
+			return nil, fmt.Errorf("eject %s: %w", e.ID, err)
+		}
+		rep.Ejected = append(rep.Ejected, Ejection{ID: e.ID, LogTail: err.Error()})
+	}
+	return keep, nil
 }

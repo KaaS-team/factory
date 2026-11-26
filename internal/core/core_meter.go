@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/KaaS-team/factory/internal/api"
@@ -35,6 +36,10 @@ func (c *Core) meterPass(ctx context.Context) {
 		}
 		sess := c.sessionOf(e)
 		u, err := c.d.Dispatcher.Usage(ctx, sess)
+		if errors.Is(err, api.ErrUnknownSession) {
+			c.release(ctx, id, e)
+			continue
+		}
 		if err != nil {
 			c.report(err)
 			continue
@@ -68,4 +73,25 @@ func (c *Core) meterPass(ctx context.Context) {
 			c.escalate(ctx, id, "budget used")
 		}
 	}
+}
+
+// release frees the slot of a ticket whose session the dispatcher no longer knows. It is requeued
+// for its next attempt at once, or marked for a human when the attempt cap is reached. One comment
+// says why. The lost session's work is not recovered.
+func (c *Core) release(ctx context.Context, id api.TicketID, e reconcile.Entry) {
+	limit := c.cfg.Reconcile.MaxAttempts
+	if limit <= 0 {
+		limit = 3 // reconcile's default
+	}
+	if e.Attempt >= limit {
+		c.escalate(ctx, id, "its session was lost and the attempt limit is reached")
+		return
+	}
+	if err := c.d.Tracker.SetPhase(ctx, id, api.PhaseRetryQueue); err != nil {
+		c.report(err)
+		return
+	}
+	e.Phase, e.RetryAt, e.Session, e.Error = api.PhaseRetryQueue, c.d.Clock.Now().Add(c.cfg.Reconcile.Backoff(e.Attempt)), nil, "session lost"
+	c.state.Entries[id] = e
+	c.report(c.d.Tracker.Comment(ctx, id, "Session lost: the dispatcher has no run for it. Requeued for another attempt."))
 }

@@ -1,0 +1,116 @@
+openapi: 3.0.3
+info:
+  title: KaaS factory analytics API
+  version: "1"
+  description: >
+    Read-only run and spend analytics. Every number comes from the run ledger
+    (docs/contracts/run-ledger.v1.schema.json). Send a bearer API token. Runs need the
+    run.read action and spend needs budget.read, checked per team and repo. Model names, tokens
+    and cost appear in runs only for a caller who also has budget.read.
+servers:
+  - url: /
+security:
+  - bearer: []
+paths:
+  /api/v1/analytics/runs:
+    get:
+      summary: List ledger entries, oldest first
+      parameters:
+        - $ref: "#/components/parameters/team"
+        - $ref: "#/components/parameters/repo"
+        - $ref: "#/components/parameters/harness"
+        - $ref: "#/components/parameters/since"
+        - $ref: "#/components/parameters/until"
+        - $ref: "#/components/parameters/format"
+      responses:
+        "200":
+          description: Entries that match. CSV has one row per run.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [runs]
+                properties:
+                  runs:
+                    type: array
+                    items:
+                      $ref: "run-ledger.v1.schema.json"
+            text/csv:
+              schema:
+                type: string
+        "400": {$ref: "#/components/responses/error"}
+        "401": {$ref: "#/components/responses/error"}
+        "403": {$ref: "#/components/responses/error"}
+  /api/v1/analytics/spend:
+    get:
+      summary: Spend per team and for the whole factory
+      parameters:
+        - $ref: "#/components/parameters/team"
+        - $ref: "#/components/parameters/repo"
+        - $ref: "#/components/parameters/harness"
+        - $ref: "#/components/parameters/since"
+        - $ref: "#/components/parameters/until"
+        - $ref: "#/components/parameters/format"
+      responses:
+        "200":
+          description: Totals. The same shape as .factory/ledger/spend.json.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Summary"
+            text/csv:
+              schema:
+                type: string
+        "400": {$ref: "#/components/responses/error"}
+        "401": {$ref: "#/components/responses/error"}
+        "403": {$ref: "#/components/responses/error"}
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+  parameters:
+    team: {name: team, in: query, schema: {type: string}}
+    repo: {name: repo, in: query, description: owner/name, schema: {type: string}}
+    harness: {name: harness, in: query, schema: {type: string}}
+    since:
+      name: since
+      in: query
+      description: Inclusive start of started_at. RFC 3339 or YYYY-MM-DD (UTC).
+      schema: {type: string}
+    until:
+      name: until
+      in: query
+      description: Exclusive end of started_at. RFC 3339 or YYYY-MM-DD (UTC).
+      schema: {type: string}
+    format: {name: format, in: query, schema: {type: string, enum: [json, csv], default: json}}
+  responses:
+    error:
+      description: A plain message, never a cause.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [error]
+            properties:
+              error: {type: string}
+  schemas:
+    Totals:
+      type: object
+      properties:
+        runs: {type: integer}
+        merged: {type: integer}
+        failed: {type: integer}
+        cost_usd: {type: number}
+        input_tokens: {type: integer}
+        output_tokens: {type: integer}
+        cache_read_tokens: {type: integer}
+        cache_write_tokens: {type: integer}
+        cost_per_merged_pr_usd: {type: number}
+    Summary:
+      type: object
+      properties:
+        factory: {$ref: "#/components/schemas/Totals"}
+        teams:
+          type: object
+          additionalProperties: {$ref: "#/components/schemas/Totals"}

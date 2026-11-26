@@ -27,10 +27,10 @@ func TestCommandFixOpensDraftPR(t *testing.T) {
 	}
 }
 
-// TestCommandFlagsWithExec pins which flags exist: --fix only with an Exec builder.
+// TestCommandFlagsWithExec pins which flags exist: --fix always exists; with an Exec builder it also dispatches.
 func TestCommandFlagsWithExec(t *testing.T) {
-	if NewCommand().Flags().Lookup("fix") != nil {
-		t.Error("--fix without WithExec")
+	if NewCommand().Flags().Lookup("fix") == nil {
+		t.Error("--fix is the readiness repair and exists without WithExec")
 	}
 	c := NewCommand(WithExec(func(context.Context) (Exec, error) { return Exec{}, nil }))
 	for _, f := range []string{"fix", "dry-run", "gh", "annotations", "sarif"} {

@@ -59,3 +59,31 @@ func firstRunExec(ctx context.Context) (firstrun.Exec, error) {
 		Base:       c.Base,
 	}, nil
 }
+
+// firstRunProtection builds the branch protection check of `first-run --ready` from the config. A
+// 404 from GitHub means the branch has no protection rule.
+func firstRunProtection(ctx context.Context) (firstrun.Protection, error) {
+	l, err := loadConfig(nil)
+	if err != nil {
+		return nil, err
+	}
+	g, err := newGitHubConn(l.Config)
+	if err != nil {
+		return nil, err
+	}
+	client, err := g.client()
+	if err != nil {
+		return nil, err
+	}
+	base := l.Config.Base
+	if base == "" {
+		base = "main"
+	}
+	return func(ctx context.Context) (bool, error) {
+		_, resp, err := client.Repositories.GetBranchProtection(ctx, g.owner, g.repo, base)
+		if resp != nil && resp.StatusCode == 404 {
+			return false, nil
+		}
+		return err == nil, err
+	}, nil
+}

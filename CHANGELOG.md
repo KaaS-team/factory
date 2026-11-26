@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- E3 (ee build): a hash-chained audit log with `factory audit verify`, `search` and `forward` (file, Splunk HEC, webhook), and enforced budgets: a run whose team budget is spent is refused before it starts, and a running session is stopped at its cap.
+- `factory worker`: self-hosted workers that connect outbound only, lease runs from a control plane with expiry and re-leasing, and drain on SIGTERM. A Dockerfile and a Helm chart in `deploy/helm/factory` run the plane and the worker pools.
+- Intake: Slack mentions, Sentry issue alerts and `POST /api/v1/tickets` create tickets, each recorded as `ticket.source`; Jira Data Center is supported.
+- Stacked PRs and program mode: `factory stack <epic>` opens an epic as a stack of PRs that retargets and rebases as lower ones change or merge, `factory program <epic>` runs a tech-lead session over worker tickets, and `factory resume <run>` continues either after a crash from `.factory/runs`.
+- Review drops findings that do not cite a diff line and quote it, learns rules from dismissed findings (`factory review-dismiss`, `.factory/review-rules.yml`), dedupes across rounds, cuts low-confidence findings and merges an optional second reviewer by citation.
+- Run ledger (`.factory/ledger/runs.jsonl`, `spend.json`), the analytics API (`/api/v1/analytics/runs` and `/spend`, JSON and CSV) and an OTLP export of run counts, durations and cost.
+
 ## v6.3.0
 
 A stricter verify and review loop, a safer runner, and the groundwork for building on cloud agents.

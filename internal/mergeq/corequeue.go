@@ -34,8 +34,10 @@ type Deps struct {
 	Heads   Heads
 	Cfg     Config
 	Applier Applier // optional; when set, a PR that no longer applies to the base goes back to its agent
+	Ledger  Ledger  // optional; records approved_sha and merged_sha for each landed PR
 	Syntax  Syntax  // optional; needs Paths too
 	Paths   func(ctx context.Context, id, head string) ([]string, error)
+	Guard   *Guard // optional; when set, a PR lands only with proof and an allowed risk class, or a human approval
 }
 
 // CoreQueue is the merge queue the core loop feeds: a Runner over tracker-held queue state.
@@ -51,10 +53,13 @@ func NewCoreQueue(d Deps) *CoreQueue { return &CoreQueue{d: d} }
 type queued struct {
 	PR   int    `json:"pr"`
 	Head string `json:"head"`
+	// Approved is the head SHA approved when the ticket was queued. A requeue keeps it, so a push after
+	// approval never becomes approved. Markers written before pinning have none; their first head counts.
+	Approved string `json:"approved,omitempty"`
 }
 
-func queuedMarker(pr int, head string) string {
-	b, _ := json.Marshal(queued{PR: pr, Head: head})
+func queuedMarker(pr int, head, approved string) string {
+	b, _ := json.Marshal(queued{PR: pr, Head: head, Approved: approved})
 	return marker.Wrap("queued", string(b))
 }
 
@@ -80,6 +85,12 @@ func (q *CoreQueue) latestMarker(ctx context.Context, id api.TicketID) (queued, 
 	found := false
 	for _, b := range bodies {
 		if m, ok := parseQueuedMarker(b); ok {
+			if !found && m.Approved == "" {
+				m.Approved = m.Head
+			}
+			if found && m.Approved == "" {
+				m.Approved = out.Approved
+			}
 			out, found = m, true
 		}
 	}
@@ -89,7 +100,7 @@ func (q *CoreQueue) latestMarker(ctx context.Context, id api.TicketID) (queued, 
 	return out, nil
 }
 
-// Enqueue records the PR number and its current head on the ticket and moves it to the queued phase.
+// Enqueue is the approval: it records the PR number and its current head, as the approved SHA, on the ticket and moves it to the queued phase.
 // A ticket that is already queued is left as it is.
 func (q *CoreQueue) Enqueue(ctx context.Context, id api.TicketID, pr int) error {
 	in, err := q.d.Tracker.InPhase(ctx, api.PhaseQueued)
@@ -105,7 +116,7 @@ func (q *CoreQueue) Enqueue(ctx context.Context, id api.TicketID, pr int) error 
 	if err != nil {
 		return fmt.Errorf("pr %d: %w", pr, err)
 	}
-	if err := q.d.Tracker.Comment(marker.Allow(ctx), id, "Queued for merge as PR #"+strconv.Itoa(pr)+".\n\n"+queuedMarker(pr, st.Head)); err != nil {
+	if err := q.d.Tracker.Comment(marker.Allow(ctx), id, "Queued for merge as PR #"+strconv.Itoa(pr)+".\n\n"+queuedMarker(pr, st.Head, st.Head)); err != nil {
 		return err
 	}
 	return q.d.Tracker.SetPhase(ctx, id, api.PhaseQueued)
@@ -123,7 +134,7 @@ func (q *CoreQueue) Queued(ctx context.Context) ([]Entry, error) {
 		if err != nil {
 			return nil, err
 		}
-		out = append(out, Entry{ID: string(id), Head: m.Head})
+		out = append(out, Entry{ID: string(id), Head: m.Head, Approved: m.Approved})
 	}
 	return out, nil
 }
@@ -133,7 +144,13 @@ func (q *CoreQueue) Queued(ctx context.Context) ([]Entry, error) {
 func (q *CoreQueue) Run(ctx context.Context) (Report, error) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
-	r := &Runner{Git: q.d.Git, Gate: q.d.Gate, Store: coreStore{q}, Cfg: q.d.Cfg}
+	var st Store = coreStore{q}
+	if q.d.Guard != nil {
+		st = guardStore{Store: st, q: q}
+	}
+	cfg := q.d.Cfg
+	cfg.Pin = true // an approval is pinned to its head SHA
+	r := &Runner{Git: q.d.Git, Gate: q.d.Gate, Store: st, Cfg: cfg, Ledger: q.d.Ledger}
 	if q.d.Applier != nil {
 		r.Pre = &Precheck{Applier: q.d.Applier, Syntax: q.d.Syntax, Paths: q.d.Paths, Return: q.returnToAgent}
 	}
@@ -160,7 +177,27 @@ func (s coreStore) PR(ctx context.Context, id string) (PRState, error) {
 	if err != nil {
 		return PRState{}, err
 	}
-	return s.q.d.Heads.PR(ctx, m.PR)
+	st, err := s.q.d.Heads.PR(ctx, m.PR)
+	st.Approved = m.Approved
+	return st, err
+}
+
+// Refuse takes a ticket out of the queue because its PR moved after approval. The ticket goes to
+// needs-human; queueing it again approves the new head.
+func (s coreStore) Refuse(ctx context.Context, id, approved, head string) error {
+	tid := api.TicketID(id)
+	body := "Needs a human: the PR changed after it was approved, so it was not merged. Approved " + short(approved) + ", now " + short(head) + ". Review the new commits and queue it again to approve them."
+	if err := s.q.d.Tracker.Comment(ctx, tid, body); err != nil {
+		return err
+	}
+	return s.q.d.Tracker.SetPhase(ctx, tid, api.PhaseNeedsHuman)
+}
+
+func short(sha string) string {
+	if len(sha) > 7 {
+		return sha[:7]
+	}
+	return sha
 }
 
 func (s coreStore) Landed(ctx context.Context, ids []string) error {
@@ -180,6 +217,15 @@ func (s coreStore) Eject(ctx context.Context, id, logTail string) error {
 	return s.q.d.Tracker.SetPhase(ctx, tid, api.PhaseNeedsHuman)
 }
 
+// hold comments the reason on the ticket and moves it to needs-human.
+func (s coreStore) hold(ctx context.Context, id, reason string) error {
+	tid := api.TicketID(id)
+	if err := s.q.d.Tracker.Comment(ctx, tid, "Needs a human: "+reason); err != nil {
+		return err
+	}
+	return s.q.d.Tracker.SetPhase(ctx, tid, api.PhaseNeedsHuman)
+}
+
 func (s coreStore) Drop(ctx context.Context, id, reason string) error {
 	p := api.PhaseCanceled
 	if reason == ReasonMerged {
@@ -194,5 +240,5 @@ func (s coreStore) Requeue(ctx context.Context, id, head string) error {
 	if err != nil {
 		return err
 	}
-	return s.q.d.Tracker.Comment(marker.Allow(ctx), api.TicketID(id), "The PR moved; queued again at its new head.\n\n"+queuedMarker(m.PR, head))
+	return s.q.d.Tracker.Comment(marker.Allow(ctx), api.TicketID(id), "The PR moved; queued again at its new head.\n\n"+queuedMarker(m.PR, head, m.Approved))
 }

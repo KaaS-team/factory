@@ -5,5 +5,5 @@ import (
 )
 
 func init() {
-	register("audit", audit.NewCommand, noTool("gap: no audit tool yet; E3 owns the audit read path"))
+	register("audit", audit.NewCommand, noTool("gap: an audit tool needs an api.Control method for the log, and api is W0; the CLI covers export, verify, search and forward"))
 }

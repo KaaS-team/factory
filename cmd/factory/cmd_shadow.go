@@ -5,5 +5,5 @@ import (
 )
 
 func init() {
-	register("shadow", shadow.NewCommand, noTool("gap: no shadow tool yet"))
+	register("shadow", shadow.NewCommand)
 }

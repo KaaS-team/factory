@@ -194,6 +194,22 @@ func (is *Issuer) sweep() {
 	}
 }
 
+// Check verifies a token like Verify and also refuses one on the blocklist.
+func (is *Issuer) Check(tok string) (Claims, error) {
+	c, err := is.Verify(tok)
+	if err != nil {
+		return Claims{}, err
+	}
+	is.sweep()
+	is.mu.Lock()
+	_, revoked := is.blocked[c.ID]
+	is.mu.Unlock()
+	if revoked {
+		return Claims{}, ErrRevoked
+	}
+	return c, nil
+}
+
 // Authorize is the check before a side effect: a valid, unrevoked token, then the gate's live
 // answer for action.
 func (is *Issuer) Authorize(ctx context.Context, g Gate, tok, action string) error {

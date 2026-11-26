@@ -1,9 +1,13 @@
 package budget
 
 import (
+	"context"
 	"errors"
+	"strings"
 	"testing"
 	"time"
+
+	"github.com/KaaS-team/factory/ee/contract"
 )
 
 func ts(s string) time.Time {
@@ -108,4 +112,34 @@ func TestAllow(t *testing.T) {
 	if err := Allow("team:none"); err != nil {
 		t.Fatalf("no budget must allow: %v", err)
 	}
+}
+
+func TestEnforcerRefusesBelowEstimateAndWrapsBothSentinels(t *testing.T) {
+	SetEnforcer(&Enforcer{Estimate: 50, Open: func() (contract.Budget, error) { return fixedBudget{left: 49}, nil }})
+	defer SetEnforcer(nil)
+	err := Allow("team:acme")
+	if !errors.Is(err, ErrOverBudget) || !errors.Is(err, contract.ErrBudgetExceeded) {
+		t.Fatalf("got %v", err)
+	}
+	if strings.ContainsAny(err.Error(), "0123456789$") {
+		t.Errorf("the refusal names an amount: %v", err)
+	}
+	SetEnforcer(&Enforcer{Estimate: 50, Open: func() (contract.Budget, error) { return fixedBudget{left: 50}, nil }})
+	if err := Allow("team:acme"); err != nil {
+		t.Errorf("enough left: %v", err)
+	}
+	if err := Allow("client:acme/app"); err != nil {
+		t.Errorf("a client scope has no contract key: %v", err)
+	}
+}
+
+type fixedBudget struct{ left contract.Micros }
+
+func (fixedBudget) Reserve(context.Context, []contract.BudgetKey, contract.Micros) (contract.Reservation, error) {
+	return contract.Reservation{}, nil
+}
+func (fixedBudget) Commit(context.Context, string, contract.Micros) error { return nil }
+func (fixedBudget) Release(context.Context, string) error                 { return nil }
+func (f fixedBudget) Remaining(context.Context, contract.BudgetKey) (contract.Micros, bool, error) {
+	return f.left, true, nil
 }

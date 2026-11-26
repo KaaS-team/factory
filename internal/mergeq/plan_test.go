@@ -120,7 +120,7 @@ func TestPlan(t *testing.T) {
 func TestAfterLandInfersRedRemainder(t *testing.T) {
 	red := res(ids("1", "2", "3", "4"), ids("h1", "h2", "h3", "h4"), "B", false)
 	in := map[string]Result{Key(red.IDs, red.Heads): red}
-	out := AfterLand(in, ids("1", "2"), ids("h1", "h2"))
+	out := AfterLand(in, ids("1", "2"), ids("h1", "h2"), false)
 	got, ok := out[Key(ids("3", "4"), ids("h3", "h4"))]
 	if !ok || got.Pass || !got.Inferred || got.Log != red.Log {
 		t.Fatalf("want inferred red for 3,4, got %+v ok=%v", got, ok)
@@ -133,7 +133,7 @@ func TestAfterLandInfersRedRemainder(t *testing.T) {
 	other := res(ids("5", "6"), ids("h5", "h6"), "B", false)
 	same := res(ids("1", "2"), ids("h1", "h2"), "B", false)
 	moved := res(ids("1", "2", "3"), ids("h1", "hX", "h3"), "B", false)
-	out = AfterLand(map[string]Result{"g": green, "o": other, "s": same, "m": moved}, ids("1", "2"), ids("h1", "h2"))
+	out = AfterLand(map[string]Result{"g": green, "o": other, "s": same, "m": moved}, ids("1", "2"), ids("h1", "h2"), false)
 	if len(out) != 4 {
 		t.Fatalf("want no inferred results, got %d entries", len(out))
 	}

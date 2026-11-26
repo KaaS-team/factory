@@ -1,0 +1,64 @@
+openapi: 3.0.3
+info:
+  title: Factory intake
+  version: "1"
+  description: Create tickets from outside. Slack and Sentry call their own endpoints with their own signatures.
+paths:
+  /api/v1/tickets:
+    post:
+      summary: Create a ticket
+      description: >
+        Needs an api token whose principal may run.start in its org. Idempotency-Key is required.
+        A repeat with the same key and body returns the first ticket with 200 and
+        Idempotent-Replayed true. The same key with another body is 409.
+      security: [{bearer: []}]
+      parameters:
+        - {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 1, maxLength: 255}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title: {type: string, minLength: 1}
+                body: {type: string}
+                url: {type: string, description: Where the work came from}
+      responses:
+        "201": {description: Created, content: {application/json: {schema: {$ref: "#/components/schemas/Ticket"}}}}
+        "200": {description: Replay of an earlier request, content: {application/json: {schema: {$ref: "#/components/schemas/Ticket"}}}}
+        "400": {description: Missing key or title, content: {application/json: {schema: {$ref: "#/components/schemas/Error"}}}}
+        "401": {description: Missing or invalid token, content: {application/json: {schema: {$ref: "#/components/schemas/Error"}}}}
+        "403": {description: The principal may not start runs, content: {application/json: {schema: {$ref: "#/components/schemas/Error"}}}}
+        "409": {description: Key reused with a different body, content: {application/json: {schema: {$ref: "#/components/schemas/Error"}}}}
+  /intake/slack/events:
+    post:
+      summary: Slack Events API endpoint
+      description: Verifies X-Slack-Signature (v0, five minute window). An app_mention creates a ticket and the bot replies in the thread.
+      responses:
+        "200": {description: Accepted}
+        "401": {description: Bad or stale signature}
+  /intake/sentry:
+    post:
+      summary: Sentry issue alert webhook
+      description: Verifies Sentry-Hook-Signature. Tickets dedupe by Sentry issue id.
+      responses:
+        "200": {description: "Body has ticket and created; created is false for a repeat"}
+        "401": {description: Bad signature}
+components:
+  securitySchemes:
+    bearer: {type: http, scheme: bearer}
+  schemas:
+    Ticket:
+      type: object
+      required: [id, source, title]
+      properties:
+        id: {type: string, example: api-1}
+        source: {type: string, enum: [slack, sentry, api]}
+        title: {type: string}
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: {type: string}

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-plane
+spec:
+  replicas: {{ .Values.controlPlane.replicas }}
+  selector:
+    matchLabels: {app.kubernetes.io/name: factory, app.kubernetes.io/component: plane, app.kubernetes.io/instance: {{ .Release.Name }}}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: factory, app.kubernetes.io/component: plane, app.kubernetes.io/instance: {{ .Release.Name }}}
+    spec:
+      serviceAccountName: {{ include "factory.sa" . }}
+      automountServiceAccountToken: false
+      securityContext: {runAsNonRoot: true, runAsUser: 65532, seccompProfile: {type: RuntimeDefault}}
+      containers:
+        - name: plane
+          image: {{ include "factory.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["worker", "plane", "--listen=:{{ .Values.controlPlane.port }}", "--pools=/etc/factory/pools", "--ttl={{ .Values.controlPlane.leaseTTL }}"]
+          ports: [{name: http, containerPort: {{ .Values.controlPlane.port }}}]
+          readinessProbe: {httpGet: {path: /healthz, port: http}}
+          livenessProbe: {httpGet: {path: /healthz, port: http}}
+          resources: {{ toYaml .Values.controlPlane.resources | nindent 12 }}
+          securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+          volumeMounts: [{name: pools, mountPath: /etc/factory, readOnly: true}]
+      volumes:
+        - name: pools
+          secret:
+            secretName: {{ .Values.controlPlane.poolsSecret }}
+            items: [{key: pools, path: pools}]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-plane
+spec:
+  selector: {app.kubernetes.io/name: factory, app.kubernetes.io/component: plane, app.kubernetes.io/instance: {{ .Release.Name }}}
+  ports: [{name: http, port: {{ .Values.controlPlane.port }}, targetPort: http}]

@@ -1,0 +1,44 @@
+image:
+  repository: ghcr.io/kaas-team/factory
+  tag: ""            # empty means the chart appVersion
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+  name: ""
+
+controlPlane:
+  replicas: 1        # leases live in memory, so keep this at 1
+  port: 8080
+  leaseTTL: 30s
+  # Secret with key "pools": one `pool sha256hex` line per pool, hashes only.
+  # Make it with `factory worker token <pool>`; the plane never sees a token.
+  poolsSecret: factory-pools
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {memory: 256Mi}
+
+# One worker Deployment per pool. Each pool needs a token Secret with key "token"
+# and the matching hash line in poolsSecret.
+pools:
+  - name: default
+    replicas: 2
+    tokenSecret: factory-worker-default
+    labels: {}
+    capabilities: []
+    drain: 5m
+    terminationGraceSeconds: 330   # keep above drain
+    resources:
+      requests: {cpu: 500m, memory: 512Mi}
+      limits: {memory: 2Gi}
+
+# Workers dial this URL. The default is the in-cluster control plane Service.
+planeURL: ""
+
+networkPolicy:
+  enabled: true
+  # CIDRs and ports workers may reach besides the control plane and DNS,
+  # for example your git host and model endpoint.
+  workerEgress:
+    - to: [{ipBlock: {cidr: 0.0.0.0/0}}]
+      ports: [{port: 443, protocol: TCP}]

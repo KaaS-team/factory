@@ -5,42 +5,51 @@ Usage:
   factory [command]
 
 Available Commands:
-  a2a          Serve the factory as an A2A agent
-  add          Pin a file from a GitHub repository (MIT or Apache-2.0 only) in factory.lock
-  audit        Read the audit log of what the factory did
-  board        Open the terminal board
-  browsercheck Run browser steps in headless Chrome and print one FACTORY_GATES line
-  cancel       Cancel a ticket's running session
-  checkpoint   Snapshot and restore the worktree around an agent session
-  completion   Generate the autocompletion script for the specified shell
-  config       Read resolved configuration
-  dashboard    Serve the read-only web view
-  design       Make design edits to a JSX tree without a coding agent
-  dispatch     Start a session for a ticket now
-  doctor       Check the tools and settings the factory needs
-  eval         Run the fixtures matrix and write a scorecard
-  first-run    Audit this repo and show what the factory would fix, at no cost
-  help         Help about any command
-  init         Write .factory/factory.yaml from a tier preset
-  logs         Print what a ticket's session is doing
-  mcp          Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
-  packs        Inspect the packs pinned in factory.lock
-  plan         Turn a goal, epic or spec into a ticket DAG; --approve files it
-  policy       Check an action against a policy rules file (enterprise)
-  queue        Show tickets ready to run and the merge queue
-  repomap      Print a ranked, token-budgeted symbol map of the repository for a context pack
-  report       Show tokens per merged PR, rework, human touches and cycle time (operator only)
-  retry        Queue a new attempt for a ticket
-  review       Run the check packs in .factory/checks against the uncommitted changes, edits returned as patches
-  run          Run the factory; --headless streams one JSON event per line
-  scim         Serve SCIM 2.0 Users and Groups for an identity provider (enterprise)
-  serve        Run the factory loop as a service with /healthz, /readyz and /events
-  shadow       Summarize what shadow mode would have dispatched
-  smoke        Run the loop once against a sandbox GitHub repository with a fake agent
-  status       Show the board, one row per slot
-  steer        Send a message to a ticket's running session
-  upgrade      Replace this binary with the latest factory release
-  version      Print the factory version
+  a2a            Serve the factory as an A2A agent
+  add            Pin a file from a GitHub repository (MIT or Apache-2.0 only) in factory.lock
+  attention      List what needs a person: approvals, refusals, stops and missing proof
+  audit          Read the audit log of what the factory did
+  board          Open the terminal board
+  browsercheck   Run browser steps in headless Chrome and print one FACTORY_GATES line
+  cancel         Cancel a ticket's running session
+  checkpoint     Snapshot and restore the worktree around an agent session
+  completion     Generate the autocompletion script for the specified shell
+  config         Read resolved configuration
+  dashboard      Serve the read-only web view
+  design         Make design edits to a JSX tree without a coding agent
+  dispatch       Start a session for a ticket now
+  doctor         Check the tools and settings the factory needs
+  eval           Run the fixtures matrix and write a scorecard
+  first-run      Audit this repo and show what the factory would fix, at no cost
+  help           Help about any command
+  init           Write .factory/factory.yaml from a tier preset
+  intake         Take work from Slack and Sentry
+  logs           Print what a ticket's session is doing
+  manage         Watch active runs: nudge or restart stalled ones, handle failing CI, feed review comments back
+  mcp            Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
+  packs          Inspect the packs pinned in factory.lock
+  plan           Turn a goal, epic or spec into a ticket DAG; --approve files it
+  policy         Check actions and kaas-policy.toml files against policy (enterprise)
+  program        Run an epic as a program: a tech lead dispatches worker tickets and adjusts the plan
+  queue          Show tickets ready to run and the merge queue
+  repomap        Print a ranked, token-budgeted symbol map of the repository for a context pack
+  report         Show tokens per merged PR, rework, human touches and cycle time (operator only)
+  resume         Continue a stack or program run from its state on disk after a crash
+  retry          Queue a new attempt for a ticket
+  review         Run the check packs in .factory/checks against the uncommitted changes, edits returned as patches
+  review-dismiss Record a review finding as wrong so the review stops repeating it
+  run            Run the factory; --headless streams one JSON event per line
+  scim           Serve SCIM 2.0 Users and Groups for an identity provider (enterprise)
+  serve          Run the factory loop as a service with /healthz, /readyz and /events
+  shadow         Summarize what shadow mode would have dispatched
+  smoke          Run the loop once against a sandbox GitHub repository with a fake agent
+  stack          Open an epic's plan as a stack of branches and PRs, each based on the one below
+  status         Show the board, one row per slot
+  steer          Send a message to a ticket's running session
+  triage         Classify a ticket and decide: proceed, needs-info, duplicate or refused
+  upgrade        Replace this binary with the latest factory release
+  version        Print the factory version
+  worker         Run a self-hosted worker, or the plane that leases to it
 
 Flags:
   -h, --help      help for factory
@@ -71,6 +80,31 @@ Flags:
       --kind string   skill, agent, workflow or check (default: from the path)
       --root string   repository root holding factory.lock and .factory/cache (default ".")
 
+=== factory attention
+List what needs a person: approvals, refusals, stops and missing proof
+
+Usage:
+  factory attention [flags]
+  factory attention [command]
+
+Available Commands:
+  resolve     Close an attention item with one of its allowed actions
+
+Flags:
+      --file string   attention store file (default ".factory/attention.json")
+  -h, --help          help for attention
+
+Use "factory attention [command] --help" for more information about a command.
+
+=== factory attention resolve
+Close an attention item with one of its allowed actions
+
+Usage:
+  factory attention resolve <id> <approve|reject|retry|dismiss> [flags]
+
+Flags:
+  -h, --help   help for resolve
+
 === factory audit
 Read the audit log of what the factory did
 
@@ -79,6 +113,9 @@ Usage:
 
 Available Commands:
   export      Print audit records from the last --since, as jsonl or csv
+  forward     Send chained events to a SIEM: file:<path>, splunk:<url> or webhook:<url>
+  search      Print chained audit events that match the filters, as jsonl
+  verify      Check the hash chain of the audit log; fails on a changed or deleted event
 
 Flags:
   -h, --help   help for audit
@@ -95,6 +132,42 @@ Flags:
       --format string   jsonl or csv (default "jsonl")
   -h, --help            help for export
       --since string    how far back to read, such as 7d or 12h (default "7d")
+
+=== factory audit forward
+Send chained events to a SIEM. The token for splunk and webhook is read from FACTORY_AUDIT_TOKEN, never from a flag. Use --after to send only newer events.
+
+Usage:
+  factory audit forward [flags]
+
+Flags:
+      --after uint   send only events with a higher seq than this
+  -h, --help         help for forward
+      --to string    file:<path>, splunk:<url> or webhook:<url>
+
+=== factory audit search
+Print chained audit events that match the filters, as jsonl
+
+Usage:
+  factory audit search [flags]
+
+Flags:
+      --action string     only this action, such as run.start
+      --actor string      only events by this actor
+  -h, --help              help for search
+      --limit int         at most this many events; 0 is all
+      --outcome string    allow, deny or error
+      --resource string   only resources that start with this
+      --since string      from this RFC 3339 time, inclusive
+      --until string      before this RFC 3339 time
+
+=== factory audit verify
+Check the hash chain of the audit log; fails on a changed or deleted event
+
+Usage:
+  factory audit verify [flags]
+
+Flags:
+  -h, --help   help for verify
 
 === factory board
 Open the terminal board
@@ -466,10 +539,12 @@ Usage:
 
 Flags:
       --annotations string   reason-tagged suppressions file; the default is optional (default ".factory/annotations.yml")
+      --dir string           the repository --ready checks (default ".")
       --dry-run              stop after the report; say what would be dispatched
-      --fix                  dispatch one build for the first covered finding and open a draft pull request
+      --fix                  dispatch one build for the first covered finding and open a draft pull request; with --ready, repair failed checks in place instead
       --gh string            also audit this GitHub repo (owner/repo)
   -h, --help                 help for first-run
+      --ready                check the repo is ready for agents: builds, tests, AGENTS.md, gate script, CI, branch protection; with --fix, repair what can be repaired in place
       --sarif string         also write the findings to this file as SARIF 2.1.0
 
 === factory init
@@ -489,6 +564,34 @@ Flags:
       --tracker string      tracker: github, linear, jira
       --yes                 run without prompts; needs --tier and --tracker
 
+=== factory intake
+Take work from Slack and Sentry
+
+Usage:
+  factory intake [command]
+
+Available Commands:
+  serve       Serve the Slack events and Sentry webhook endpoints
+
+Flags:
+  -h, --help   help for intake
+
+Use "factory intake [command] --help" for more information about a command.
+
+=== factory intake serve
+Secrets are read from the named environment variables, never from flags. A source whose secret variable is unset is not served. The HTTP API needs an identity provider and is mounted by the enterprise build.
+
+Usage:
+  factory intake serve [flags]
+
+Flags:
+      --addr string                listen address (default "127.0.0.1:8787")
+  -h, --help                       help for serve
+      --sentry-secret-env string   env var holding the Sentry client secret (default "FACTORY_SENTRY_CLIENT_SECRET")
+      --slack-secret-env string    env var holding the Slack signing secret (default "FACTORY_SLACK_SIGNING_SECRET")
+      --slack-token-env string     env var holding the Slack bot token (default "FACTORY_SLACK_BOT_TOKEN")
+      --store string               ticket file (default ".factory/intake/tickets.jsonl")
+
 === factory logs
 Print what a ticket's session is doing
 
@@ -501,6 +604,19 @@ Flags:
       --interval duration   poll interval for --follow (default 5s)
       --json                print one JSON event per line
 
+=== factory manage
+Watch active runs: nudge or restart stalled ones, handle failing CI, feed review comments back
+
+Usage:
+  factory manage [flags]
+
+Flags:
+      --every duration           time between passes (default 5m0s)
+  -h, --help                     help for manage
+      --once                     run one pass and exit
+      --restart-after duration   no progress for this long: queue a new attempt (0 = never) (default 2h0m0s)
+      --stall-after duration     no progress for this long: send a nudge (default 30m0s)
+
 === factory mcp
 Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
 
@@ -508,9 +624,10 @@ Usage:
   factory mcp [flags]
 
 Flags:
-  -h, --help          help for mcp
-      --http string   serve streamable HTTP at /mcp on this address (default host 127.0.0.1); the bearer token is read from FACTORY_MCP_TOKEN
-      --read-only     serve only the read tools; write tools are refused
+  -h, --help                  help for mcp
+      --http string           serve streamable HTTP at /mcp on this address (default host 127.0.0.1); with FACTORY_OIDC_ISSUER and FACTORY_OIDC_AUDIENCE it requires OIDC bearer tokens; otherwise the static token is read from FACTORY_MCP_TOKEN
+      --read-only             serve only the read tools; write tools are refused
+      --resource-url string   public URL of the /mcp endpoint, published in the protected resource metadata (default: FACTORY_OIDC_AUDIENCE when it is a URL)
 
 === factory packs
 Inspect the packs pinned in factory.lock
@@ -622,16 +739,22 @@ Usage:
 Flags:
       --approve           file the tickets; without it nothing is written
       --epic n            read the spec and tickets from epic issue n
+      --from-prd file     read a PRD from file and draft the epic and ordered tickets from it
   -h, --help              help for plan
       --json              print the DAG as JSON
       --repo-dir string   the repository the agent reads when drafting from a goal (default: here)
       --spec file         read the spec and tickets from file
 
 === factory policy
-Check an action against a policy rules file (enterprise)
+Check actions and kaas-policy.toml files against policy (enterprise)
 
 Usage:
-  factory policy <action> [flags]
+  factory policy <action> | check [path] | explain <action> [flags]
+  factory policy [command]
+
+Available Commands:
+  check       Validate a kaas-policy.toml and print its violations
+  explain     Show whether policy allows an action, model, harness, MCP server, host or risk class, and which layer decided
 
 Flags:
   -h, --help           help for policy
@@ -639,6 +762,44 @@ Flags:
       --role string    actor role
       --rules string   path to the YAML rules file
       --usd float      spend the action would add
+
+Use "factory policy [command] --help" for more information about a command.
+
+=== factory policy check
+Validate a kaas-policy.toml (default .factory/kaas-policy.toml). A team or repo file is also
+checked against the layers above it, so a file that widens the org policy fails.
+Exits non-zero when there are violations.
+
+Usage:
+  factory policy check [path] [flags]
+
+Flags:
+  -h, --help          help for check
+      --org string    org layer file (default $FACTORY_POLICY_ORG)
+      --team string   team layer file (default $FACTORY_POLICY_TEAM)
+
+=== factory policy explain
+Show whether policy allows an action, model, harness, MCP server, host or risk class, and which layer decided
+
+Usage:
+  factory policy explain <value> [flags]
+
+Flags:
+      --check string   what the value is: action, model, harness, mcp_server, egress_host, auto_merge (default "action")
+  -h, --help           help for explain
+      --org string     org layer file (default $FACTORY_POLICY_ORG)
+      --repo string    repo layer file (default .factory/kaas-policy.toml)
+      --team string    team layer file (default $FACTORY_POLICY_TEAM)
+
+=== factory program
+Run an epic as a program: a tech lead dispatches worker tickets and adjusts the plan
+
+Usage:
+  factory program <epic> [flags]
+
+Flags:
+  -h, --help         help for program
+      --run string   the run id (default program-<epic>)
 
 === factory queue
 Show tickets ready to run and the merge queue
@@ -677,6 +838,15 @@ Flags:
       --out string     write the report to this file; never under .github/ or a PR body file
       --since string   window length ending now, such as 7d or 36h (default "7d")
 
+=== factory resume
+Continue a stack or program run from its state on disk after a crash
+
+Usage:
+  factory resume <run> [flags]
+
+Flags:
+  -h, --help   help for resume
+
 === factory retry
 Queue a new attempt for a ticket
 
@@ -696,6 +866,18 @@ Flags:
       --base string        ref the prompt's diff starts from (empty: only the uncommitted changes)
   -h, --help               help for review
       --timeout duration   limit per check (default 10m0s)
+
+=== factory review-dismiss
+Record a review finding as wrong so the review stops repeating it
+
+Usage:
+  factory review-dismiss <kind> [flags]
+
+Flags:
+      --file string     file the finding was on
+  -h, --help            help for review-dismiss
+      --reason string   why the finding was wrong
+      --reword string   the wording you wanted instead
 
 === factory run
 Run the factory; --headless streams one JSON event per line
@@ -766,6 +948,18 @@ Flags:
       --shadow             shadow run: nothing is dispatched or merged
       --timeout duration   how long to wait for the work to land (default 5m0s)
 
+=== factory stack
+Open an epic's plan as a stack of branches and PRs, each based on the one below
+
+Usage:
+  factory stack <epic> [flags]
+
+Flags:
+  -h, --help            help for stack
+      --prefix string   the prefix of each branch name (default "stack/")
+      --run string      the run id (default stack-<epic>)
+      --trunk string    the branch the bottom PR targets (default "main")
+
 === factory status
 Show the board, one row per slot
 
@@ -785,6 +979,18 @@ Usage:
 Flags:
   -h, --help   help for steer
 
+=== factory triage
+Classify a ticket and decide: proceed, needs-info, duplicate or refused
+
+Usage:
+  factory triage <ticket> [flags]
+
+Flags:
+      --apply                write the decision back to the ticket as a comment; without it nothing is written
+  -h, --help                 help for triage
+      --json                 print the decision as JSON
+      --protected prefixes   path prefixes agents may not edit; a ticket naming one is refused
+
 === factory upgrade
 Replace this binary with the latest factory release
 
@@ -803,4 +1009,56 @@ Usage:
 
 Flags:
   -h, --help   help for version
+
+=== factory worker
+Run a self-hosted worker, or the plane that leases to it
+
+Usage:
+  factory worker [command]
+
+Available Commands:
+  plane       Serve the worker API: registry, leases and re-leasing
+  run         Connect outbound to the control plane, lease jobs and run them here
+  token       Mint a pool token: the token goes to stdout, the line for --pools to stderr
+
+Flags:
+  -h, --help   help for worker
+
+Use "factory worker [command] --help" for more information about a command.
+
+=== factory worker plane
+Serve the worker API: registry, leases and re-leasing
+
+Usage:
+  factory worker plane [flags]
+
+Flags:
+  -h, --help                   help for plane
+      --listen string          address to listen on (default ":8080")
+      --pools pool sha256hex   file of pool sha256hex lines; hashes only, never tokens
+      --ttl duration           lease and worker lifetime without a heartbeat (default 30s)
+
+=== factory worker run
+Connect outbound to the control plane, lease jobs and run them here
+
+Usage:
+  factory worker run [flags]
+
+Flags:
+      --allow strings       program names a job may run (default [factory])
+      --cap strings         capability this worker offers, for example docker
+      --drain duration      how long SIGTERM lets the current job finish (default 5m0s)
+  -h, --help                help for run
+      --label strings       label key=value (os and arch are added)
+      --plane string        control plane URL (https)
+      --token-file string   file holding the pool token
+
+=== factory worker token
+Mint a pool token: the token goes to stdout, the line for --pools to stderr
+
+Usage:
+  factory worker token <pool> [flags]
+
+Flags:
+  -h, --help   help for token
 

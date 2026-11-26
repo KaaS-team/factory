@@ -31,6 +31,22 @@ Pin a file from a GitHub repository (MIT or Apache-2.0 only) in factory.lock
 | `--kind` | string | `` | skill, agent, workflow or check (default: from the path) |
 | `--root` | string | `.` | repository root holding factory.lock and .factory/cache |
 
+## factory attention
+
+`factory attention [flags]`
+
+List what needs a person: approvals, refusals, stops and missing proof
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--file` | string | `.factory/attention.json` | attention store file |
+
+## factory attention resolve
+
+`factory attention resolve <id> <approve|reject|retry|dismiss>`
+
+Close an attention item with one of its allowed actions
+
 ## factory audit
 
 `factory audit`
@@ -281,9 +297,11 @@ Audit this repo and show what the factory would fix, at no cost
 | Flag | Type | Default | Description |
 |---|---|---|---|
 | `--annotations` | string | `.factory/annotations.yml` | reason-tagged suppressions file; the default is optional |
+| `--dir` | string | `.` | the repository --ready checks |
 | `--dry-run` | bool | `false` | stop after the report; say what would be dispatched |
-| `--fix` | bool | `false` | dispatch one build for the first covered finding and open a draft pull request |
+| `--fix` | bool | `false` | dispatch one build for the first covered finding and open a draft pull request; with --ready, repair failed checks in place instead |
 | `--gh` | string | `` | also audit this GitHub repo (owner/repo) |
+| `--ready` | bool | `false` | check the repo is ready for agents: builds, tests, AGENTS.md, gate script, CI, branch protection; with --fix, repair what can be repaired in place |
 | `--sarif` | string | `` | also write the findings to this file as SARIF 2.1.0 |
 
 ## factory init
@@ -303,6 +321,26 @@ Write .factory/factory.yaml from a tier preset
 | `--tracker` | string | `` | tracker: github, linear, jira |
 | `--yes` | bool | `false` | run without prompts; needs --tier and --tracker |
 
+## factory intake
+
+`factory intake`
+
+Take work from Slack and Sentry
+
+## factory intake serve
+
+`factory intake serve [flags]`
+
+Serve the Slack events and Sentry webhook endpoints
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--addr` | string | `127.0.0.1:8787` | listen address |
+| `--sentry-secret-env` | string | `FACTORY_SENTRY_CLIENT_SECRET` | env var holding the Sentry client secret |
+| `--slack-secret-env` | string | `FACTORY_SLACK_SIGNING_SECRET` | env var holding the Slack signing secret |
+| `--slack-token-env` | string | `FACTORY_SLACK_BOT_TOKEN` | env var holding the Slack bot token |
+| `--store` | string | `.factory/intake/tickets.jsonl` | ticket file |
+
 ## factory logs
 
 `factory logs <ticket> [flags]`
@@ -315,6 +353,19 @@ Print what a ticket's session is doing
 | `--interval` | duration | `5s` | poll interval for --follow |
 | `--json` | bool | `false` | print one JSON event per line |
 
+## factory manage
+
+`factory manage [flags]`
+
+Watch active runs: nudge or restart stalled ones, handle failing CI, feed review comments back
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--every` | duration | `5m0s` | time between passes |
+| `--once` | bool | `false` | run one pass and exit |
+| `--restart-after` | duration | `2h0m0s` | no progress for this long: queue a new attempt (0 = never) |
+| `--stall-after` | duration | `30m0s` | no progress for this long: send a nudge |
+
 ## factory mcp
 
 `factory mcp [flags]`
@@ -323,8 +374,9 @@ Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
 
 | Flag | Type | Default | Description |
 |---|---|---|---|
-| `--http` | string | `` | serve streamable HTTP at /mcp on this address (default host 127.0.0.1); the bearer token is read from FACTORY_MCP_TOKEN |
+| `--http` | string | `` | serve streamable HTTP at /mcp on this address (default host 127.0.0.1); with FACTORY_OIDC_ISSUER and FACTORY_OIDC_AUDIENCE it requires OIDC bearer tokens; otherwise the static token is read from FACTORY_MCP_TOKEN |
 | `--read-only` | bool | `false` | serve only the read tools; write tools are refused |
+| `--resource-url` | string | `` | public URL of the /mcp endpoint, published in the protected resource metadata (default: FACTORY_OIDC_AUDIENCE when it is a URL) |
 
 ## factory packs
 
@@ -423,9 +475,20 @@ Turn a goal, epic or spec into a ticket DAG; --approve files it
 |---|---|---|---|
 | `--approve` | bool | `false` | file the tickets; without it nothing is written |
 | `--epic` | int | `0` | read the spec and tickets from epic issue `n` |
+| `--from-prd` | string | `` | read a PRD from `file` and draft the epic and ordered tickets from it |
 | `--json` | bool | `false` | print the DAG as JSON |
 | `--repo-dir` | string | `` | the repository the agent reads when drafting from a goal (default: here) |
 | `--spec` | string | `` | read the spec and tickets from `file` |
+
+## factory program
+
+`factory program <epic> [flags]`
+
+Run an epic as a program: a tech lead dispatches worker tickets and adjusts the plan
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--run` | string | `` | the run id (default program-<epic>) |
 
 ## factory queue
 
@@ -461,6 +524,12 @@ Show tokens per merged PR, rework, human touches and cycle time (operator only)
 | `--out` | string | `` | write the report to this file; never under .github/ or a PR body file |
 | `--since` | string | `7d` | window length ending now, such as 7d or 36h |
 
+## factory resume
+
+`factory resume <run>`
+
+Continue a stack or program run from its state on disk after a crash
+
 ## factory retry
 
 `factory retry <ticket>`
@@ -477,6 +546,18 @@ Run the check packs in .factory/checks against the uncommitted changes, edits re
 |---|---|---|---|
 | `--base` | string | `` | ref the prompt's diff starts from (empty: only the uncommitted changes) |
 | `--timeout` | duration | `10m0s` | limit per check |
+
+## factory review-dismiss
+
+`factory review-dismiss <kind> [flags]`
+
+Record a review finding as wrong so the review stops repeating it
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--file` | string | `` | file the finding was on |
+| `--reason` | string | `` | why the finding was wrong |
+| `--reword` | string | `` | the wording you wanted instead |
 
 ## factory run
 
@@ -527,6 +608,18 @@ Run the loop once against a sandbox GitHub repository with a fake agent
 | `--shadow` | bool | `false` | shadow run: nothing is dispatched or merged |
 | `--timeout` | duration | `5m0s` | how long to wait for the work to land |
 
+## factory stack
+
+`factory stack <epic> [flags]`
+
+Open an epic's plan as a stack of branches and PRs, each based on the one below
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--prefix` | string | `stack/` | the prefix of each branch name |
+| `--run` | string | `` | the run id (default stack-<epic>) |
+| `--trunk` | string | `main` | the branch the bottom PR targets |
+
 ## factory status
 
 `factory status [flags]`
@@ -543,6 +636,18 @@ Show the board, one row per slot
 
 Send a message to a ticket's running session
 
+## factory triage
+
+`factory triage <ticket> [flags]`
+
+Classify a ticket and decide: proceed, needs-info, duplicate or refused
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--apply` | bool | `false` | write the decision back to the ticket as a comment; without it nothing is written |
+| `--json` | bool | `false` | print the decision as JSON |
+| `--protected` | stringSlice | `[]` | path `prefixes` agents may not edit; a ticket naming one is refused |
+
 ## factory upgrade
 
 `factory upgrade [flags]`
@@ -558,3 +663,42 @@ Replace this binary with the latest factory release
 `factory version`
 
 Print the factory version
+
+## factory worker
+
+`factory worker`
+
+Run a self-hosted worker, or the plane that leases to it
+
+## factory worker plane
+
+`factory worker plane [flags]`
+
+Serve the worker API: registry, leases and re-leasing
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--listen` | string | `:8080` | address to listen on |
+| `--pools` | string | `` | file of `pool sha256hex` lines; hashes only, never tokens |
+| `--ttl` | duration | `30s` | lease and worker lifetime without a heartbeat |
+
+## factory worker run
+
+`factory worker run [flags]`
+
+Connect outbound to the control plane, lease jobs and run them here
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--allow` | stringSlice | `[factory]` | program names a job may run |
+| `--cap` | stringSlice | `[]` | capability this worker offers, for example docker |
+| `--drain` | duration | `5m0s` | how long SIGTERM lets the current job finish |
+| `--label` | stringSlice | `[]` | label key=value (os and arch are added) |
+| `--plane` | string | `` | control plane URL (https) |
+| `--token-file` | string | `` | file holding the pool token |
+
+## factory worker token
+
+`factory worker token <pool>`
+
+Mint a pool token: the token goes to stdout, the line for --pools to stderr

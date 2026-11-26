@@ -2,7 +2,7 @@
 
 ## Status
 
-accepted
+superseded: superseded: no Go counterpart.
 
 ## Context
 
@@ -63,3 +63,10 @@ and no base list exists to compare against.
 - `tests/mutations.json`: the old list, still read.
 - `Makefile`: the `check-mutations` and `check-anchors` targets.
 - `.github/workflows/mutations.yml`: the pull request, push and nightly triggers.
+
+## Current code
+
+The Go gate (`just check`) has no mutation list or anchor check. The TypeScript scripts are in tag
+`ts-final`. Issue #636 asks for mutation bites on new rules.
+
+The text above is kept as history. Its `src/` and `scripts/` paths are in tag `ts-final`.

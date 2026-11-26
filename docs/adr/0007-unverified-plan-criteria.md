@@ -2,7 +2,7 @@
 
 ## Status
 
-accepted
+superseded: superseded: no Go counterpart.
 
 ## Context
 
@@ -50,3 +50,10 @@ lists any criterion whose status is not `pass`, and any status outside `pass`, `
 - `src/artifacts.ts`: `validateVerdict` (the `pass` check and the status check).
 - `src/engine/steps.ts`: calls `validateVerdict` on the verify step's `verdict.json`.
 - `src/schemas.ts`: the plan's `criteria` field (array of objects).
+
+## Current code
+
+The Go line has no verdict rule that marks a plan criterion unverified. Criteria are checked for shape
+only, by `SpecProblems` in `internal/plan/intent/intent.go`. The TypeScript code is in tag `ts-final`.
+
+The text above is kept as history. Its `src/` and `scripts/` paths are in tag `ts-final`.

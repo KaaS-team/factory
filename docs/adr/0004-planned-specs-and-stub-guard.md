@@ -2,7 +2,7 @@
 
 ## Status
 
-accepted
+superseded: superseded by the plan checks in `internal/plan` and `internal/plan/intent`.
 
 ## Context
 
@@ -39,3 +39,12 @@ A body that fails any check is parked as `needs-human`, with each problem in one
 
 - Let the build stage discover the problems. Rejected: the failure would come after the cost of a build.
 - Let the author pick the risk. Rejected: `floorPlanRisk` raises a low rating that the paths do not support.
+
+## Current code
+
+The Go checks are narrower. `plan.ParseBody` in `internal/plan/body.go` parses the planned body and
+its sections. `Plan.Problems` in `internal/plan/dag.go` checks the ticket graph. `SpecProblems` in
+`internal/plan/intent/intent.go` requires acceptance criteria numbered AC-1, AC-2 in order. The
+`checked by` command check, the file and mutation checks and `floorPlanRisk` have no Go counterpart.
+
+The text above is kept as history. Its `src/` and `scripts/` paths are in tag `ts-final`.

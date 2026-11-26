@@ -37,6 +37,8 @@ type Options struct {
 	Schedule *Scheduler    // optional cron schedules, ticked once per Interval
 	// Wrap, when set, wraps the HTTP routes inside the host guard, for example to require a credential.
 	Wrap func(http.Handler) http.Handler
+	// Access, when set, authenticates every guarded route and checks the route's action.
+	Access *Access
 }
 
 // Server hosts a Core and serves /healthz, /readyz and /events.
@@ -50,6 +52,7 @@ type Server struct {
 	ticked   bool
 	ready    atomic.Bool
 	wrap     func(http.Handler) http.Handler
+	access   *Access
 	onListen func(addr string) // test hook: called with the bound address
 }
 
@@ -61,7 +64,7 @@ func New(core Core, o Options) *Server {
 	if o.Clock == nil {
 		o.Clock = realClock{}
 	}
-	return &Server{core: core, interval: o.Interval, clock: o.Clock, wrap: o.Wrap, sched: o.Schedule}
+	return &Server{core: core, interval: o.Interval, clock: o.Clock, wrap: o.Wrap, access: o.Access, sched: o.Schedule}
 }
 
 func (s *Server) markTick() {
@@ -72,11 +75,7 @@ func (s *Server) markTick() {
 
 // Handler returns the HTTP routes.
 func (s *Server) Handler() http.Handler {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/healthz", s.healthz)
-	mux.HandleFunc("/readyz", s.readyz)
-	mux.HandleFunc("/events", s.events)
-	return mux
+	return s.mux()
 }
 
 // healthz is 200 while the last tick is younger than 3 intervals, 503 otherwise or before any tick.

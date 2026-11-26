@@ -560,7 +560,7 @@ func (d *Dispatcher) run(s api.Session) (*process, error) {
 	defer d.mu.Unlock()
 	p, ok := d.runs[s.Key]
 	if !ok {
-		return nil, fmt.Errorf("local: no run for session %q", s.Key)
+		return nil, fmt.Errorf("local: no run for session %q: %w", s.Key, api.ErrUnknownSession)
 	}
 	return p, nil
 }
