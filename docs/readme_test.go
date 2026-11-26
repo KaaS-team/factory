@@ -67,7 +67,7 @@ func TestNoOldRepoName(t *testing.T) {
 // public-repo table is empty, or the repo has no security policy (#210).
 func TestBrandBlock(t *testing.T) {
 	for _, p := range []string{"../README.md", "brand.md"} {
-		if s := read(t, p); !strings.Contains(s, "## Built by KaaS") || !strings.Contains(s, "https://kaas.team") {
+		if s := read(t, p); !strings.Contains(s, "Built by [KaaS](https://kaas.team)") || !strings.Contains(s, "https://kaas.team") {
 			t.Errorf("%s lacks the Built by KaaS block", p)
 		}
 	}

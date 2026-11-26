@@ -16,8 +16,6 @@ ignored for the default (`internal/brand`).
 Copy this block to the end of a public repo's README.
 
 ```md
-## Built by KaaS
-
 Built by [KaaS](https://kaas.team). Security reports go through `SECURITY.md`.
 ```
 
