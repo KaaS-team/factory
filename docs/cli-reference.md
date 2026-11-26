@@ -31,6 +31,22 @@ Pin a file from a GitHub repository (MIT or Apache-2.0 only) in factory.lock
 | `--kind` | string | `` | skill, agent, workflow or check (default: from the path) |
 | `--root` | string | `.` | repository root holding factory.lock and .factory/cache |
 
+## factory attention
+
+`factory attention [flags]`
+
+List what needs a person: approvals, refusals, stops and missing proof
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--file` | string | `.factory/attention.json` | attention store file |
+
+## factory attention resolve
+
+`factory attention resolve <id> <approve|reject|retry|dismiss>`
+
+Close an attention item with one of its allowed actions
+
 ## factory audit
 
 `factory audit`

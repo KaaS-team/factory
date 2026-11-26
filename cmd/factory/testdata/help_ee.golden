@@ -7,6 +7,7 @@ Usage:
 Available Commands:
   a2a          Serve the factory as an A2A agent
   add          Pin a file from a GitHub repository (MIT or Apache-2.0 only) in factory.lock
+  attention    List what needs a person: approvals, refusals, stops and missing proof
   audit        Read the audit log of what the factory did
   board        Open the terminal board
   browsercheck Run browser steps in headless Chrome and print one FACTORY_GATES line
@@ -71,6 +72,31 @@ Flags:
   -h, --help          help for add
       --kind string   skill, agent, workflow or check (default: from the path)
       --root string   repository root holding factory.lock and .factory/cache (default ".")
+
+=== factory attention
+List what needs a person: approvals, refusals, stops and missing proof
+
+Usage:
+  factory attention [flags]
+  factory attention [command]
+
+Available Commands:
+  resolve     Close an attention item with one of its allowed actions
+
+Flags:
+      --file string   attention store file (default ".factory/attention.json")
+  -h, --help          help for attention
+
+Use "factory attention [command] --help" for more information about a command.
+
+=== factory attention resolve
+Close an attention item with one of its allowed actions
+
+Usage:
+  factory attention resolve <id> <approve|reject|retry|dismiss> [flags]
+
+Flags:
+  -h, --help   help for resolve
 
 === factory audit
 Read the audit log of what the factory did
