@@ -31,6 +31,11 @@ type GitHubApp struct {
 	KeyFile        string `key:"key_file"`
 }
 
+// Prioritize picks how `factory prioritize` ranks the ready issues.
+type Prioritize struct {
+	Method string `key:"method"`
+}
+
 // Config is the resolved runner configuration. The key tags are the paths used in
 // .factory/factory.yaml, in FACTORY_* variable names and in flag names.
 type Config struct {
@@ -64,6 +69,7 @@ type Config struct {
 	SandboxRuntime         string            `key:"sandbox_runtime"`
 	Trust                  Trust             `key:"trust"`
 	GitHubApp              GitHubApp         `key:"github_app"`
+	Prioritize             Prioritize        `key:"prioritize"`
 }
 
 // field finds the struct field a key path names. For "models.<tier>" it returns the map and the tier.

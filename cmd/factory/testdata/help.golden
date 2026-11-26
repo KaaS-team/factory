@@ -16,6 +16,7 @@ Available Commands:
   completion     Generate the autocompletion script for the specified shell
   config         Read resolved configuration
   dashboard      Serve the read-only web view
+  decompose      Split an epic into child issues linked as sub-issues
   design         Make design edits to a JSX tree without a coding agent
   dispatch       Start a session for a ticket now
   doctor         Check the tools and settings the factory needs
@@ -29,6 +30,7 @@ Available Commands:
   mcp            Serve the factory to Claude Code over stdio, or over HTTP with --http (MCP)
   packs          Inspect the packs pinned in factory.lock
   plan           Turn a goal, epic or spec into a ticket DAG; --approve files it
+  prioritize     Rank the ready issues by RICE or WSJF; pickup follows the stored rank
   program        Run an epic as a program: a tech lead dispatches worker tickets and adjusts the plan
   queue          Show tickets ready to run and the merge queue
   repomap        Print a ranked, token-budgeted symbol map of the repository for a context pack
@@ -41,6 +43,7 @@ Available Commands:
   serve          Run the factory loop as a service with /healthz, /readyz and /events
   shadow         Summarize what shadow mode would have dispatched
   smoke          Run the loop once against a sandbox GitHub repository with a fake agent
+  spec           Turn a goal into issues with Problem, Acceptance and Out of scope sections
   stack          Open an epic's plan as a stack of branches and PRs, each based on the one below
   status         Show the board, one row per slot
   steer          Send a message to a ticket's running session
@@ -268,6 +271,18 @@ Flags:
       --addr string   listen address (loopback by default) (default "127.0.0.1:8787")
   -h, --help          help for dashboard
       --operator      show usage and budget numbers
+
+=== factory decompose
+The children are the '--- issue: <title>' blocks in --from, or in the epic body when --from is not given.
+
+Usage:
+  factory decompose <epic> [flags]
+
+Flags:
+      --approve     file the children and link them; without it nothing is written
+      --from file   read the child blocks from file (- for stdin)
+  -h, --help        help for decompose
+      --json        print JSON
 
 === factory design
 Make design edits to a JSX tree without a coding agent
@@ -704,6 +719,18 @@ Flags:
       --repo-dir string   the repository the agent reads when drafting from a goal (default: here)
       --spec file         read the spec and tickets from file
 
+=== factory prioritize
+Rank the ready issues by RICE or WSJF; pickup follows the stored rank
+
+Usage:
+  factory prioritize [flags]
+
+Flags:
+      --approve       store the ranks; without it nothing is written
+  -h, --help          help for prioritize
+      --json          print JSON
+      --method rice   rice or `wsjf` (default: the prioritize.method setting)
+
 === factory program
 Run an epic as a program: a tech lead dispatches worker tickets and adjusts the plan
 
@@ -850,6 +877,18 @@ Flags:
   -h, --help               help for smoke
       --shadow             shadow run: nothing is dispatched or merged
       --timeout duration   how long to wait for the work to land (default 5m0s)
+
+=== factory spec
+Turn a goal into issues with Problem, Acceptance and Out of scope sections
+
+Usage:
+  factory spec [goal] [flags]
+
+Flags:
+      --approve     file the issues; without it nothing is written
+      --from file   read issue blocks from file (- for stdin)
+  -h, --help        help for spec
+      --json        print JSON
 
 === factory stack
 Open an epic's plan as a stack of branches and PRs, each based on the one below

@@ -160,6 +160,18 @@ Serve the read-only web view
 | `--addr` | string | `127.0.0.1:8787` | listen address (loopback by default) |
 | `--operator` | bool | `false` | show usage and budget numbers |
 
+## factory decompose
+
+`factory decompose <epic> [flags]`
+
+Split an epic into child issues linked as sub-issues
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--approve` | bool | `false` | file the children and link them; without it nothing is written |
+| `--from` | string | `` | read the child blocks from `file` (- for stdin) |
+| `--json` | bool | `false` | print JSON |
+
 ## factory design
 
 `factory design`
@@ -480,6 +492,18 @@ Turn a goal, epic or spec into a ticket DAG; --approve files it
 | `--repo-dir` | string | `` | the repository the agent reads when drafting from a goal (default: here) |
 | `--spec` | string | `` | read the spec and tickets from `file` |
 
+## factory prioritize
+
+`factory prioritize [flags]`
+
+Rank the ready issues by RICE or WSJF; pickup follows the stored rank
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--approve` | bool | `false` | store the ranks; without it nothing is written |
+| `--json` | bool | `false` | print JSON |
+| `--method` | string | `` | `rice` or `wsjf` (default: the prioritize.method setting) |
+
 ## factory program
 
 `factory program <epic> [flags]`
@@ -607,6 +631,18 @@ Run the loop once against a sandbox GitHub repository with a fake agent
 |---|---|---|---|
 | `--shadow` | bool | `false` | shadow run: nothing is dispatched or merged |
 | `--timeout` | duration | `5m0s` | how long to wait for the work to land |
+
+## factory spec
+
+`factory spec [goal] [flags]`
+
+Turn a goal into issues with Problem, Acceptance and Out of scope sections
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--approve` | bool | `false` | file the issues; without it nothing is written |
+| `--from` | string | `` | read issue blocks from `file` (- for stdin) |
+| `--json` | bool | `false` | print JSON |
 
 ## factory stack
 

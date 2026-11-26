@@ -52,6 +52,7 @@ var layerRows = []layerRow{
 	{key: "github_app.id", hi: "7", lo: "3"},
 	{key: "github_app.installation_id", hi: "70", lo: "30"},
 	{key: "github_app.key_file", hi: "/k/hi.pem", lo: "/k/lo.pem"},
+	{key: "prioritize.method", hi: "wsjf", lo: "rice"},
 	{key: "trust.min_role", hi: "maintain", lo: "triage", clamped: true},
 	{key: "trust.allow", hi: "[alice, bob]", lo: "[alice]", wantHi: "[alice bob]", wantLo: "[alice]"},
 }

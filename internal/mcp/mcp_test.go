@@ -61,7 +61,7 @@ func connect(t *testing.T, ctl api.Control, h factorymcp.Handlers) *sdk.ClientSe
 }
 
 var toolNames = []string{"plan", "approve_plan", "list_tickets", "status", "dispatch", "steer", "cancel", "retry", "queue", "explain_config", "first_run", "report",
-	"create_task", "hand_off_task", "queue_followup", "list_events", "list_repos", "policy", "attention", "manage", "version", "doctor", "packs", "shadow", "repomap"}
+	"create_task", "hand_off_task", "queue_followup", "list_events", "list_repos", "policy", "attention", "manage", "version", "doctor", "packs", "shadow", "repomap", "spec", "decompose", "prioritize"}
 
 // callArgs gives each tool a valid input.
 var callArgs = map[string]map[string]any{
@@ -89,6 +89,9 @@ var callArgs = map[string]map[string]any{
 	"packs":          {},
 	"shadow":         {},
 	"repomap":        {"budget": 64},
+	"spec":           {"text": "t"},
+	"decompose":      {"epic": "7"},
+	"prioritize":     {},
 }
 
 func text(t *testing.T, r *sdk.CallToolResult) string {
@@ -232,6 +235,8 @@ func TestNoToolOutputLeaksUsageCostOrModel(t *testing.T) {
 	}
 	factorymcp.PolicyRun = func(context.Context, factorymcp.PolicyInput) (string, error) { return "fine", nil }
 	t.Cleanup(func() { factorymcp.PolicyRun = nil })
+	factorymcp.BacklogRun = func(context.Context, string, ...string) (string, error) { return "fine", nil }
+	t.Cleanup(func() { factorymcp.BacklogRun = nil })
 	cs := connect(t, newFake(), h)
 	for _, n := range toolNames {
 		r, err := cs.CallTool(t.Context(), &sdk.CallToolParams{Name: n, Arguments: callArgs[n]})

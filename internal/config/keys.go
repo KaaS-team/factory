@@ -101,6 +101,7 @@ var specs = []spec{
 	{key: "github_app.id", kind: kInt, min: 0, def: 0},
 	{key: "github_app.installation_id", kind: kInt, min: 0, def: 0},
 	{key: "github_app.key_file", kind: kString, def: ""},
+	{key: "prioritize.method", kind: kString, def: "rice"},
 }
 
 // foreign lists the top-level keys of the factory-config org and team files that this package

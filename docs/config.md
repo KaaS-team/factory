@@ -43,3 +43,4 @@ Keys under `models.` are open: any tier name takes a string.
 | `github_app.id` | int | `0` | any layer may set it |
 | `github_app.installation_id` | int | `0` | any layer may set it |
 | `github_app.key_file` | string | `""` | any layer may set it |
+| `prioritize.method` | string | `"rice"` | any layer may set it |
