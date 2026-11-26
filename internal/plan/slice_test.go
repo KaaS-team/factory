@@ -124,7 +124,7 @@ func TestSliceKeepsDiamondApart(t *testing.T) {
 	if len(s.Units) != 4 || s.ChainAfter != 3 {
 		t.Errorf("diamond changed: %s", show(s))
 	}
-	if string(s.Plan.Tickets[0].Body.Render()) != p.Tickets[0].Body.Render() {
+	if s.Plan.Tickets[0].Body.Render() != p.Tickets[0].Body.Render() {
 		t.Error("a lone task must keep its body")
 	}
 }

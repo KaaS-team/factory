@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/KaaS-team/factory/internal/api"
 	gh "github.com/KaaS-team/factory/internal/tracker/github"
 )
 
@@ -104,5 +103,4 @@ func TestReadTicketPriorityFromLabel(t *testing.T) {
 	if got[0].Priority != 2 || got[1].Priority != gh.UnrankedPriority {
 		t.Errorf("priorities %d %d", got[0].Priority, got[1].Priority)
 	}
-	var _ api.Ticket = got[0]
 }
