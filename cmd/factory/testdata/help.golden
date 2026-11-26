@@ -7,6 +7,7 @@ Usage:
 Available Commands:
   a2a            Serve the factory as an A2A agent
   add            Pin a file from a GitHub repository (MIT or Apache-2.0 only) in factory.lock
+  ask            Ask a read-only question about a running or finished ticket, answered from its ledger and transcript
   attention      List what needs a person: approvals, refusals, stops and missing proof
   audit          Read the audit log of what the factory did
   board          Open the terminal board
@@ -77,6 +78,16 @@ Flags:
   -h, --help          help for add
       --kind string   skill, agent, workflow or check (default: from the path)
       --root string   repository root holding factory.lock and .factory/cache (default ".")
+
+=== factory ask
+Ask a read-only question about a running or finished ticket, answered from its ledger and transcript
+
+Usage:
+  factory ask <ticket> <question...> [flags]
+
+Flags:
+  -h, --help   help for ask
+      --json   print the answer as JSON
 
 === factory attention
 List what needs a person: approvals, refusals, stops and missing proof

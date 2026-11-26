@@ -335,7 +335,6 @@ func TestManualControlErrors(t *testing.T) {
 	r := newRig(t, 2, meter.Budgets{}, tkt("a", 0))
 	ctx := context.Background()
 	for name, err := range map[string]error{
-		"steer untracked":  r.c.Steer(ctx, "a", "x"),
 		"cancel untracked": r.c.Cancel(ctx, "a"),
 		"dispatch unknown": r.c.Dispatch(ctx, "zzz"),
 	} {
@@ -633,5 +632,47 @@ func TestCreateTicketNeedsAFilingTracker(t *testing.T) {
 	r := newRig(t, 1, meter.Budgets{})
 	if _, err := r.c.CreateTicket(context.Background(), "x", ""); err == nil || !strings.Contains(err.Error(), "cannot create tickets") {
 		t.Fatalf("err = %v", err)
+	}
+}
+
+// TestSteerWithoutSessionQueuesFollowup: a message to a ticket with no running session is not
+// dropped; it lands in the thread for the next attempt or stage, and the event says it was queued.
+func TestSteerWithoutSessionQueuesFollowup(t *testing.T) {
+	r := newRig(t, 2, meter.Budgets{}, tkt("a", 0))
+	if err := r.c.Steer(context.Background(), "a", "use the v2 client"); err != nil {
+		t.Fatal(err)
+	}
+	if got := r.tr.Comments["a"]; !eq(got, []string{"Follow-up: use the v2 client"}) {
+		t.Fatalf("comments = %q", got)
+	}
+	if len(r.disp.Steers) != 0 {
+		t.Fatalf("no session ran, steers = %v", r.disp.Steers)
+	}
+	evs, _ := r.c.History(context.Background(), "a")
+	last := evs[len(evs)-1]
+	if last.Kind != KindSteered || last.Data["queued"] != true {
+		t.Fatalf("last event = %+v", last)
+	}
+}
+
+// noSteer is a dispatcher whose sessions cannot take a message mid-run, like a local claude -p.
+type noSteer struct{ api.Dispatcher }
+
+func (noSteer) Steer(context.Context, api.Session, string) error { return errors.New("not supported") }
+
+// TestSteerUnsupportedDispatcherQueuesFollowup: a running session that cannot take the message
+// gets it at its next attempt instead of the caller seeing a dead end.
+func TestSteerUnsupportedDispatcherQueuesFollowup(t *testing.T) {
+	r := newRig(t, 2, meter.Budgets{}, tkt("a", 0))
+	ctx := context.Background()
+	if err := r.c.Dispatch(ctx, "a"); err != nil {
+		t.Fatal(err)
+	}
+	r.c.d.Dispatcher = noSteer{r.c.d.Dispatcher}
+	if err := r.c.Steer(ctx, "a", "hurry"); err != nil {
+		t.Fatal(err)
+	}
+	if got := r.tr.Comments["a"]; !eq(got, []string{"Follow-up: hurry"}) {
+		t.Fatalf("comments = %q", got)
 	}
 }

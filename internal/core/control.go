@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sort"
 
@@ -119,19 +120,35 @@ func (c *Core) Dispatch(ctx context.Context, id api.TicketID) (err error) {
 	return nil
 }
 
-// Steer sends a message to a running ticket's session.
+// Steer sends a message to a running ticket's session. When no session is running, or its
+// dispatcher cannot take a message mid-run, the message is queued as a follow-up that the next
+// attempt or stage reads, so a message is never dropped.
 func (c *Core) Steer(ctx context.Context, id api.TicketID, message string) error {
 	c.mu.Lock()
-	defer c.mu.Unlock()
 	c.recover(ctx)
 	e, ok := c.state.Entries[id]
 	if !ok || !holdsSlot(e.Phase) {
-		return fmt.Errorf("ticket %s has no running session", id)
+		c.mu.Unlock()
+		return c.queueSteer(ctx, id, message)
 	}
-	if err := c.d.Dispatcher.Steer(ctx, c.sessionOf(e), message); err != nil {
-		return err
+	err := c.d.Dispatcher.Steer(ctx, c.sessionOf(e), message)
+	c.mu.Unlock()
+	if err != nil {
+		if qerr := c.queueSteer(ctx, id, message); qerr != nil {
+			return errors.Join(err, qerr)
+		}
+		return nil
 	}
 	c.hub.emit(KindSteered, id, map[string]any{"message": message})
+	return nil
+}
+
+// queueSteer records a steer message the running agent could not take as a follow-up.
+func (c *Core) queueSteer(ctx context.Context, id api.TicketID, message string) error {
+	if err := c.QueueFollowup(ctx, id, message); err != nil {
+		return err
+	}
+	c.hub.emit(KindSteered, id, map[string]any{"message": message, "queued": true})
 	return nil
 }
 
