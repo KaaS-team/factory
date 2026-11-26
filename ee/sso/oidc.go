@@ -27,8 +27,9 @@ const (
 
 // Session is who the IdP says signed in: a lower-case verified email and the groups claim.
 type Session struct {
-	Email  string
-	Groups []string
+	Subject string // the IdP's stable id for the person; empty for SAML
+	Email   string
+	Groups  []string
 }
 
 // OIDCConfig names the IdP and the client registered with it. OnSession receives each successful
@@ -135,6 +136,11 @@ func (o *OIDC) finish(r *http.Request, nonce, verifier string) (Session, error) 
 	if id.Nonce != nonce {
 		return Session{}, errors.New("the token answers another sign-in")
 	}
+	return sessionOf(id, o.cfg.GroupsClaim)
+}
+
+// sessionOf reads the email and groups from a verified ID token.
+func sessionOf(id *oidc.IDToken, groupsClaim string) (Session, error) {
 	var claims map[string]any
 	if err := id.Claims(&claims); err != nil {
 		return Session{}, errors.New("the ID token has unreadable claims")
@@ -143,7 +149,7 @@ func (o *OIDC) finish(r *http.Request, nonce, verifier string) (Session, error) 
 	if verified, ok := claims["email_verified"].(bool); email == "" || (ok && !verified) {
 		return Session{}, errors.New("the IdP did not vouch for an email address")
 	}
-	return Session{Email: strings.ToLower(strings.TrimSpace(email)), Groups: stringList(claims[o.cfg.GroupsClaim])}, nil
+	return Session{Subject: id.Subject, Email: strings.ToLower(strings.TrimSpace(email)), Groups: stringList(claims[groupsClaim])}, nil
 }
 
 func stringList(v any) []string {
