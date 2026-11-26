@@ -170,3 +170,43 @@ func TestDoctorGhTokenFallback(t *testing.T) {
 		})
 	}
 }
+
+func TestCIDriftCheck(t *testing.T) {
+	root := t.TempDir()
+	if r := ciDriftCheck(root); r.Status != statusPass {
+		t.Fatalf("no ci/ dir: %+v", r)
+	}
+	for rel, body := range map[string]string{"ci/ci.yml": "new\n", ".github/workflows/ci.yml": "old\n"} {
+		p := filepath.Join(root, rel)
+		if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(p, []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	r := ciDriftCheck(root)
+	if r.Status != statusWarn || !strings.Contains(r.Detail, "ci.yml (differs)") || !strings.Contains(r.Fix, "ci/ci.yml") {
+		t.Fatalf("drifted: %+v", r)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".github/workflows/ci.yml"), []byte("new\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if r := ciDriftCheck(root); r.Status != statusPass {
+		t.Fatalf("after copy: %+v", r)
+	}
+}
+
+func TestDoctorReportsCIDrift(t *testing.T) {
+	doctorEnv(t, map[string]string{"git": "exit 0", "gh": "exit 0", "claude": "exit 0", "go": "exit 0"})
+	if err := os.MkdirAll("ci", 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile("ci/ci.yml", []byte("x\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	out, _, err := runCLI(t, "doctor")
+	if err != nil || !strings.Contains(out, "warn\tci-drift\tci.yml (not live)") {
+		t.Fatalf("err %v, output:\n%s", err, out)
+	}
+}

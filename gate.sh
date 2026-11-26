@@ -4,7 +4,7 @@
 set -eu
 cd "$(dirname "$0")"
 
-STEPS="fmt vet lint test build ratchet"
+STEPS="fmt vet lint test build ratchet cidrift"
 
 pin() { sed -n "s/^$1 := \"\\(.*\\)\"\$/\\1/p" justfile; }
 
@@ -34,5 +34,6 @@ step_test() {
 }
 step_build() { CGO_ENABLED=0 go build -o dist/factory ./cmd/factory; }
 step_ratchet() { go run ./tools/ratchet; }
+step_cidrift() { go run ./tools/cidrift; }
 
 for s in ${1:-$STEPS}; do "step_$s"; done
