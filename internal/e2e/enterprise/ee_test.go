@@ -6,6 +6,7 @@ package enterprise
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/json"
 	"net/http"
 	"net/http/cookiejar"
@@ -23,6 +24,7 @@ import (
 	"github.com/KaaS-team/factory/ee/identity"
 	"github.com/KaaS-team/factory/ee/scim"
 	"github.com/KaaS-team/factory/ee/sso"
+	coreaudit "github.com/KaaS-team/factory/internal/audit"
 	"github.com/KaaS-team/factory/internal/serve"
 )
 
@@ -251,4 +253,39 @@ func TestBudgetCapStopsRun(t *testing.T) {
 	if err := chain.Verify(t.Context()); err != nil {
 		t.Fatal(err)
 	}
+}
+
+// signIn plays the browser at the IdP: it takes the redirect Login produced, "authenticates" email
+// with groups, and returns the callback URL the IdP would send the browser back to.
+func (p *idp) signIn(t *testing.T, loginRedirect, email string, groups ...string) string {
+	t.Helper()
+	u, err := url.Parse(loginRedirect)
+	if err != nil || u.Query().Get("nonce") == "" || u.Query().Get("code_challenge") == "" {
+		t.Fatalf("login redirect %q carries no nonce or PKCE challenge: %v", loginRedirect, err)
+	}
+	p.mu.Lock()
+	code := "code-" + b64(randomBytes())
+	p.codes[code] = grant{email: email, nonce: u.Query().Get("nonce"), groups: groups}
+	p.mu.Unlock()
+	cb, _ := url.Parse(u.Query().Get("redirect_uri"))
+	q := cb.Query()
+	q.Set("code", code)
+	q.Set("state", u.Query().Get("state"))
+	cb.RawQuery = q.Encode()
+	return cb.String()
+}
+
+// idToken returns the ID token the last sign-in earned.
+func (p *idp) idToken() string { p.mu.Lock(); defer p.mu.Unlock(); return p.lastRaw }
+
+// recordRunCancel audits one budget stop through the process sink.
+func recordRunCancel(t *testing.T) {
+	t.Helper()
+	coreaudit.Record(t.Context(), "run.cancel", "acme/app", "T-7", contract.ErrBudgetExceeded)
+}
+
+func randomBytes() []byte {
+	b := make([]byte, 12)
+	_, _ = rand.Read(b)
+	return b
 }

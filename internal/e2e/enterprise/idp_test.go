@@ -14,7 +14,6 @@ import (
 	"math/big"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"sync"
 	"testing"
 	"time"
@@ -38,7 +37,6 @@ type idp struct {
 	mu      sync.Mutex
 	codes   map[string]grant
 	lastRaw string // the ID token the token endpoint issued last
-	n       int
 }
 
 func newIdP(t *testing.T) *idp {
@@ -61,27 +59,6 @@ func newIdP(t *testing.T) *idp {
 	})
 	mux.HandleFunc("/token", p.tokenEndpoint)
 	return p
-}
-
-// signIn plays the browser at the IdP: it takes the redirect Login produced, "authenticates" email
-// with groups, and returns the callback URL the IdP would send the browser back to.
-func (p *idp) signIn(t *testing.T, loginRedirect, email string, groups ...string) string {
-	t.Helper()
-	u, err := url.Parse(loginRedirect)
-	if err != nil || u.Query().Get("nonce") == "" || u.Query().Get("code_challenge") == "" {
-		t.Fatalf("login redirect %q carries no nonce or PKCE challenge: %v", loginRedirect, err)
-	}
-	p.mu.Lock()
-	p.n++
-	code := "code-" + string(rune('a'+p.n))
-	p.codes[code] = grant{email: email, nonce: u.Query().Get("nonce"), groups: groups}
-	p.mu.Unlock()
-	cb, _ := url.Parse(u.Query().Get("redirect_uri"))
-	q := cb.Query()
-	q.Set("code", code)
-	q.Set("state", u.Query().Get("state"))
-	cb.RawQuery = q.Encode()
-	return cb.String()
 }
 
 func (p *idp) tokenEndpoint(w http.ResponseWriter, r *http.Request) {
@@ -114,9 +91,6 @@ func (p *idp) sign(email, nonce string, groups []string) string {
 	}
 	return in + "." + b64(sig)
 }
-
-// idToken returns the ID token the last sign-in earned.
-func (p *idp) idToken() string { p.mu.Lock(); defer p.mu.Unlock(); return p.lastRaw }
 
 // do sends one request with an optional bearer token and returns the status and the start of the body.
 func do(t *testing.T, method, target, bearer, body string) (int, string) {

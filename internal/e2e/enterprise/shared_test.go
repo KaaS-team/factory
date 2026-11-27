@@ -197,9 +197,3 @@ func (m *memBudget) Remaining(_ context.Context, k contract.BudgetKey) (contract
 func TestBudgetStopCore(t *testing.T) {
 	runBudgetStop(t, &memBudget{limit: 1_000_000}, nil)
 }
-
-// recordRunCancel audits one budget stop through the process sink.
-func recordRunCancel(t *testing.T) {
-	t.Helper()
-	audit.Record(t.Context(), "run.cancel", "acme/app", "T-7", contract.ErrBudgetExceeded)
-}
