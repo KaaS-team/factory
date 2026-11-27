@@ -20,6 +20,7 @@ var testOnly = map[string]string{
 	"internal/conformance":                "Symphony spec matrix, tests only",
 	"internal/dispatch/broker/brokertest": "fake for the broker tests",
 	"internal/e2e":                        "whole-loop test, tests only",
+	"internal/e2e/enterprise":             "enterprise end-to-end test, tests only",
 	"internal/provenance":                 "checks THIRD_PARTY_NOTICES.md in a test",
 	"internal/store/conformance":          "suite that internal/store/crypt tests run",
 	"internal/template":                   "skills test only, no non-test code",
